@@ -1,0 +1,47 @@
+[
+  {
+    "id": "1",
+    "name": "Priya Sharma",
+    "country": "India",
+    "university": "University of Oxford",
+    "image": "/placeholder.svg?height=100&width=100",
+    "quote": "StudyGlobal made my dream of studying at Oxford a reality. Their AI tools helped me find the perfect course and their counselors guided me through every step of the application process.",
+    "rating": 5
+  },
+  {
+    "id": "2",
+    "name": "Chen Wei",
+    "country": "China",
+    "university": "MIT",
+    "image": "/placeholder.svg?height=100&width=100",
+    "quote": "The university recommender tool was incredibly accurate. It suggested MIT based on my profile, and with their application support, I received an offer with scholarship!",
+    "rating": 5
+  },
+  {
+    "id": "3",
+    "name": "Maria Santos",
+    "country": "Brazil",
+    "university": "University of Toronto",
+    "image": "/placeholder.svg?height=100&width=100",
+    "quote": "From course selection to visa approval, StudyGlobal was with me at every step. Their visa assistance service is exceptional - I got my Canadian student visa approved in just 3 weeks!",
+    "rating": 5
+  },
+  {
+    "id": "4",
+    "name": "Ahmed Hassan",
+    "country": "Egypt",
+    "university": "Technical University of Munich",
+    "image": "/placeholder.svg?height=100&width=100",
+    "quote": "I saved thousands on tuition by studying in Germany, all thanks to StudyGlobal's guidance. They helped me navigate the German university system and prepare my application perfectly.",
+    "rating": 5
+  },
+  {
+    "id": "5",
+    "name": "Sarah Johnson",
+    "country": "Nigeria",
+    "university": "University of Melbourne",
+    "image": "/placeholder.svg?height=100&width=100",
+    "quote": "The SOP generator helped me craft a compelling personal statement. Combined with their scholarship guidance, I secured a 50% tuition scholarship at Melbourne!",
+    "rating": 5
+  }
+]

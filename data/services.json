@@ -1,0 +1,44 @@
+[
+  {
+    "id": "1",
+    "title": "University Selection",
+    "description": "Get personalized university recommendations based on your academic profile, career goals, and preferences.",
+    "icon": "GraduationCap",
+    "features": ["Profile assessment", "University matching", "Ranking analysis", "Budget planning"]
+  },
+  {
+    "id": "2",
+    "title": "Application Support",
+    "description": "End-to-end assistance with your university applications, from document preparation to submission.",
+    "icon": "FileText",
+    "features": ["Document review", "SOP/Essay editing", "Application tracking", "Deadline management"]
+  },
+  {
+    "id": "3",
+    "title": "Visa Assistance",
+    "description": "Expert guidance through the visa application process with high success rates.",
+    "icon": "Stamp",
+    "features": ["Visa type guidance", "Document checklist", "Interview preparation", "Application review"]
+  },
+  {
+    "id": "4",
+    "title": "Test Preparation",
+    "description": "Comprehensive preparation for IELTS, TOEFL, GRE, GMAT, and other standardized tests.",
+    "icon": "PenTool",
+    "features": ["Study materials", "Practice tests", "Expert tutoring", "Score improvement strategies"]
+  },
+  {
+    "id": "5",
+    "title": "Scholarship Guidance",
+    "description": "Discover and apply for scholarships that match your profile and reduce your study abroad costs.",
+    "icon": "Award",
+    "features": ["Scholarship matching", "Application assistance", "Essay support", "Financial planning"]
+  },
+  {
+    "id": "6",
+    "title": "Pre-Departure Support",
+    "description": "Everything you need to prepare for your journey, from accommodation to cultural orientation.",
+    "icon": "Plane",
+    "features": ["Accommodation search", "Travel booking", "Cultural orientation", "Student community connection"]
+  }
+]

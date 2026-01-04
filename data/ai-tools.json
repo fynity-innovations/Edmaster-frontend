@@ -1,0 +1,46 @@
+[
+  {
+    "id": "1",
+    "name": "Course Finder AI",
+    "description": "Find the perfect course matching your interests, budget, and career goals using advanced AI matching.",
+    "icon": "Search",
+    "features": ["Smart matching algorithm", "Budget optimization", "Career alignment", "Instant results"]
+  },
+  {
+    "id": "2",
+    "name": "University Recommender",
+    "description": "Get personalized university recommendations based on your academic profile and preferences.",
+    "icon": "Building2",
+    "features": ["Profile analysis", "Ranking integration", "Acceptance prediction", "Comparative insights"]
+  },
+  {
+    "id": "3",
+    "name": "SOP Generator",
+    "description": "AI-powered Statement of Purpose generator that creates compelling, personalized essays.",
+    "icon": "FileEdit",
+    "features": ["Template library", "Personalization engine", "Grammar check", "University-specific tips"]
+  },
+  {
+    "id": "4",
+    "name": "Visa Advisor",
+    "description": "Get instant guidance on visa requirements, documents, and application processes.",
+    "icon": "Shield",
+    "features": ["Country-specific guidance", "Document checklist", "Timeline planner", "FAQ assistant"]
+  },
+  {
+    "id": "5",
+    "name": "Budget Calculator",
+    "description": "Plan your study abroad finances with our intelligent budget calculator.",
+    "icon": "Calculator",
+    "features": ["Tuition estimates", "Living cost analysis", "Currency conversion", "Scholarship integration"],
+    "comingSoon": true
+  },
+  {
+    "id": "6",
+    "name": "Interview Coach",
+    "description": "Practice for university and visa interviews with our AI-powered mock interview system.",
+    "icon": "MessageSquare",
+    "features": ["Practice questions", "Real-time feedback", "Body language tips", "Confidence building"],
+    "comingSoon": true
+  }
+]

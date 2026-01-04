@@ -1,0 +1,153 @@
+[
+  {
+    "id": "1",
+    "name": "MSc Computer Science",
+    "slug": "msc-computer-science-oxford",
+    "universityId": "1",
+    "universityName": "University of Oxford",
+    "country": "United Kingdom",
+    "level": "Master",
+    "duration": "1 year",
+    "tuition": "£32,000/year",
+    "startDates": ["October 2025", "October 2026"],
+    "language": "English",
+    "description": "Oxford's MSc in Computer Science provides advanced training in the foundational areas of computer science while allowing specialization in areas such as machine learning, computational biology, and theoretical computer science.",
+    "requirements": [
+      "Bachelor's degree in Computer Science or related field",
+      "Strong mathematical background",
+      "IELTS 7.5+ or equivalent",
+      "Two academic references"
+    ],
+    "careerProspects": ["Software Engineer", "Data Scientist", "Research Scientist", "Tech Lead", "AI Engineer"],
+    "category": "Technology"
+  },
+  {
+    "id": "2",
+    "name": "MBA",
+    "slug": "mba-mit",
+    "universityId": "2",
+    "universityName": "Massachusetts Institute of Technology",
+    "country": "United States",
+    "level": "Master",
+    "duration": "2 years",
+    "tuition": "$82,000/year",
+    "startDates": ["September 2025", "September 2026"],
+    "language": "English",
+    "description": "MIT Sloan's MBA program combines rigorous academics with hands-on learning, entrepreneurship focus, and access to MIT's broader innovation ecosystem. Students gain skills in analytics, leadership, and strategic thinking.",
+    "requirements": [
+      "Bachelor's degree",
+      "GMAT/GRE scores",
+      "Work experience (avg 5 years)",
+      "TOEFL/IELTS for non-native speakers",
+      "Essays and interviews"
+    ],
+    "careerProspects": [
+      "Management Consultant",
+      "Investment Banker",
+      "Product Manager",
+      "Entrepreneur",
+      "C-Suite Executive"
+    ],
+    "category": "Business"
+  },
+  {
+    "id": "3",
+    "name": "Bachelor of Engineering",
+    "slug": "beng-toronto",
+    "universityId": "3",
+    "universityName": "University of Toronto",
+    "country": "Canada",
+    "level": "Bachelor",
+    "duration": "4 years",
+    "tuition": "CAD 62,000/year",
+    "startDates": ["September 2025", "September 2026"],
+    "language": "English",
+    "description": "U of T Engineering offers a comprehensive undergraduate program with specializations in electrical, mechanical, civil, computer, and chemical engineering. Strong industry connections provide excellent co-op and internship opportunities.",
+    "requirements": [
+      "High school diploma with strong math and science",
+      "English proficiency",
+      "Supplementary application",
+      "Minimum 90% average"
+    ],
+    "careerProspects": ["Design Engineer", "Project Manager", "Software Developer", "Consultant", "Research Engineer"],
+    "category": "Engineering"
+  },
+  {
+    "id": "4",
+    "name": "Master of Data Science",
+    "slug": "mds-melbourne",
+    "universityId": "4",
+    "universityName": "University of Melbourne",
+    "country": "Australia",
+    "level": "Master",
+    "duration": "2 years",
+    "tuition": "AUD 48,000/year",
+    "startDates": ["February 2025", "July 2025"],
+    "language": "English",
+    "description": "Melbourne's Master of Data Science equips students with advanced skills in statistics, machine learning, and data analysis. The program emphasizes practical application through industry projects and research opportunities.",
+    "requirements": [
+      "Bachelor's degree with quantitative background",
+      "Programming experience",
+      "IELTS 6.5+ or equivalent",
+      "Statement of purpose"
+    ],
+    "careerProspects": [
+      "Data Scientist",
+      "Machine Learning Engineer",
+      "Business Analyst",
+      "Quantitative Analyst",
+      "AI Researcher"
+    ],
+    "category": "Technology"
+  },
+  {
+    "id": "5",
+    "name": "MSc Mechanical Engineering",
+    "slug": "msc-mech-eng-tum",
+    "universityId": "5",
+    "universityName": "Technical University of Munich",
+    "country": "Germany",
+    "level": "Master",
+    "duration": "2 years",
+    "tuition": "€150/semester",
+    "startDates": ["October 2025", "April 2026"],
+    "language": "English/German",
+    "description": "TUM's MSc in Mechanical Engineering offers world-class education in automotive engineering, aerospace, robotics, and manufacturing. Strong ties with German industry giants provide exceptional career opportunities.",
+    "requirements": [
+      "Bachelor's in Mechanical Engineering or related field",
+      "GPA equivalent to German 2.5 or better",
+      "English B2/German B1",
+      "Aptitude test"
+    ],
+    "careerProspects": [
+      "Automotive Engineer",
+      "Aerospace Engineer",
+      "Robotics Engineer",
+      "R&D Manager",
+      "Manufacturing Lead"
+    ],
+    "category": "Engineering"
+  },
+  {
+    "id": "6",
+    "name": "MSc Computer Science",
+    "slug": "msc-cs-trinity",
+    "universityId": "6",
+    "universityName": "Trinity College Dublin",
+    "country": "Ireland",
+    "level": "Master",
+    "duration": "1 year",
+    "tuition": "€24,000/year",
+    "startDates": ["September 2025"],
+    "language": "English",
+    "description": "Trinity's MSc in Computer Science offers specializations in data science, intelligent systems, and graphics & vision. Located in Europe's tech hub, students benefit from proximity to major tech companies like Google, Meta, and Microsoft.",
+    "requirements": [
+      "Bachelor's degree in Computer Science or related field",
+      "Strong programming skills",
+      "IELTS 6.5+ or equivalent",
+      "CV and statement of purpose"
+    ],
+    "careerProspects": ["Software Engineer", "Data Engineer", "ML Engineer", "Tech Consultant", "Research Scientist"],
+    "category": "Technology"
+  }
+]
