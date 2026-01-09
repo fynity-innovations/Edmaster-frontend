@@ -3,16 +3,11 @@
 import { motion } from "framer-motion"
 import { fadeInUp } from "@/lib/motion"
 
-interface Audience {
-  icon: React.ElementType
-  text: string
-}
-
-export function AudienceGrid({ items }: { items: Audience[] }) {
+export function Audience({ items }: any) {
   return (
     <section className="py-24">
       <div className="container mx-auto px-4 grid md:grid-cols-2 gap-6">
-        {items.map((item) => (
+        {items.map((item: any) => (
           <motion.div
             key={item.text}
             variants={fadeInUp}

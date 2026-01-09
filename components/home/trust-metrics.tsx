@@ -8,7 +8,7 @@ import { fadeInUp, staggerContainer } from "@/lib/motion"
 const metrics = [
   {
     icon: Users,
-    value: "100,000+",
+    value: "1000+",
     label: "Students Placed",
     description: "Successfully helped students achieve their dreams",
   },

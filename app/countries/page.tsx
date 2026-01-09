@@ -75,74 +75,58 @@ export default function CountriesPage() {
             <motion.div key={country.country_id} variants={fadeInUp} layout>
               <Link href={`/study-in/${country.country_slug}`}>
                 <motion.div
-                  initial="rest"
-                  whileHover="hover"
-                  variants={cardHover}
-                  className="group rounded-2xl overflow-hidden bg-card border border-border hover:border-primary/50 transition-all"
+                  whileHover={{ y: -6 }}
+                  className="group relative p-6 rounded-2xl border bg-white/60 backdrop-blur-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
                 >
-                  {/* Image */}
-                  <div className="relative h-56 overflow-hidden">
-                    <motion.img
-                      src={ "/placeholder.svg"}
-                      alt={country.country_name}
-                      className="w-full h-full object-cover"
-                      whileHover={{ scale: 1.1 }}
-                      transition={{ duration: 0.4 }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
-                    {/* <div className="absolute top-4 left-4 text-5xl">{country.flag}</div> */}
-                    <motion.div
-                      className="absolute inset-0 border-4 border-primary rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"
-                      initial={{ scale: 0.95 }}
-                      whileHover={{ scale: 1 }}
-                    />
+                  {/* Gradient Hover Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-200/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                  {/* Header */}
+                  <div className="relative z-10 flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                      🌍
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+                        {country.country_name}
+                      </h2>
+                      <p className="text-xs text-muted-foreground">Study Destination</p>
+                    </div>
                   </div>
 
-                  {/* Content */}
-                  <div className="p-6">
-                    <h2 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
-                      Study in {country.country_name}
-                    </h2>
-                    {/* <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{country.shortDescription}</p> */}
-
-                    {/* Stats */}
-                    <div className="grid grid-cols-3 gap-4 mb-4">
-                      <div className="text-center">
-                        <div className="w-10 h-10 mx-auto mb-1 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <Building2 className="w-5 h-5 text-primary" />
-                        </div>
-                        <div className="text-sm font-semibold text-foreground">{country.universities_count}</div>
-                        <div className="text-xs text-muted-foreground">Universities</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="w-10 h-10 mx-auto mb-1 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <Users className="w-5 h-5 text-primary" />
-                        </div>
-                        <div className="text-sm font-semibold text-foreground">{country.employability}</div>
-                        <div className="text-xs text-muted-foreground">Employability</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="w-10 h-10 mx-auto mb-1 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <DollarSign className="w-5 h-5 text-primary" />
-                        </div>
-                        <div className="text-xs font-semibold text-foreground line-clamp-1">
-                          {country.average_tuition_fees}
-                        </div>
-                        <div className="text-xs text-muted-foreground">Tuition</div>
-                      </div>
+                  {/* Stats */}
+                  <div className="relative z-10 grid grid-cols-3 gap-4 mb-6">
+                    <div className="flex flex-col items-center gap-1">
+                      <Building2 className="w-5 h-5 text-primary" />
+                      <span className="text-sm font-semibold">
+                        {country.universities_count}
+                      </span>
+                      <span className="text-xs text-muted-foreground">Universities</span>
                     </div>
 
-                    {/* Explore Link */}
-                    <div className="flex items-center text-primary font-medium">
-                      <span>Explore {country.country_name}</span>
-                      <motion.div
-                        className="ml-2"
-                        animate={{ x: [0, 5, 0] }}
-                        transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.5 }}
-                      >
-                        <ArrowRight className="w-4 h-4" />
-                      </motion.div>
+                    <div className="flex flex-col items-center gap-1">
+                      <Users className="w-5 h-5 text-primary" />
+                      <span className="text-sm font-semibold">
+                        {country.employability}
+                      </span>
+                      <span className="text-xs text-muted-foreground">Employability</span>
                     </div>
+
+                    <div className="flex flex-col items-center gap-1">
+                      <DollarSign className="w-5 h-5 text-primary" />
+                      <span className="text-sm font-semibold">
+                        {country.average_tuition_fees}
+                      </span>
+                      <span className="text-xs text-muted-foreground">Tuition</span>
+                    </div>
+                  </div>
+
+                  {/* CTA */}
+                  <div className="relative z-10 flex items-center justify-between">
+                    <span className="text-primary font-medium">
+                      Explore {country.country_name}
+                    </span>
+                    <ArrowRight className="w-4 h-4 text-primary group-hover:translate-x-1 transition-transform" />
                   </div>
                 </motion.div>
               </Link>
