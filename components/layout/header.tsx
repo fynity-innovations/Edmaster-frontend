@@ -167,7 +167,7 @@ export function Header() {
               >
                 <FaWhatsapp className="w-4 h-4" />                
               </a>
-            </div>
+          </div>
 
           {/* Mobile Menu Button */}
           <button className="lg:hidden p-2" onClick={() => setIsMobileMenuOpen(true)}>
@@ -316,6 +316,16 @@ export function Header() {
                   Get Started
                 </a>
               </div>
+              <div className="hidden lg:flex">
+              <a
+                href="https://wa.me/9346421126?text=Hello%20I%20need%20study%20abroad%20assistance"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition bg-[#25D366] text-white hover:bg-[#1EBE5D] shadow-sm hover:shadow-md"
+              >
+                <FaWhatsapp className="w-4 h-4" />                
+              </a>
+          </div>
             </div>
           </div>
         </>
