@@ -13,7 +13,10 @@
   --popover-foreground: oklch(0.15 0.01 30);
 
   /* Primary - Deep maroon/red */
-  --primary: oklch(0.4 0.14 25);
+  /*oklch(0.56 0.21 264); Indigo */
+  /* --primary: oklch(0.42 0.18 260); */
+  --primary: oklch(53.493% 0.08448 245.074);
+
   --primary-foreground: oklch(0.99 0 0);
 
   /* Secondary - Warm gray */

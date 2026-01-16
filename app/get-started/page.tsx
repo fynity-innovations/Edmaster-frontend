@@ -45,13 +45,29 @@ export default function GetStartedPage() {
     if (currentStep > 1) setCurrentStep(currentStep - 1)
   }
 
-  const handleSubmit = () => {
-    setIsSubmitting(true)
-    setTimeout(() => {
-      setIsSubmitting(false)
-      setIsSubmitted(true)
-    }, 2000)
-  }
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (res.ok) {
+        setIsSubmitted(true);
+      } else {
+        alert("Failed to send email");
+      }
+    } catch (error) {
+      alert("Something went wrong");
+    }
+
+    setIsSubmitting(false);
+  };
+
 
   if (isSubmitted) {
     return (

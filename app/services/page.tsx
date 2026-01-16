@@ -39,7 +39,7 @@ export default function ServicesPage() {
         </motion.div>
 
         {/* Services Grid */}
-        <motion.div
+        {/* <motion.div
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
@@ -54,7 +54,7 @@ export default function ServicesPage() {
                   whileHover={{ y: -10 }}
                   className="group h-full p-8 rounded-3xl bg-card border border-border hover:border-primary/50 hover:shadow-xl transition-all"
                 >
-                  {/* Icon */}
+                  Icon
                   <motion.div
                     className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary transition-colors"
                     whileHover={{ rotate: 5, scale: 1.05 }}
@@ -62,15 +62,15 @@ export default function ServicesPage() {
                     <Icon className="w-8 h-8 text-primary group-hover:text-primary-foreground transition-colors" />
                   </motion.div>
 
-                  {/* Title */}
+                  Title
                   <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
                     {service.title}
                   </h3>
 
-                  {/* Description */}
+                  Description
                   <p className="text-muted-foreground mb-6">{service.description}</p>
 
-                  {/* Features */}
+                  Features
                   <ul className="space-y-2 mb-6">
                     {service.features.map((feature) => (
                       <li key={feature} className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -80,7 +80,7 @@ export default function ServicesPage() {
                     ))}
                   </ul>
 
-                  {/* CTA */}
+                  CTA
                   <div className="mt-auto">
                     <span className="flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all">
                       Learn More <ArrowRight className="w-4 h-4 ml-1" />
@@ -90,7 +90,7 @@ export default function ServicesPage() {
               </motion.div>
             )
           })}
-        </motion.div>
+        </motion.div> */}
 
         {/* Process Section */}
         <motion.div

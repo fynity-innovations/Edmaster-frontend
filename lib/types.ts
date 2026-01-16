@@ -6,6 +6,7 @@ export interface Country {
   average_tuition_fees: string
   annual_cost_of_living: string
   employability: string
+  country_code: string
 }
 
 export interface University {

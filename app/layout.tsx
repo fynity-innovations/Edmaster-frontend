@@ -12,15 +12,18 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 export const metadata: Metadata = {
   title: "StudyGlobal - Your Gateway to International Education",
   description: "Discover world-class universities, courses, and study abroad opportunities with AI-powered guidance.",
+  icons: {
+    icon: "/logo-uconnect.svg",
+  },
   keywords: ["study abroad", "international education", "universities", "courses", "student visa"],
-    generator: 'v0.app'
+  generator: 'v0.app'
 }
 
-export const viewport: Viewport = {
-  themeColor: "#8B1E1E",
-  width: "device-width",
-  initialScale: 1,
-}
+// export const viewport: Viewport = {
+//   themeColor: "#4F46E5",
+//   width: "device-width",
+//   initialScale: 1,
+// }
 
 export default function RootLayout({
   children,

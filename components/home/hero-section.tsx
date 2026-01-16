@@ -113,11 +113,6 @@ export function HeroSection() {
                 </Link>
               </Button>
             </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6 rounded-xl bg-transparent" asChild>
-                <Link href="/ai-tools">Explore AI Tools</Link>
-              </Button>
-            </motion.div>
           </motion.div>
 
           {/* Quick Stats */}
@@ -137,60 +132,7 @@ export function HeroSection() {
             ))}
           </motion.div>
         </motion.div>
-
-        {/* Scroll Indicator */}
-        {/* <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        >
-          <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.5 }}
-            className="flex flex-col items-center gap-2 text-muted-foreground"
-          >
-            <span className="text-sm">Scroll to explore</span>
-            <ChevronDown className="w-5 h-5" />
-          </motion.div>
-        </motion.div> */}
       </div>
     </section>
   )
 }
-
-
-
-{/* Search Bar */}
-          // <motion.div
-          //   variants={fadeInUp}
-          //   className={`relative max-w-2xl mx-auto mb-10 transition-all duration-300 ${
-          //     searchFocused ? "lg:scale-105" : ""
-          //   }`}
-          // >
-          //   <div
-          //     className={`flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-2 rounded-2xl bg-card border-2 transition-all duration-300 ${
-          //       searchFocused ? "border-primary shadow-lg shadow-primary/10" : "border-border"
-          //     }`}
-          //   >
-          //     {/* Input */}
-          //     <div className="flex-1 flex items-center gap-3 px-4">
-          //       <Search className="w-5 h-5 text-muted-foreground shrink-0" />
-          //       <input
-          //         type="text"
-          //         placeholder="Search universities, courses, or countries..."
-          //         className="flex-1 py-3 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none text-sm sm:text-base"
-          //         onFocus={() => setSearchFocused(true)}
-          //         onBlur={() => setSearchFocused(false)}
-          //       />
-          //     </div>
-
-          //     {/* Button */}
-          //     <Button
-          //       size="lg"
-          //       className="bg-primary hover:bg-primary/90 rounded-xl px-6 w-full sm:w-auto"
-          //     >
-          //       Search
-          //     </Button>
-          //   </div>
-          // </motion.div>

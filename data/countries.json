@@ -6,7 +6,8 @@
     "universities_count":4,
     "average_tuition_fees":"€ 13,000",
     "annual_cost_of_living":"€ 27,500",
-    "employability":"91%"
+    "employability":"91%",
+    "country_code": "dk"
   },
   {
     "country_id":32,
@@ -15,7 +16,8 @@
     "universities_count":5,
     "average_tuition_fees":"€ 9,500",
     "annual_cost_of_living":"€ 14,350",
-    "employability":"81%"
+    "employability":"81%",
+    "country_code": "cy"
   },
   {
     "country_id":33,
@@ -24,7 +26,8 @@
     "universities_count":9,
     "average_tuition_fees":"AED 85,000",
     "annual_cost_of_living":"AED 102,500",
-    "employability":"90%"
+    "employability":"90%",
+    "country_code": "ae"
   },
   {
     "country_id":34,
@@ -33,7 +36,8 @@
     "universities_count":1,
     "average_tuition_fees":"€ 5,500",
     "annual_cost_of_living":"€ 13,250",
-    "employability":"80%"
+    "employability":"80%",
+    "country_code": "ee"
   },
   {
     "country_id":35,
@@ -42,7 +46,8 @@
     "universities_count":8,
     "average_tuition_fees":"€ 14,000",
     "annual_cost_of_living":"€ 21,600",
-    "employability":"78%"
+    "employability":"78%",
+    "country_code": "fi"
   },
   {
     "country_id":36,
@@ -51,7 +56,8 @@
     "universities_count":55,
     "average_tuition_fees":"€ 11,500",
     "annual_cost_of_living":"€ 30,290",
-    "employability":"98%"
+    "employability":"98%",
+    "country_code": "fr"
   },
   {
     "country_id":37,
@@ -60,7 +66,8 @@
     "universities_count":18,
     "average_tuition_fees":"€ 13,000",
     "annual_cost_of_living":"€ 12,850",
-    "employability":"92%"
+    "employability":"92%",
+    "country_code": "de"
   },
   {
     "country_id":38,
@@ -69,7 +76,8 @@
     "universities_count":1,
     "average_tuition_fees":"€ 6,500",
     "annual_cost_of_living":"€ 13,025",
-    "employability":"78%"
+    "employability":"78%",
+    "country_code": "ae"
   },
   {
     "country_id":39,
@@ -78,7 +86,8 @@
     "universities_count":10,
     "average_tuition_fees":"€ 10,000",
     "annual_cost_of_living":"€ 11,200",
-    "employability":"80%"
+    "employability":"80%",
+    "country_code": "ae"
   },
   {
     "country_id":40,
@@ -87,7 +96,8 @@
     "universities_count":20,
     "average_tuition_fees":"€ 31,350",
     "annual_cost_of_living":"€ 22,500",
-    "employability":"93%"
+    "employability":"93%",
+    "country_code": "ae"
   },
   {
     "country_id":41,
@@ -96,7 +106,8 @@
     "universities_count":3,
     "average_tuition_fees":"€ 19,000",
     "annual_cost_of_living":"€ 12,000",
-    "employability":"80%"
+    "employability":"80%",
+    "country_code": "ae"
   },
   {
     "country_id":42,
@@ -105,7 +116,8 @@
     "universities_count":2,
     "average_tuition_fees":"€ 5,000",
     "annual_cost_of_living":"€ 11,950",
-    "employability":"85%"
+    "employability":"85%",
+    "country_code": "ae"
   },
   {
     "country_id":43,
@@ -114,7 +126,8 @@
     "universities_count":3,
     "average_tuition_fees":"€ 5,000",
     "annual_cost_of_living":"€ 8,910",
-    "employability":"80%"
+    "employability":"80%",
+    "country_code": "ae"
   },
   {
     "country_id":44,
@@ -123,7 +136,8 @@
     "universities_count":6,
     "average_tuition_fees":"€ 11,500",
     "annual_cost_of_living":"€ 17,450",
-    "employability":"80%"
+    "employability":"80%",
+    "country_code": "ae"
   },
   {
     "country_id":46,
@@ -132,7 +146,8 @@
     "universities_count":6,
     "average_tuition_fees":"€ 15,000",
     "annual_cost_of_living":"€ 9,950",
-    "employability":"80%"
+    "employability":"80%",
+    "country_code": "ae"
   },
   {
     "country_id":47,
@@ -141,7 +156,8 @@
     "universities_count":1,
     "average_tuition_fees":"SGD 70,875",
     "annual_cost_of_living":"SGD 43,282",
-    "employability":"92%"
+    "employability":"92%",
+    "country_code": "ae"
   },
   {
     "country_id":48,
@@ -150,7 +166,8 @@
     "universities_count":5,
     "average_tuition_fees":"€ 13,000",
     "annual_cost_of_living":"€ 12,125",
-    "employability":"80%"
+    "employability":"80%",
+    "country_code": "ae"
   },
   {
     "country_id":49,
@@ -159,7 +176,8 @@
     "universities_count":2,
     "average_tuition_fees":"€ 20,000",
     "annual_cost_of_living":"€ 23,650",
-    "employability":"88%"
+    "employability":"88%",
+    "country_code": "ae"
   },
   {
     "country_id":50,
@@ -168,7 +186,8 @@
     "universities_count":1,
     "average_tuition_fees":"€ 43,500",
     "annual_cost_of_living":"€ 21,300",
-    "employability":"85%"
+    "employability":"85%",
+    "country_code": "ch"
   },
   {
     "country_id":51,
@@ -177,6 +196,7 @@
     "universities_count":26,
     "average_tuition_fees":"£ 30,000",
     "annual_cost_of_living":"£33,500",
-    "employability":"90%"
+    "employability":"90%",
+    "country_code": "gb"
   }
 ]
