@@ -12,251 +12,391 @@ import {
   MessageCircle,
   Briefcase,
   GraduationCap,
+  CheckCircle2,
+  Globe,
+  Sparkles,
+  Zap,
+  ChevronDown,
+  PlayCircle,
+  Star,
+  Phone,
+  Sun,
+  Sunset,
+  Moon
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { fadeInUp, staggerContainer } from "@/lib/motion"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 export default function SpokenEnglishPage() {
   return (
-    <div className="min-h-screen pt-28 pb-24">
+    <div className="min-h-screen bg-white text-slate-900 font-sans">
 
-      {/* ================= HERO ================= */}
-      <section className="relative py-24 bg-gradient-to-br from-purple-100 via-pink-50 to-blue-50">
-        <div className="container mx-auto px-4 text-center max-w-3xl">
-          <motion.div variants={staggerContainer} initial="hidden" animate="visible">
-            <motion.h1
-              variants={fadeInUp}
-              className="text-4xl md:text-5xl font-extrabold mb-6"
+      {/* ================= HERO SECTION ================= */}
+      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden bg-slate-50">
+        {/* Soft Colorful Background Blobs */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-200/40 rounded-full blur-[100px] -z-10 translate-x-1/3 -translate-y-1/3" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-200/40 rounded-full blur-[100px] -z-10 -translate-x-1/3 translate-y-1/3" />
+
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+            
+            {/* Left Content */}
+            <motion.div 
+              variants={staggerContainer} 
+              initial="hidden" 
+              animate="visible"
+              className="lg:w-1/2 text-center lg:text-left"
             >
-              Speak With <span className="text-primary">Confidence</span> 🚀
-            </motion.h1>
+              <motion.div variants={fadeInUp} className="inline-flex mb-6">
+                <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-100 px-4 py-1.5 text-sm font-semibold rounded-full">
+                  <Star className="w-3.5 h-3.5 mr-2 fill-indigo-600 text-indigo-600" />
+                  #1 Rated Corporate Training
+                </Badge>
+              </motion.div>
 
-            <motion.p
-              variants={fadeInUp}
-              className="text-lg text-muted-foreground mb-10"
-            >
-              Build fluency, pronunciation, and confidence with our expert-led
-              Spoken English program designed for students, professionals, and
-              test aspirants.
-            </motion.p>
+              <motion.h1
+                variants={fadeInUp}
+                className="text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-6 leading-[1.15]"
+              >
+                Speak with Confidence. <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                  Lead with Impact.
+                </span>
+              </motion.h1>
 
-            <motion.div variants={fadeInUp}>
-              <Button size="lg" className="px-8 rounded-full" asChild>
-                <Link href="/get-started">
-                  Register Now <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
+              <motion.p
+                variants={fadeInUp}
+                className="text-lg md:text-xl text-slate-600 mb-8 leading-relaxed max-w-lg mx-auto lg:mx-0"
+              >
+                Join the premier communication program designed for professionals and students. Master fluency, accent, and public speaking.
+              </motion.p>
+
+              <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <Button size="lg" className="h-14 px-8 rounded-xl text-base font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20" asChild>
+                  <Link href="/get-started">
+                    Start Free Trial <ArrowRight className="ml-2 w-5 h-5" />
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" className="h-14 px-8 rounded-xl text-base font-bold border-slate-200 text-slate-700 hover:bg-white hover:text-blue-700 hover:border-blue-200 bg-white" asChild>
+                  <Link href="#curriculum">
+                    Download Syllabus
+                  </Link>
+                </Button>
+              </motion.div>
             </motion.div>
-          </motion.div>
+
+            {/* Right Visual */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8 }}
+              className="lg:w-1/2 relative"
+            >
+              <div className="relative z-10 bg-white rounded-3xl shadow-2xl shadow-blue-900/10 p-6 border border-slate-100 max-w-md mx-auto transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                <div className="flex items-center gap-4 mb-6 border-b border-slate-100 pb-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-700">
+                    <Mic className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900">Live Practice Session</h3>
+                    <p className="text-sm text-slate-500">Connecting to Native Trainer...</p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="h-2 bg-slate-100 rounded-full w-3/4" />
+                  <div className="h-2 bg-slate-100 rounded-full w-full" />
+                  <div className="h-2 bg-slate-100 rounded-full w-5/6" />
+                </div>
+                <div className="mt-6 flex justify-between items-center bg-green-50 p-4 rounded-xl border border-green-100">
+                  <span className="text-green-800 font-semibold text-sm">Fluency Score</span>
+                  <span className="text-green-700 font-bold text-lg">94/100</span>
+                </div>
+              </div>
+              
+              {/* Decorative Colorful blobs */}
+              <div className="absolute -z-10 top-10 -right-10 w-32 h-32 bg-yellow-300/30 rounded-full blur-2xl" />
+              <div className="absolute -z-10 -bottom-10 -left-10 w-40 h-40 bg-purple-400/30 rounded-full blur-2xl" />
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* ================= WHY JOIN ================= */}
-      <section className="py-24">
+      {/* ================= FEATURES GRID (Colorful Cards) ================= */}
+      <section className="py-24 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12">
-            Why Join Our <span className="text-primary">Spoken English</span> Course?
-          </h2>
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Professionals Choose Us</h2>
+            <p className="text-lg text-slate-600">A comprehensive learning ecosystem designed for real-world results.</p>
+          </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-8">
             {[
-              {
-                icon: Mic,
-                title: "Live Interactive Sessions",
-                desc: "Practice speaking in real-time with certified trainers and instant feedback.",
+              { 
+                icon: Mic, 
+                title: "Live Interactive Speaking", 
+                desc: "Don't just listen. Speak. Engage in daily live discussions led by certified trainers.",
+                color: "text-purple-700",
                 bg: "bg-purple-50",
+                border: "border-purple-100",
+                hover: "group-hover:bg-purple-100"
               },
-              {
-                icon: Clock,
-                title: "Flexible Learning Options",
-                desc: "Attend online, offline, or hybrid classes at your convenience.",
+              { 
+                icon: Briefcase, 
+                title: "Business Communication", 
+                desc: "Specialized modules for email writing, presentations, meetings, and negotiation skills.",
+                color: "text-blue-700",
                 bg: "bg-blue-50",
+                border: "border-blue-100",
+                hover: "group-hover:bg-blue-100"
               },
-              {
-                icon: Award,
-                title: "6-Month Validity",
-                desc: "Revisit sessions, access recordings, and strengthen your skills anytime.",
-                bg: "bg-green-50",
-              },
-              {
-                icon: Users,
-                title: "Personalised Learning",
-                desc: "Customized lessons based on your strengths and goals.",
-                bg: "bg-yellow-50",
-              },
-              {
-                icon: BookOpen,
-                title: "Diverse Course Content",
-                desc: "Grammar, vocabulary, conversations, presentations, and more.",
-                bg: "bg-pink-50",
-              },
-              {
-                icon: MessageCircle,
-                title: "Practical Role Plays",
-                desc: "Hands-on activities to apply English in real-life situations.",
+              { 
+                icon: Users, 
+                title: "1-on-1 Mentorship", 
+                desc: "Personalized feedback sessions to correct your grammar, accent, and pronunciation.",
+                color: "text-orange-700",
                 bg: "bg-orange-50",
+                border: "border-orange-100",
+                hover: "group-hover:bg-orange-100"
               },
-            ].map((item) => (
-              <motion.div
-                key={item.title}
-                variants={fadeInUp}
-                initial="hidden"
-                whileInView="visible"
+              { 
+                icon: Clock, 
+                title: "Flexible Scheduling", 
+                desc: "Morning, evening, and weekend batches available to suit your work-life balance.",
+                color: "text-teal-700",
+                bg: "bg-teal-50",
+                border: "border-teal-100",
+                hover: "group-hover:bg-teal-100"
+              },
+              { 
+                icon: Award, 
+                title: "Certification", 
+                desc: "Earn a recognized certificate upon completion to add value to your professional profile.",
+                color: "text-rose-700",
+                bg: "bg-rose-50",
+                border: "border-rose-100",
+                hover: "group-hover:bg-rose-100"
+              },
+              { 
+                icon: Globe, 
+                title: "Global Community", 
+                desc: "Practice with peers from around the world in our moderated discussion rooms.",
+                color: "text-cyan-700",
+                bg: "bg-cyan-50",
+                border: "border-cyan-100",
+                hover: "group-hover:bg-cyan-100"
+              }
+            ].map((item, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className={`p-6 rounded-2xl border ${item.bg}`}
+                transition={{ delay: i * 0.1 }}
+                className={`group p-8 rounded-2xl ${item.bg} border ${item.border} hover:shadow-lg hover:-translate-y-1 transition-all duration-300`}
               >
-                <item.icon className="w-8 h-8 text-primary mb-4" />
-                <h3 className="font-semibold mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
+                <div className={`w-14 h-14 rounded-xl bg-white flex items-center justify-center mb-6 shadow-sm ${item.hover} transition-colors`}>
+                  <item.icon className={`w-7 h-7 ${item.color}`} />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
+                <p className="text-slate-600 leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ================= COURSE HIGHLIGHTS ================= */}
-      <section className="py-24 bg-secondary/20">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <h2 className="text-3xl font-bold mb-14">Course Highlights</h2>
-
-          {[
-            {
-              num: "01",
-              title: "Grammar & Sentence Structure",
-              desc: "Master grammar basics and construct correct sentences.",
-              color: "bg-purple-100 text-purple-700",
-            },
-            {
-              num: "02",
-              title: "Vocabulary Expansion",
-              desc: "Learn words, phrases, and idioms to speak naturally.",
-              color: "bg-blue-100 text-blue-700",
-            },
-            {
-              num: "03",
-              title: "Conversation Practice",
-              desc: "Guided speaking sessions with real-life dialogues.",
-              color: "bg-orange-100 text-orange-700",
-            },
-            {
-              num: "04",
-              title: "Interview Preparation",
-              desc: "Answer confidently and professionally in interviews.",
-              color: "bg-green-100 text-green-700",
-            },
-          ].map((item) => (
-            <motion.div
-              key={item.num}
-              variants={fadeInUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="flex gap-6 items-start mb-8"
-            >
-              <div className={`w-16 h-16 flex items-center justify-center rounded-full text-2xl font-bold ${item.color}`}>
-                {item.num}
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg mb-1">{item.title}</h3>
-                <p className="text-muted-foreground">{item.desc}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ================= WHO IS THIS FOR ================= */}
-      <section className="py-24">
+      {/* ================= CURRICULUM ================= */}
+      <section id="curriculum" className="py-24 bg-slate-50 border-y border-slate-200">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12">
-            This Program Is Perfect For
-          </h2>
+          <div className="flex flex-col lg:flex-row gap-16">
+            
+            {/* Left Header */}
+            <div className="lg:w-1/3">
+              <span className="text-blue-600 font-bold uppercase tracking-wider text-sm">Course Content</span>
+              <h2 className="text-4xl font-extrabold text-slate-900 mt-3 mb-6">What You Will Learn</h2>
+              <p className="text-slate-600 mb-8 text-lg">
+                Our curriculum is crafted by linguistic experts to bridge the gap between basic grammar and professional fluency.
+              </p>
+              
+              <div className="space-y-4">
+                <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-blue-100 shadow-sm">
+                  <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-lg">01</div>
+                  <div>
+                    <div className="font-bold text-slate-900">Foundation</div>
+                    <div className="text-sm text-slate-500">Weeks 1-4</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-purple-100 shadow-sm">
+                  <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-lg">02</div>
+                  <div>
+                    <div className="font-bold text-slate-900">Intermediate</div>
+                    <div className="text-sm text-slate-500">Weeks 5-8</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-green-100 shadow-sm">
+                  <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-600 font-bold text-lg">03</div>
+                  <div>
+                    <div className="font-bold text-slate-900">Advanced Business</div>
+                    <div className="text-sm text-slate-500">Weeks 9-12</div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            {[
-              { icon: GraduationCap, text: "Students aiming for academic success" },
-              { icon: Briefcase, text: "Professionals improving workplace communication" },
-              { icon: Users, text: "Job seekers preparing for interviews" },
-              { icon: MessageCircle, text: "Individuals building social confidence" },
-              { icon: BookOpen, text: "Test aspirants (IELTS, TOEFL, PTE, Duolingo)" },
-              { icon: Mic, text: "Regional-medium students transitioning to English" },
-            ].map((item) => (
-              <motion.div
-                key={item.text}
-                variants={fadeInUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                className="flex items-center gap-4 p-5 rounded-xl border bg-card"
-              >
-                <item.icon className="w-6 h-6 text-primary" />
-                <span>{item.text}</span>
-              </motion.div>
-            ))}
+            {/* Right List (Colored Cards) */}
+            <div className="lg:w-2/3 grid sm:grid-cols-2 gap-6">
+              {[
+                { title: "Fluency & Pronunciation", items: ["Accent Neutralization", "Voice Modulation", "Sentence Flow"], color: "border-blue-500", bg: "bg-blue-50/50" },
+                { title: "Corporate Communication", items: ["Effective Email Writing", "Client Interaction", "Negotiation Skills"], color: "border-purple-500", bg: "bg-purple-50/50" },
+                { title: "Public Speaking", items: ["Presentation Skills", "Storytelling", "Group Discussions"], color: "border-orange-500", bg: "bg-orange-50/50" },
+                { title: "Interview Readiness", items: ["Mock Interviews", "Resume Building", "Salary Negotiation"], color: "border-green-500", bg: "bg-green-50/50" },
+              ].map((module, i) => (
+                <div 
+                  key={i}
+                  className={`p-8 rounded-2xl ${module.bg} border border-slate-100 border-t-4 ${module.color} hover:shadow-md transition-all`}
+                >
+                  <h3 className="text-xl font-bold text-slate-900 mb-6">{module.title}</h3>
+                  <ul className="space-y-4">
+                    {module.items.map((item) => (
+                      <li key={item} className="flex items-start gap-3 text-slate-600 font-medium">
+                        <CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ================= CTA STRIP ================= */}
-      <section className="py-16 bg-gradient-to-r from-purple-500 to-indigo-500">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6 text-white">
-          <div>
-            <h3 className="text-2xl font-bold">
-              Speak Like a Pro, Not Like Google Translate 😉
-            </h3>
-            <p className="text-white/90">
-              Sound natural, confident, and global.
-            </p>
-          </div>
-          <Button size="lg" variant="secondary" asChild>
-            <Link href="/get-started">Enroll Now</Link>
-          </Button>
-        </div>
-      </section>
-
-      {/* ================= LEARNING MODES ================= */}
-      <section className="py-24">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">
-            Learn Anytime, Anywhere
-          </h2>
-          <p className="text-muted-foreground mb-12">
-            Choose the learning mode that fits your lifestyle
-          </p>
-
+      {/* ================= BATCH TIMINGS (Colorful) ================= */}
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <h2 className="text-3xl font-bold text-center text-slate-900 mb-12">Batch Schedule</h2>
+          
           <div className="grid md:grid-cols-3 gap-6">
-            {[
-              {
-                title: "Live Online Classes",
-                desc: "Real-time interaction from anywhere in the world",
-                bg: "bg-purple-50",
-              },
-              {
-                title: "Recorded Lessons",
-                desc: "Access missed sessions anytime",
-                bg: "bg-blue-50",
-              },
-              {
-                title: "Blended Learning",
-                desc: "Live + recorded with personal mentoring",
-                bg: "bg-green-50",
-              },
-            ].map((item) => (
-              <motion.div
-                key={item.title}
-                variants={fadeInUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                className={`p-6 rounded-2xl border ${item.bg}`}
-              >
-                <h3 className="font-semibold mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
-              </motion.div>
-            ))}
+            {/* Morning Batch */}
+            <motion.div whileHover={{ y: -5 }} className="p-6 rounded-2xl bg-amber-50 border border-amber-100 text-center">
+              <div className="w-12 h-12 mx-auto rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mb-4">
+                <Sun className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-lg text-slate-900">Morning Batch</h3>
+              <div className="text-2xl font-bold text-amber-700 my-2">09:45 AM</div>
+              <p className="text-sm text-slate-600 mb-4">Perfect for students & homemakers</p>
+              <Badge className="bg-amber-200 text-amber-800 hover:bg-amber-300 border-none">Fast Filling</Badge>
+            </motion.div>
+
+             {/* Afternoon Batch */}
+             <motion.div whileHover={{ y: -5 }} className="p-6 rounded-2xl bg-sky-50 border border-sky-100 text-center">
+              <div className="w-12 h-12 mx-auto rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mb-4">
+                <Sunset className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-lg text-slate-900">Afternoon Batch</h3>
+              <div className="text-2xl font-bold text-sky-700 my-2">02:00 PM</div>
+              <p className="text-sm text-slate-600 mb-4">Ideal for flexible schedules</p>
+              <Badge className="bg-sky-200 text-sky-800 hover:bg-sky-300 border-none">Available</Badge>
+            </motion.div>
+
+             {/* Evening Batch */}
+             <motion.div whileHover={{ y: -5 }} className="p-6 rounded-2xl bg-indigo-50 border border-indigo-100 text-center">
+              <div className="w-12 h-12 mx-auto rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4">
+                <Moon className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-lg text-slate-900">Evening Batch</h3>
+              <div className="text-2xl font-bold text-indigo-700 my-2">07:30 PM</div>
+              <p className="text-sm text-slate-600 mb-4">Designed for working professionals</p>
+              <Badge className="bg-indigo-200 text-indigo-800 hover:bg-indigo-300 border-none">Popular</Badge>
+            </motion.div>
           </div>
         </div>
       </section>
+
+      {/* ================= TARGET AUDIENCE ================= */}
+      <section className="py-24 bg-slate-50 border-t border-slate-200">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold text-slate-900 mb-12">Who Should Enroll?</h2>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+             {[
+               { icon: GraduationCap, title: "Students", desc: "For higher studies & exams", bg: "bg-blue-100", text: "text-blue-600" },
+               { icon: Briefcase, title: "Professionals", desc: "For career growth & promotion", bg: "bg-purple-100", text: "text-purple-600" },
+               { icon: Users, title: "Job Seekers", desc: "For interview success", bg: "bg-orange-100", text: "text-orange-600" },
+               { icon: Globe, title: "Test Aspirants", desc: "IELTS / TOEFL / PTE", bg: "bg-teal-100", text: "text-teal-600" },
+             ].map((persona, i) => (
+                <div 
+                  key={i}
+                  className="flex flex-col items-center p-8 rounded-2xl bg-white border border-slate-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                >
+                  <div className={`w-16 h-16 rounded-full ${persona.bg} flex items-center justify-center ${persona.text} mb-6`}>
+                    <persona.icon className="w-8 h-8" />
+                  </div>
+                  <h3 className="font-bold text-lg text-slate-900 mb-2">{persona.title}</h3>
+                  <p className="text-slate-500 text-sm">{persona.desc}</p>
+                </div>
+             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ================= FAQ SECTION ================= */}
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <h2 className="text-3xl font-bold text-center text-slate-900 mb-12">Frequently Asked Questions</h2>
+          
+          <Accordion type="single" collapsible className="w-full space-y-4">
+            {[
+              { q: "What is the duration of the course?", a: "Our standard course is 3 months long, with 3 classes per week. We also offer a 1-month crash course." },
+              { q: "Do you provide a certificate?", a: "Yes, you will receive an ISO-certified certificate of completion after passing the final assessment." },
+              { q: "Are the classes live or recorded?", a: "We offer both! You can choose Live Interactive batches for real-time practice or Recorded courses for self-paced learning." },
+              { q: "Can I pay in installments?", a: "Yes, we offer flexible EMI options for all our premium courses." },
+            ].map((faq, i) => (
+              <AccordionItem key={i} value={`item-${i}`} className="bg-slate-50 rounded-xl border border-slate-200 px-2">
+                <AccordionTrigger className="text-left font-semibold text-lg py-5 px-4 hover:no-underline hover:text-blue-700 transition-colors text-slate-800">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-slate-600 px-4 pb-5 text-base leading-relaxed">
+                  {faq.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      {/* ================= CTA BAR ================= */}
+      <section className="py-24 bg-slate-900 text-white relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/30 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
+        
+        <div className="container mx-auto px-4 text-center relative z-10">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6">Ready to Transform Your Career?</h2>
+          <p className="text-slate-300 text-xl mb-10 max-w-2xl mx-auto">
+            Don't let language barriers hold you back. Join 10,000+ professionals who have upgraded their lives.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="h-16 px-10 rounded-xl text-lg bg-white text-slate-900 hover:bg-slate-100 font-bold shadow-xl" asChild>
+              <Link href="/get-started">Get Started for Free</Link>
+            </Button>
+            <Button size="lg" variant="outline" className="h-16 px-10 rounded-xl text-lg border-white/20 text-white hover:bg-white/10 hover:text-white" asChild>
+              <Link href="/contact">
+                <Phone className="w-5 h-5 mr-2" />
+                Talk to Counselor
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
     </div>
   )
 }

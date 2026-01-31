@@ -3,8 +3,14 @@
 import { useState, useMemo } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { Search, ArrowRight, Users, Building2, DollarSign, TrendingUp } from "lucide-react"
-import { fadeInUp, staggerContainer, cardHover } from "@/lib/motion"
+import { 
+  Search, 
+  ArrowRight, 
+  Globe, 
+  GraduationCap, 
+  Briefcase 
+} from "lucide-react"
+import { fadeInUp, staggerContainer } from "@/lib/motion"
 import countries from "@/data/countries.json"
 
 export default function CountriesPage() {
@@ -12,31 +18,24 @@ export default function CountriesPage() {
   const [searchFocused, setSearchFocused] = useState(false)
 
   const filteredCountries = useMemo(() => {
-  const query = searchQuery.trim().toLowerCase()
-  if (!query) return countries
+    const query = searchQuery.trim().toLowerCase()
+    if (!query) return countries
 
-  return countries.filter((country) =>
-    country.country_name?.toLowerCase().includes(query)
-  )
-}, [searchQuery])
-
-
-
-  // Color gradients for cards
-  const gradients = [
-    "from-blue-500 to-cyan-500",
-    "from-purple-500 to-pink-500",
-    "from-amber-500 to-orange-500",
-    "from-red-500 to-rose-500",
-    "from-indigo-500 to-blue-500",
-    "from-emerald-500 to-teal-500"
-  ]
+    return countries.filter((country) =>
+      country.country_name?.toLowerCase().includes(query)
+    )
+  }, [searchQuery])
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-screen pt-24 pb-16 bg-background">
       <div className="container mx-auto px-4">
-        {/* Header */}
-        <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="text-center mb-12">
+        {/* Header Section */}
+        <motion.div 
+          variants={staggerContainer} 
+          initial="hidden" 
+          animate="visible" 
+          className="text-center mb-12"
+        >
           <motion.span
             variants={fadeInUp}
             className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4"
@@ -81,75 +80,83 @@ export default function CountriesPage() {
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {filteredCountries.map((country, index) => (
+          {filteredCountries.map((country) => (
             <motion.div key={country.country_id} variants={fadeInUp}>
               <Link href={`/study-in/${country.country_slug}`}>
-                <div className="group relative h-full rounded-3xl bg-white border border-gray-200 shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden hover:-translate-y-2">
-                  {/* Gradient Header */}
-                  <div className={`relative bg-gradient-to-br ${gradients[index % gradients.length]} p-6 overflow-hidden`}>
-                    <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl transform translate-x-8 -translate-y-8" />
-                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full blur-2xl transform -translate-x-8 translate-y-8" />
-                    
-                    <div className="relative z-10 flex items-center gap-3">
-                      <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform duration-500">
-                        🌍
-                      </div>
-                      <div>
-                        <h2 className="text-2xl font-bold text-white drop-shadow-lg">
-                          {country.country_name}
-                        </h2>
-                        <p className="text-sm text-white/90 font-medium">Study Destination</p>
+                <motion.div
+                  whileHover={{ y: -6 }}
+                  className="group relative rounded-2xl bg-card border border-border p-6 transition-all hover:border-primary/50 hover:shadow-xl overflow-hidden h-full"
+                >
+                  {/* Accent Glow */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+
+                  {/* Card Header */}
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="shrink-0">
+                      <img
+                        src={`https://flagcdn.com/w40/${country.country_code.toLowerCase()}.png`}
+                        alt={country.country_name}
+                        className="w-10 h-7 rounded object-cover shadow-sm border border-border/50"
+                      />
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-bold group-hover:text-primary transition">
+                        Study in {country.country_name}
+                      </h3>
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Globe className="w-4 h-4" />
+                        <span>International destination</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Stats Grid */}
-                  <div className="p-6 space-y-4">
-                    <div className="grid grid-cols-3 gap-3">
-                      <div className="flex flex-col items-center p-3 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 group-hover:from-blue-100 group-hover:to-cyan-100 transition-all duration-300">
-                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-2 shadow-sm">
-                          <Building2 className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <span className="text-xl font-bold text-gray-900">
-                          {country.universities_count}
-                        </span>
-                        <span className="text-xs text-gray-600 font-medium">Universities</span>
+                  {/* Stats Section */}
+                  <div className="grid grid-cols-3 gap-4 text-center mb-6">
+                    <div>
+                      <GraduationCap className="w-5 h-5 mx-auto mb-1 text-primary" />
+                      <div className="font-semibold text-sm text-foreground">
+                        {country.universities_count}
                       </div>
-
-                      <div className="flex flex-col items-center p-3 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 group-hover:from-purple-100 group-hover:to-pink-100 transition-all duration-300">
-                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-2 shadow-sm">
-                          <TrendingUp className="w-5 h-5 text-purple-600" />
-                        </div>
-                        <span className="text-xl font-bold text-gray-900">
-                          {country.employability}
-                        </span>
-                        <span className="text-xs text-gray-600 font-medium">Employment</span>
-                      </div>
-
-                      <div className="flex flex-col items-center p-3 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 group-hover:from-emerald-100 group-hover:to-teal-100 transition-all duration-300">
-                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-2 shadow-sm">
-                          <DollarSign className="w-5 h-5 text-emerald-600" />
-                        </div>
-                        <span className="text-sm font-bold text-gray-900">
-                          {country.average_tuition_fees}
-                        </span>
-                        <span className="text-xs text-gray-600 font-medium">Avg. Fee</span>
+                      <div className="text-xs text-muted-foreground">
+                        Universities
                       </div>
                     </div>
 
-                    {/* CTA Button */}
-                    <button className={`w-full mt-4 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 group/btn`}>
-                      <span>Explore {country.country_name}</span>
-                      <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-                    </button>
+                    <div>
+                      <Briefcase className="w-5 h-5 mx-auto mb-1 text-primary" />
+                      <div className="font-semibold text-sm text-foreground">
+                        {country.employability}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Employability
+                      </div>
+                    </div>
+
+                    <div>
+                      <span className="block text-primary font-bold text-lg leading-5 mb-1">€</span>
+                      <div className="font-semibold text-sm text-foreground">
+                        {country.average_tuition_fees}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Tuition
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Decorative corner accent */}
-                  <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${gradients[index % gradients.length]} opacity-20 rounded-bl-full transform translate-x-10 -translate-y-10 group-hover:translate-x-8 group-hover:-translate-y-8 transition-transform duration-500`} />
-                </div>
+                  {/* Bottom CTA */}
+                  <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/50">
+                    <span className="text-sm text-muted-foreground">
+                      View programs
+                    </span>
+                    <span className="flex items-center gap-2 text-primary font-medium text-sm">
+                      Explore
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />
+                    </span>
+                  </div>
+                </motion.div>
               </Link>
             </motion.div>
           ))}

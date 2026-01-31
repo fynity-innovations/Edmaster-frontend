@@ -101,7 +101,7 @@ export function HeroSection() {
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
               <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 rounded-xl group" asChild>
-                <Link href="/get-started">
+                <Link href="/courses">
                   Start Your Journey
                   <motion.span
                     className="ml-2 inline-block"
