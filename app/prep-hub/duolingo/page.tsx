@@ -72,7 +72,7 @@ export default function DuolingoCoachingPage() {
                   <Button size="lg" className="h-14 px-8 rounded-2xl bg-white text-primary hover:bg-slate-100 font-bold text-lg shadow-xl" asChild>
                     <Link href="/get-started">Start Free Trial</Link>
                   </Button>
-                  <Button size="lg" variant="outline" className="h-14 px-8 rounded-2xl border-white/30 text-white hover:bg-white/10 hover:text-white font-medium text-lg" asChild>
+                  <Button size="lg" variant="outline" className="h-14 px-8 rounded-2xl border-white/30 bg-white/10 text-white hover:bg-white/10 hover:text-white font-medium text-lg" asChild>
                     <Link href="#comparison">Compare Scores</Link>
                   </Button>
                 </div>
@@ -299,7 +299,7 @@ export default function DuolingoCoachingPage() {
                 <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-slate-400" /> 10 Full Mock Tests</li>
                 <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-slate-400" /> Grammar E-Book</li>
               </ul>
-              <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10 h-12 rounded-xl text-lg">View Details</Button>
+              <Button variant="outline" className="w-full border-white/20 text-white bg-white/10 hover:bg-white/20 h-12 rounded-xl text-lg">View Details</Button>
             </div>
           </div>
         </div>
@@ -340,7 +340,7 @@ export default function DuolingoCoachingPage() {
             <Button size="lg" className="h-16 px-12 rounded-2xl text-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-xl" asChild>
               <Link href="/get-started">Start Now</Link>
             </Button>
-            <Button size="lg" variant="outline" className="h-16 px-12 rounded-2xl text-lg border-slate-300 text-slate-700 hover:bg-white shadow-sm" asChild>
+            <Button size="lg" variant="outline" className="h-16 px-12 rounded-2xl text-lg border-slate-300 text-slate-700 hover:bg-white hover:text-primary shadow-sm" asChild>
               <Link href="/contact">
                 Talk to Counselor
               </Link>

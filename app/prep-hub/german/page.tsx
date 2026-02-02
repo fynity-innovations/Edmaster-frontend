@@ -39,10 +39,10 @@ export default function GermanCoachingPage() {
       <section className="relative pt-32 pb-24 overflow-hidden bg-slate-50/50 border-b border-slate-200">
         <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:20px_20px] opacity-50" />
         
-        {/* German Flag Abstract Gradient (Black/Red/Gold mixed with Blue) */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-yellow-400/5 rounded-full blur-[120px] -translate-y-1/3 translate-x-1/3" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-red-500/5 rounded-full blur-[120px] translate-y-1/3 -translate-x-1/3" />
-        <div className="absolute top-1/2 left-1/2 w-[800px] h-[800px] bg-slate-900/5 rounded-full blur-[150px] -translate-x-1/2 -translate-y-1/2" />
+        {/* Soft Background Gradients */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] -translate-y-1/3 translate-x-1/3" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-red-100/30 rounded-full blur-[120px] translate-y-1/3 -translate-x-1/3" />
+        <div className="absolute top-1/2 left-1/2 w-[800px] h-[800px] bg-slate-100/50 rounded-full blur-[150px] -translate-x-1/2 -translate-y-1/2" />
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
@@ -55,7 +55,7 @@ export default function GermanCoachingPage() {
               className="lg:w-1/2 text-center lg:text-left"
             >
               <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 mb-6 bg-white border border-slate-200 rounded-full px-1 py-1 pr-4 shadow-sm">
-                <Badge className="bg-slate-900 text-white rounded-full px-3">Hallo!</Badge>
+                <Badge className="bg-primary text-primary-foreground rounded-full px-3">Hallo!</Badge>
                 <span className="text-sm font-medium text-slate-600">Master German from Home</span>
               </motion.div>
 
@@ -64,7 +64,7 @@ export default function GermanCoachingPage() {
                 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-900 mb-6 leading-[1.1]"
               >
                 Learn German. <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-yellow-500 relative inline-block">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-slate-800 relative inline-block">
                   Open New Doors.
                 </span>
               </motion.h1>
@@ -82,7 +82,7 @@ export default function GermanCoachingPage() {
                     Start Learning <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="h-14 px-8 rounded-xl text-lg font-bold border-slate-300 text-slate-700 hover:border-primary hover:text-primary bg-white" asChild>
+                <Button size="lg" variant="outline" className="h-14 px-8 rounded-xl text-lg font-bold border-slate-300 text-slate-700 hover:border-primary hover:text-primary hover:bg-white" asChild>
                   <Link href="#levels">
                     View Levels
                   </Link>
@@ -91,10 +91,10 @@ export default function GermanCoachingPage() {
 
               <motion.div variants={fadeInUp} className="mt-10 flex items-center justify-center lg:justify-start gap-6 text-sm font-semibold text-slate-500">
                 <div className="flex items-center gap-2">
-                  <Globe className="w-5 h-5 text-red-600" /> Career in Germany
+                  <Globe className="w-5 h-5 text-primary" /> Career in Germany
                 </div>
                 <div className="flex items-center gap-2">
-                  <GraduationCap className="w-5 h-5 text-yellow-600" /> Study Abroad
+                  <GraduationCap className="w-5 h-5 text-slate-600" /> Study Abroad
                 </div>
               </motion.div>
             </motion.div>
@@ -106,12 +106,12 @@ export default function GermanCoachingPage() {
               transition={{ duration: 0.8 }}
               className="lg:w-1/2 relative w-full"
             >
-              <div className="relative z-10 bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 p-8 border border-slate-100 max-w-md mx-auto">
+              <div className="relative z-10 bg-white rounded-[2rem] shadow-2xl shadow-primary/10 p-8 border border-slate-100 max-w-md mx-auto">
                 <div className="bg-slate-50 rounded-2xl p-6 mb-8 text-center border border-slate-100 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-400/10 rounded-full blur-xl" />
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full blur-xl" />
                   <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm text-3xl">🇩🇪</div>
                   <h3 className="text-xl font-bold text-slate-900">German A1 Course</h3>
-                  <p className="text-slate-600 font-semibold mt-1">Beginner Level</p>
+                  <p className="text-primary font-semibold mt-1">Beginner Level</p>
                 </div>
                 
                 <div className="space-y-4">
@@ -144,16 +144,6 @@ export default function GermanCoachingPage() {
                 </div>
               </div>
               
-              {/* Floating Element */}
-              <div className="absolute -top-6 -right-6 bg-white p-4 rounded-xl shadow-xl border border-slate-100 flex items-center gap-3 animate-bounce duration-[3000ms]">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-red-600">
-                  <CheckCircle2 className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 font-bold">Certification</p>
-                  <p className="text-sm font-bold text-slate-900">A1 - C2 Level</p>
-                </div>
-              </div>
             </motion.div>
           </div>
         </div>
@@ -170,8 +160,8 @@ export default function GermanCoachingPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { level: "A1", title: "Beginner", desc: "Use familiar greetings, introduce yourself, and write in simple German.", bg: "bg-slate-50", text: "text-slate-700", border: "border-slate-200" },
-              { level: "A2", title: "Elementary", desc: "Understand complex phrases, simple texts, and everyday conversations.", bg: "bg-red-50", text: "text-red-700", border: "border-red-100" },
-              { level: "B1", title: "Intermediate", desc: "Handle travel situations, work topics, and write connected text.", bg: "bg-yellow-50", text: "text-yellow-700", border: "border-yellow-100" },
+              { level: "A2", title: "Elementary", desc: "Understand complex phrases, simple texts, and everyday conversations.", bg: "bg-primary/5", text: "text-primary", border: "border-primary/20" },
+              { level: "B1", title: "Intermediate", desc: "Handle travel situations, work topics, and write connected text.", bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-100" },
               { level: "B2", title: "Upper Intermediate", desc: "Understand technical discussions and interact with native speakers fluently.", bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-100" },
               { level: "C1", title: "Advanced", desc: "Understand implicit meanings and express ideas fluently and spontaneously.", bg: "bg-indigo-50", text: "text-indigo-700", border: "border-indigo-100" },
               { level: "C2", title: "Proficient", desc: "Mastery level. Understand everything heard or read with ease.", bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-100" }
@@ -209,7 +199,7 @@ export default function GermanCoachingPage() {
             {/* Weekday Schedule */}
             <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-600">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
                   <Calendar className="w-6 h-6" />
                 </div>
                 <div>
@@ -238,7 +228,7 @@ export default function GermanCoachingPage() {
             {/* Weekend Schedule */}
             <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600">
+                <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-600">
                   <HelpCircle className="w-6 h-6" />
                 </div>
                 <div>
@@ -274,8 +264,8 @@ export default function GermanCoachingPage() {
           <div className="grid md:grid-cols-3 gap-6">
             {[
               { icon: BookOpen, title: "Language Basics", desc: "Fundamental vocabulary and phrases for daily use.", color: "text-blue-600", bg: "bg-blue-50" },
-              { icon: Mic, title: "Pronunciation", desc: "Develop an authentic accent with intonation practice.", color: "text-red-600", bg: "bg-red-50" },
-              { icon: MessageCircle, title: "Social Phrases", desc: "Essential greetings and polite expressions.", color: "text-yellow-600", bg: "bg-yellow-50" },
+              { icon: Mic, title: "Pronunciation", desc: "Develop an authentic accent with intonation practice.", color: "text-primary", bg: "bg-primary/5" },
+              { icon: MessageCircle, title: "Social Phrases", desc: "Essential greetings and polite expressions.", color: "text-amber-600", bg: "bg-amber-50" },
               { icon: Users, title: "Speaking Practice", desc: "Role-playing and interactive conversation sessions.", color: "text-green-600", bg: "bg-green-50" },
               { icon: Award, title: "Grammar Rules", desc: "Sentence structure, verb conjugations, and tenses.", color: "text-purple-600", bg: "bg-purple-50" },
               { icon: Globe, title: "Listening", desc: "Train your ear with videos, audio recordings, and more.", color: "text-indigo-600", bg: "bg-indigo-50" },
@@ -333,7 +323,7 @@ export default function GermanCoachingPage() {
             <Button size="lg" className="h-16 px-10 rounded-xl text-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-xl" asChild>
               <Link href="/get-started">Enroll Now</Link>
             </Button>
-            <Button size="lg" variant="outline" className="h-16 px-10 rounded-xl text-lg border-slate-300 text-slate-700 hover:bg-white shadow-sm" asChild>
+            <Button size="lg" variant="outline" className="h-16 px-10 rounded-xl text-lg border-slate-300 text-slate-700 hover:bg-white hover:text-primary shadow-sm" asChild>
               <Link href="/contact">
                 Talk to Counselor
               </Link>

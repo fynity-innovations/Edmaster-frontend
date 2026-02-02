@@ -78,7 +78,7 @@ export default function FrenchCoachingPage() {
                     Start Learning <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="h-14 px-8 rounded-xl text-lg font-bold border-slate-300 text-slate-700 hover:border-primary hover:text-primary bg-white" asChild>
+                <Button size="lg" variant="outline" className="h-14 px-8 rounded-xl text-lg font-bold border-slate-300 text-slate-700 hover:border-primary hover:text-primary hover:bg-white" asChild>
                   <Link href="#levels">
                     Check My Level
                   </Link>
@@ -140,15 +140,7 @@ export default function FrenchCoachingPage() {
               </div>
               
               {/* Floating Element */}
-              <div className="absolute -top-6 -right-6 bg-white p-4 rounded-xl shadow-xl border border-slate-100 flex items-center gap-3 animate-bounce duration-[3000ms]">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600">
-                  <CheckCircle2 className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 font-bold">Success Rate</p>
-                  <p className="text-sm font-bold text-slate-900">98% Pass DELF</p>
-                </div>
-              </div>
+             
             </motion.div>
           </div>
         </div>
@@ -365,7 +357,7 @@ export default function FrenchCoachingPage() {
             <Button size="lg" className="h-16 px-10 rounded-xl text-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-xl" asChild>
               <Link href="/get-started">Join Free Demo</Link>
             </Button>
-            <Button size="lg" variant="outline" className="h-16 px-10 rounded-xl text-lg border-slate-300 text-slate-700 hover:bg-white shadow-sm" asChild>
+            <Button size="lg" variant="outline" className="h-16 px-10 rounded-xl text-lg border-slate-300 text-slate-700 hover:bg-white hover:text-primary shadow-sm" asChild>
               <Link href="/contact">
                 Talk to Counselor
               </Link>

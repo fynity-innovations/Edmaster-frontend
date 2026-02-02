@@ -316,66 +316,103 @@ export default function UniversitiesPage() {
               className="grid md:grid-cols-2 xl:grid-cols-3 gap-6"
             >
               <AnimatePresence mode="popLayout">
-                {visibleUniversities.map((uni) => (
-                  <motion.div
-                    key={uni.university_id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Link href={`/universities/${uni.university_slug}`}>
-                      <div className="group h-full flex flex-col rounded-2xl bg-white dark:bg-slate-900 border border-border p-5 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
-                        
-                        {/* Card Top */}
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-border/50 group-hover:scale-105 transition-transform">
-                             <GraduationCap className="w-6 h-6 text-primary" />
-                          </div>
-                          {uni.badge && (
-                            <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none text-[10px] uppercase font-bold tracking-wider">
-                              {uni.badge}
-                            </Badge>
-                          )}
-                        </div>
-
-                        {/* Card Content */}
-                        <div className="mb-6 flex-grow">
-                          <h3 className="font-bold text-lg text-foreground mb-1 line-clamp-2 group-hover:text-primary transition-colors">
-                            {uni.university_name}
-                          </h3>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground mb-3">
-                            <MapPin className="w-3.5 h-3.5" />
-                            <span className="truncate">{uni.location}</span>
-                          </div>
+                {visibleUniversities.map((uni) => {
+                  // Find the country data to get the country_code for the flag
+                  const countryData = countries.find(c => c.country_name === uni.country_name);
+                  
+                  return (
+                    <motion.div
+                      key={uni.university_id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Link href={`/universities/${uni.university_slug}`}>
+                        <div className="group h-full flex flex-col rounded-2xl bg-white dark:bg-slate-900 border border-border p-5 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
                           
-                          {/* Mini Stats Row */}
-                          <div className="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
-                            <div className="flex items-center gap-1">
-                              <Briefcase className="w-3.5 h-3.5" />
-                              {uni.programs_count} Programs
+                          {/* Card Top */}
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="relative">
+                              <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-border/50 group-hover:scale-105 transition-transform">
+                                <GraduationCap className="w-6 h-6 text-primary" />
+                              </div>
+                              {/* Country Flag Overlay */}
+                              {countryData?.country_code && (
+                                <img
+                                  src={`https://flagcdn.com/w40/${countryData.country_code.toLowerCase()}.png`}
+                                  alt={uni.country_name}
+                                  className="absolute -bottom-1 -right-1 w-6 h-4 rounded-sm object-cover border border-white dark:border-slate-900 shadow-sm"
+                                />
+                              )}
                             </div>
-                            <div className="w-px h-3 bg-border" />
-                            <div className="flex items-center gap-1">
-                              <Wallet className="w-3.5 h-3.5" />
-                              {uni.average_tuition_fees ? 'Paid' : 'TBA'}
+                            <div className="flex flex-col items-end gap-2">
+                              {uni.badge && (
+                                <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none text-[10px] uppercase font-bold tracking-wider">
+                                  {uni.badge}
+                                </Badge>
+                              )}
+                              {/* New: Employability Badge */}
+                              <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                                <Briefcase className="w-3 h-3" />
+                                {uni.employability || "85%"} EMPLOYABILITY
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        {/* Card Footer */}
-                        <div className="pt-4 border-t border-border flex items-center justify-between mt-auto">
-                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">View Details</span>
-                          <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
-                            <ArrowRight className="w-4 h-4" />
+                          {/* Card Content */}
+                          <div className="mb-6 flex-grow">
+                            <h3 className="font-bold text-lg text-foreground mb-1 line-clamp-2 group-hover:text-primary transition-colors">
+                              {uni.university_name}
+                            </h3>
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
+                              <MapPin className="w-3.5 h-3.5" />
+                              <span className="truncate">{uni.location}, {uni.country_name}</span>
+                            </div>
+                            
+                            {/* Stats Grid */}
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="flex flex-col gap-1 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-border/50">
+                                <span className="text-[10px] uppercase text-muted-foreground font-bold">Tuition</span>
+                                <div className="flex items-center gap-1.5 text-xs font-semibold">
+                                  <Wallet className="w-3.5 h-3.5 text-primary" />
+                                  {uni.average_tuition_fees || "Varies"}
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-border/50">
+                                <span className="text-[10px] uppercase text-muted-foreground font-bold">Living Cost</span>
+                                <div className="flex items-center gap-1.5 text-xs font-semibold">
+                                  <MapPin className="w-3.5 h-3.5 text-primary" />
+                                  {/* Assuming cost of living data exists or showing a placeholder */}
+                                  {countryData?.annual_cost_of_living || "TBA"}
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
 
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
+                          {/* Card Footer */}
+                          <div className="pt-4 border-t border-border flex items-center justify-between mt-auto">
+                            <div className="flex items-center gap-2">
+                              <div className="flex -space-x-2">
+                                  {[1,2,3].map(i => (
+                                    <div key={i} className="w-6 h-6 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[8px] font-bold">
+                                      {uni.programs_count > 10 ? "+" : i}
+                                    </div>
+                                  ))}
+                              </div>
+                              <span className="text-xs font-medium text-muted-foreground">{uni.programs_count} Programs</span>
+                            </div>
+                            <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+                              <ArrowRight className="w-4 h-4" />
+                            </div>
+                          </div>
+
+                        </div>
+                      </Link>
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
             </motion.div>
 

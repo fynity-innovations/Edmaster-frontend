@@ -150,15 +150,7 @@ export default function PteCoachingPage() {
                 </div>
                 
                 {/* Decorative floating badge */}
-                <div className="absolute -bottom-6 -left-6 bg-slate-900 text-white p-4 rounded-xl shadow-lg flex items-center gap-3">
-                  <div className="p-2 bg-primary rounded-lg text-white">
-                    <Zap className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-xs text-slate-400 uppercase font-bold">Overall Score</div>
-                    <div className="text-xl font-bold">86 / 90</div>
-                  </div>
-                </div>
+                
               </div>
             </motion.div>
           </div>

@@ -9,17 +9,13 @@ import {
   Award,
   Clock,
   BookOpen,
-  MessageCircle,
   Briefcase,
   GraduationCap,
   CheckCircle2,
   Globe,
-  Sparkles,
-  Zap,
-  ChevronDown,
-  PlayCircle,
-  Star,
+  HelpCircle,
   Phone,
+  Star,
   Sun,
   Sunset,
   Moon
@@ -36,15 +32,17 @@ import {
 
 export default function SpokenEnglishPage() {
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans">
+    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-primary/20">
 
       {/* ================= HERO SECTION ================= */}
-      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden bg-slate-50">
-        {/* Soft Colorful Background Blobs */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-200/40 rounded-full blur-[100px] -z-10 translate-x-1/3 -translate-y-1/3" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-200/40 rounded-full blur-[100px] -z-10 -translate-x-1/3 translate-y-1/3" />
+      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden bg-slate-50/50 border-b border-slate-200">
+        <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:20px_20px] opacity-50" />
+        
+        {/* Soft Primary Gradient */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[100px] -z-10 translate-x-1/3 -translate-y-1/3" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-100/40 rounded-full blur-[100px] -z-10 -translate-x-1/3 translate-y-1/3" />
 
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 relative z-10">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
             
             {/* Left Content */}
@@ -54,21 +52,17 @@ export default function SpokenEnglishPage() {
               animate="visible"
               className="lg:w-1/2 text-center lg:text-left"
             >
-              <motion.div variants={fadeInUp} className="inline-flex mb-6">
-                <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-100 px-4 py-1.5 text-sm font-semibold rounded-full">
-                  <Star className="w-3.5 h-3.5 mr-2 fill-indigo-600 text-indigo-600" />
-                  #1 Rated Corporate Training
-                </Badge>
+              <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 mb-6 bg-white border border-slate-200 rounded-full px-1 py-1 pr-4 shadow-sm">
+                <Badge className="bg-primary text-primary-foreground rounded-full px-3">Rank #1</Badge>
+                <span className="text-sm font-medium text-slate-600">Rated Corporate Training</span>
               </motion.div>
 
               <motion.h1
                 variants={fadeInUp}
-                className="text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-6 leading-[1.15]"
+                className="text-5xl md:text-6xl font-bold tracking-tight text-slate-900 mb-6 leading-[1.15]"
               >
-                Speak with Confidence. <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                  Lead with Impact.
-                </span>
+                Speak with <span className="text-primary">Confidence.</span> <br />
+                Lead with Impact.
               </motion.h1>
 
               <motion.p
@@ -79,12 +73,12 @@ export default function SpokenEnglishPage() {
               </motion.p>
 
               <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button size="lg" className="h-14 px-8 rounded-xl text-base font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20" asChild>
+                <Button size="lg" className="h-14 px-8 rounded-xl text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20" asChild>
                   <Link href="/get-started">
                     Start Free Trial <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="h-14 px-8 rounded-xl text-base font-bold border-slate-200 text-slate-700 hover:bg-white hover:text-blue-700 hover:border-blue-200 bg-white" asChild>
+                <Button size="lg" variant="outline" className="h-14 px-8 rounded-xl text-lg font-bold border-slate-300 text-slate-700 hover:border-primary hover:text-primary bg-white" asChild>
                   <Link href="#curriculum">
                     Download Syllabus
                   </Link>
@@ -97,38 +91,38 @@ export default function SpokenEnglishPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8 }}
-              className="lg:w-1/2 relative"
+              className="lg:w-1/2 relative w-full"
             >
-              <div className="relative z-10 bg-white rounded-3xl shadow-2xl shadow-blue-900/10 p-6 border border-slate-100 max-w-md mx-auto transform rotate-2 hover:rotate-0 transition-transform duration-500">
+              <div className="relative z-10 bg-white rounded-[2rem] shadow-2xl shadow-primary/10 p-8 border border-slate-100 max-w-md mx-auto transform rotate-2 hover:rotate-0 transition-transform duration-500">
                 <div className="flex items-center gap-4 mb-6 border-b border-slate-100 pb-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-700">
-                    <Mic className="w-6 h-6" />
+                  <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                    <Mic className="w-7 h-7" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900">Live Practice Session</h3>
+                    <h3 className="font-bold text-slate-900 text-lg">Live Practice Session</h3>
                     <p className="text-sm text-slate-500">Connecting to Native Trainer...</p>
                   </div>
                 </div>
-                <div className="space-y-3">
-                  <div className="h-2 bg-slate-100 rounded-full w-3/4" />
-                  <div className="h-2 bg-slate-100 rounded-full w-full" />
-                  <div className="h-2 bg-slate-100 rounded-full w-5/6" />
+                <div className="space-y-4">
+                  <div className="h-3 bg-slate-100 rounded-full w-3/4" />
+                  <div className="h-3 bg-slate-100 rounded-full w-full" />
+                  <div className="h-3 bg-slate-100 rounded-full w-5/6" />
                 </div>
-                <div className="mt-6 flex justify-between items-center bg-green-50 p-4 rounded-xl border border-green-100">
-                  <span className="text-green-800 font-semibold text-sm">Fluency Score</span>
-                  <span className="text-green-700 font-bold text-lg">94/100</span>
+                <div className="mt-8 flex justify-between items-center bg-green-50 p-4 rounded-xl border border-green-100">
+                  <span className="text-green-800 font-semibold">Fluency Score</span>
+                  <span className="text-green-700 font-bold text-xl">94/100</span>
                 </div>
               </div>
               
-              {/* Decorative Colorful blobs */}
-              <div className="absolute -z-10 top-10 -right-10 w-32 h-32 bg-yellow-300/30 rounded-full blur-2xl" />
-              <div className="absolute -z-10 -bottom-10 -left-10 w-40 h-40 bg-purple-400/30 rounded-full blur-2xl" />
+              {/* Decorative blobs */}
+              <div className="absolute -z-10 top-10 -right-10 w-32 h-32 bg-amber-100 rounded-full blur-2xl" />
+              <div className="absolute -z-10 -bottom-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-2xl" />
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* ================= FEATURES GRID (Colorful Cards) ================= */}
+      {/* ================= FEATURES GRID (Pastel Cards) ================= */}
       <section className="py-24 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
@@ -142,55 +136,37 @@ export default function SpokenEnglishPage() {
                 icon: Mic, 
                 title: "Live Interactive Speaking", 
                 desc: "Don't just listen. Speak. Engage in daily live discussions led by certified trainers.",
-                color: "text-purple-700",
-                bg: "bg-purple-50",
-                border: "border-purple-100",
-                hover: "group-hover:bg-purple-100"
+                bg: "bg-primary/5", text: "text-primary", border: "border-primary/20"
               },
               { 
                 icon: Briefcase, 
                 title: "Business Communication", 
                 desc: "Specialized modules for email writing, presentations, meetings, and negotiation skills.",
-                color: "text-blue-700",
-                bg: "bg-blue-50",
-                border: "border-blue-100",
-                hover: "group-hover:bg-blue-100"
+                bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-100"
               },
               { 
                 icon: Users, 
                 title: "1-on-1 Mentorship", 
                 desc: "Personalized feedback sessions to correct your grammar, accent, and pronunciation.",
-                color: "text-orange-700",
-                bg: "bg-orange-50",
-                border: "border-orange-100",
-                hover: "group-hover:bg-orange-100"
+                bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-100"
               },
               { 
                 icon: Clock, 
                 title: "Flexible Scheduling", 
                 desc: "Morning, evening, and weekend batches available to suit your work-life balance.",
-                color: "text-teal-700",
-                bg: "bg-teal-50",
-                border: "border-teal-100",
-                hover: "group-hover:bg-teal-100"
+                bg: "bg-teal-50", text: "text-teal-700", border: "border-teal-100"
               },
               { 
                 icon: Award, 
                 title: "Certification", 
                 desc: "Earn a recognized certificate upon completion to add value to your professional profile.",
-                color: "text-rose-700",
-                bg: "bg-rose-50",
-                border: "border-rose-100",
-                hover: "group-hover:bg-rose-100"
+                bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-100"
               },
               { 
                 icon: Globe, 
                 title: "Global Community", 
                 desc: "Practice with peers from around the world in our moderated discussion rooms.",
-                color: "text-cyan-700",
-                bg: "bg-cyan-50",
-                border: "border-cyan-100",
-                hover: "group-hover:bg-cyan-100"
+                bg: "bg-indigo-50", text: "text-indigo-700", border: "border-indigo-100"
               }
             ].map((item, i) => (
               <motion.div 
@@ -201,8 +177,8 @@ export default function SpokenEnglishPage() {
                 transition={{ delay: i * 0.1 }}
                 className={`group p-8 rounded-2xl ${item.bg} border ${item.border} hover:shadow-lg hover:-translate-y-1 transition-all duration-300`}
               >
-                <div className={`w-14 h-14 rounded-xl bg-white flex items-center justify-center mb-6 shadow-sm ${item.hover} transition-colors`}>
-                  <item.icon className={`w-7 h-7 ${item.color}`} />
+                <div className={`w-14 h-14 rounded-xl bg-white flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform`}>
+                  <item.icon className={`w-7 h-7 ${item.text}`} />
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
                 <p className="text-slate-600 leading-relaxed">{item.desc}</p>
@@ -213,34 +189,34 @@ export default function SpokenEnglishPage() {
       </section>
 
       {/* ================= CURRICULUM ================= */}
-      <section id="curriculum" className="py-24 bg-slate-50 border-y border-slate-200">
+      <section id="curriculum" className="py-24 bg-slate-50/50 border-y border-slate-200">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row gap-16">
             
             {/* Left Header */}
             <div className="lg:w-1/3">
-              <span className="text-blue-600 font-bold uppercase tracking-wider text-sm">Course Content</span>
+              <span className="text-primary font-bold uppercase tracking-wider text-sm">Course Content</span>
               <h2 className="text-4xl font-extrabold text-slate-900 mt-3 mb-6">What You Will Learn</h2>
               <p className="text-slate-600 mb-8 text-lg">
                 Our curriculum is crafted by linguistic experts to bridge the gap between basic grammar and professional fluency.
               </p>
               
               <div className="space-y-4">
-                <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-blue-100 shadow-sm">
-                  <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-lg">01</div>
+                <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-primary/50 transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg">01</div>
                   <div>
                     <div className="font-bold text-slate-900">Foundation</div>
                     <div className="text-sm text-slate-500">Weeks 1-4</div>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-purple-100 shadow-sm">
+                <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-purple-300 transition-colors">
                   <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-lg">02</div>
                   <div>
                     <div className="font-bold text-slate-900">Intermediate</div>
                     <div className="text-sm text-slate-500">Weeks 5-8</div>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-green-100 shadow-sm">
+                <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-green-300 transition-colors">
                   <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-600 font-bold text-lg">03</div>
                   <div>
                     <div className="font-bold text-slate-900">Advanced Business</div>
@@ -253,7 +229,7 @@ export default function SpokenEnglishPage() {
             {/* Right List (Colored Cards) */}
             <div className="lg:w-2/3 grid sm:grid-cols-2 gap-6">
               {[
-                { title: "Fluency & Pronunciation", items: ["Accent Neutralization", "Voice Modulation", "Sentence Flow"], color: "border-blue-500", bg: "bg-blue-50/50" },
+                { title: "Fluency & Pronunciation", items: ["Accent Neutralization", "Voice Modulation", "Sentence Flow"], color: "border-primary", bg: "bg-primary/5" },
                 { title: "Corporate Communication", items: ["Effective Email Writing", "Client Interaction", "Negotiation Skills"], color: "border-purple-500", bg: "bg-purple-50/50" },
                 { title: "Public Speaking", items: ["Presentation Skills", "Storytelling", "Group Discussions"], color: "border-orange-500", bg: "bg-orange-50/50" },
                 { title: "Interview Readiness", items: ["Mock Interviews", "Resume Building", "Salary Negotiation"], color: "border-green-500", bg: "bg-green-50/50" },
@@ -278,7 +254,7 @@ export default function SpokenEnglishPage() {
         </div>
       </section>
 
-      {/* ================= BATCH TIMINGS (Colorful) ================= */}
+      {/* ================= BATCH TIMINGS ================= */}
       <section className="py-24 bg-white">
         <div className="container mx-auto px-4 max-w-5xl">
           <h2 className="text-3xl font-bold text-center text-slate-900 mb-12">Batch Schedule</h2>
@@ -307,14 +283,14 @@ export default function SpokenEnglishPage() {
             </motion.div>
 
              {/* Evening Batch */}
-             <motion.div whileHover={{ y: -5 }} className="p-6 rounded-2xl bg-indigo-50 border border-indigo-100 text-center">
-              <div className="w-12 h-12 mx-auto rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4">
+             <motion.div whileHover={{ y: -5 }} className="p-6 rounded-2xl bg-primary/5 border border-primary/20 text-center">
+              <div className="w-12 h-12 mx-auto rounded-full bg-primary/10 text-primary flex items-center justify-center mb-4">
                 <Moon className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-lg text-slate-900">Evening Batch</h3>
-              <div className="text-2xl font-bold text-indigo-700 my-2">07:30 PM</div>
+              <div className="text-2xl font-bold text-primary my-2">07:30 PM</div>
               <p className="text-sm text-slate-600 mb-4">Designed for working professionals</p>
-              <Badge className="bg-indigo-200 text-indigo-800 hover:bg-indigo-300 border-none">Popular</Badge>
+              <Badge className="bg-primary/20 text-primary hover:bg-primary/30 border-none">Popular</Badge>
             </motion.div>
           </div>
         </div>
@@ -327,10 +303,10 @@ export default function SpokenEnglishPage() {
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
              {[
-               { icon: GraduationCap, title: "Students", desc: "For higher studies & exams", bg: "bg-blue-100", text: "text-blue-600" },
-               { icon: Briefcase, title: "Professionals", desc: "For career growth & promotion", bg: "bg-purple-100", text: "text-purple-600" },
-               { icon: Users, title: "Job Seekers", desc: "For interview success", bg: "bg-orange-100", text: "text-orange-600" },
-               { icon: Globe, title: "Test Aspirants", desc: "IELTS / TOEFL / PTE", bg: "bg-teal-100", text: "text-teal-600" },
+               { icon: GraduationCap, title: "Students", desc: "For higher studies & exams", bg: "bg-blue-50", text: "text-blue-600" },
+               { icon: Briefcase, title: "Professionals", desc: "For career growth & promotion", bg: "bg-purple-50", text: "text-purple-600" },
+               { icon: Users, title: "Job Seekers", desc: "For interview success", bg: "bg-orange-50", text: "text-orange-600" },
+               { icon: Globe, title: "Test Aspirants", desc: "IELTS / TOEFL / PTE", bg: "bg-teal-50", text: "text-teal-600" },
              ].map((persona, i) => (
                 <div 
                   key={i}
@@ -360,7 +336,7 @@ export default function SpokenEnglishPage() {
               { q: "Can I pay in installments?", a: "Yes, we offer flexible EMI options for all our premium courses." },
             ].map((faq, i) => (
               <AccordionItem key={i} value={`item-${i}`} className="bg-slate-50 rounded-xl border border-slate-200 px-2">
-                <AccordionTrigger className="text-left font-semibold text-lg py-5 px-4 hover:no-underline hover:text-blue-700 transition-colors text-slate-800">
+                <AccordionTrigger className="text-left font-semibold text-lg py-5 px-4 hover:no-underline hover:text-primary transition-colors text-slate-800">
                   {faq.q}
                 </AccordionTrigger>
                 <AccordionContent className="text-slate-600 px-4 pb-5 text-base leading-relaxed">
@@ -375,8 +351,8 @@ export default function SpokenEnglishPage() {
       {/* ================= CTA BAR ================= */}
       <section className="py-24 bg-slate-900 text-white relative overflow-hidden">
         {/* Background Pattern */}
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/30 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute inset-0 bg-primary/10 opacity-50" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
         
         <div className="container mx-auto px-4 text-center relative z-10">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">Ready to Transform Your Career?</h2>
@@ -384,10 +360,10 @@ export default function SpokenEnglishPage() {
             Don't let language barriers hold you back. Join 10,000+ professionals who have upgraded their lives.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="h-16 px-10 rounded-xl text-lg bg-white text-slate-900 hover:bg-slate-100 font-bold shadow-xl" asChild>
+            <Button size="lg" className="h-16 px-10 rounded-xl text-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-xl" asChild>
               <Link href="/get-started">Get Started for Free</Link>
             </Button>
-            <Button size="lg" variant="outline" className="h-16 px-10 rounded-xl text-lg border-white/20 text-white hover:bg-white/10 hover:text-white" asChild>
+            <Button size="lg" variant="outline" className="h-16 px-10 rounded-xl text-lg border-white/20 text-white bg-white/10 hover:text-white" asChild>
               <Link href="/contact">
                 <Phone className="w-5 h-5 mr-2" />
                 Talk to Counselor
