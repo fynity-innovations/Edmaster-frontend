@@ -1,342 +1,468 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
-import { Search, Filter, ArrowRight, Clock, MapPin, GraduationCap, X } from "lucide-react"
+import { 
+  Search, Filter, ArrowRight, MapPin, BookOpen, 
+  Clock, Calendar, X, ChevronDown, 
+  Loader2, School, GraduationCap
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu"
+import { Checkbox } from "@/components/ui/checkbox"
+// IMPORT SHEET COMPONENTS
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter,
+  SheetClose
+} from "@/components/ui/sheet"
 import { fadeInUp, staggerContainer } from "@/lib/motion"
-import { SkeletonCard } from "@/components/ui/skeleton-card"
-import courses from "@/data/courses.json"
+import coursesData from "@/data/courses_final.json" 
 import countries from "@/data/countries.json"
 
-const levels = ["Bachelor", "Master", "PhD", "Diploma"]
-const categories = ["Technology", "Business", "Engineering"]
+// --- Types ---
+interface Course {
+  course_id: string
+  course_title: string
+  university_name: string
+  country_name: string
+  city: string
+  level: string 
+  category?: string 
+  duration: string
+  tuition_fees: number
+  currency: string
+  intake: string
+}
+
+const ITEMS_PER_PAGE = 9
 
 export default function CoursesPage() {
+  // --- State ---
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
-  const [selectedLevel, setSelectedLevel] = useState<string | null>(null)
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [showFilters, setShowFilters] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([])
+  const [selectedLevels, setSelectedLevels] = useState<string[]>([])
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [sortBy, setSortBy] = useState<"name" | "tuition_low" | "tuition_high">("name")
+  
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
+  const [isLoading, setIsLoading] = useState(true)
+  
+  const loadMoreRef = useRef<HTMLDivElement>(null)
 
-  const activeFiltersCount = [selectedCountry, selectedLevel, selectedCategory].filter(Boolean).length
+  // --- 1. DATA CLEANING ---
+  const courses = useMemo(() => {
+    const rawData = coursesData as unknown as Course[];
+    const uniqueMap = new Map();
+    rawData.forEach(course => {
+      if (course.course_id && !uniqueMap.has(course.course_id)) {
+        uniqueMap.set(course.course_id, course);
+      }
+    });
+    return Array.from(uniqueMap.values());
+  }, []);
 
+  // --- Derived Data ---
+  const availableLevels = useMemo(() => ["Bachelor", "Master", "PhD", "Diploma", "Certificate"], [])
+  
+  const availableCategories = useMemo(() => {
+    const cats = new Set<string>()
+    courses.forEach((c) => {
+      if (c.category) cats.add(c.category)
+    })
+    if (cats.size === 0) return ["Business", "Engineering", "Technology", "Health", "Arts"]
+    return Array.from(cats).sort()
+  }, [courses])
+
+  // --- Filtering Logic ---
   const filteredCourses = useMemo(() => {
-    setIsLoading(true)
-    const timer = setTimeout(() => setIsLoading(false), 300)
-
     let result = courses
 
     if (searchQuery) {
-      result = result.filter(
-        (course) =>
-          course.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          course.universityName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          course.country.toLowerCase().includes(searchQuery.toLowerCase()),
+      const query = searchQuery.toLowerCase().trim()
+      result = result.filter((course) => {
+        const title = (course.course_title || "").toLowerCase()
+        const uni = (course.university_name || "").toLowerCase()
+        const country = (course.country_name || "").toLowerCase()
+        return title.includes(query) || uni.includes(query) || country.includes(query)
+      })
+    }
+
+    if (selectedCountries.length > 0) {
+      result = result.filter((course) => 
+        course.country_name && selectedCountries.includes(course.country_name)
       )
     }
 
-    if (selectedCountry) {
-      result = result.filter((course) => course.country.toLowerCase().replace(/\s+/g, "-") === selectedCountry)
+    if (selectedLevels.length > 0) {
+      result = result.filter((course) => 
+        course.level && selectedLevels.includes(course.level)
+      )
     }
 
-    if (selectedLevel) {
-      result = result.filter((course) => course.level === selectedLevel)
+    if (selectedCategories.length > 0) {
+      result = result.filter((course) => 
+        course.category && selectedCategories.includes(course.category)
+      )
     }
 
-    if (selectedCategory) {
-      result = result.filter((course) => course.category === selectedCategory)
-    }
+    result = [...result].sort((a, b) => {
+      if (sortBy === "name") {
+        const nameA = a.course_title || ""
+        const nameB = b.course_title || ""
+        return nameA.localeCompare(nameB)
+      }
+      if (sortBy === "tuition_low") return (a.tuition_fees || 0) - (b.tuition_fees || 0)
+      if (sortBy === "tuition_high") return (b.tuition_fees || 0) - (a.tuition_fees || 0)
+      return 0
+    })
 
     return result
-  }, [searchQuery, selectedCountry, selectedLevel, selectedCategory])
+  }, [searchQuery, selectedCountries, selectedLevels, selectedCategories, sortBy, courses])
 
-  const clearFilters = () => {
-    setSelectedCountry(null)
-    setSelectedLevel(null)
-    setSelectedCategory(null)
-    setSearchQuery("")
+  // --- Pagination Logic ---
+  const visibleCourses = useMemo(() => {
+    return filteredCourses.slice(0, visibleCount)
+  }, [filteredCourses, visibleCount])
+
+  useEffect(() => {
+    setVisibleCount(ITEMS_PER_PAGE)
+    setIsLoading(true)
+    const timer = setTimeout(() => setIsLoading(false), 500)
+    return () => clearTimeout(timer)
+  }, [searchQuery, selectedCountries, selectedLevels, selectedCategories, sortBy])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && visibleCount < filteredCourses.length) {
+          setIsLoading(true)
+          setTimeout(() => {
+            setVisibleCount((prev) => prev + ITEMS_PER_PAGE)
+            setIsLoading(false)
+          }, 600)
+        }
+      },
+      { threshold: 0.1 }
+    )
+    if (loadMoreRef.current) observer.observe(loadMoreRef.current)
+    return () => observer.disconnect()
+  }, [visibleCount, filteredCourses.length])
+
+  // --- Helpers ---
+  const formatCurrency = (amount: number, currency: string) => {
+    const val = amount || 0;
+    const symbol = currency === "Euros" ? "€" : currency === "USD" ? "$" : currency || "$"
+    return `${symbol}${val.toLocaleString()}`
   }
 
+  const toggleFilter = (item: string, currentList: string[], setter: (val: string[]) => void) => {
+    setter(currentList.includes(item) ? currentList.filter(i => i !== item) : [...currentList, item])
+  }
+
+  const clearFilters = () => {
+    setSearchQuery("")
+    setSelectedCountries([])
+    setSelectedLevels([])
+    setSelectedCategories([])
+  }
+
+  // --- REUSABLE FILTER COMPONENT ---
+  const FilterContent = () => (
+    <div className="space-y-6">
+      
+      {/* Country Filter */}
+      <div>
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <MapPin className="w-4 h-4" /> Country
+        </h3>
+        <div className="space-y-2 max-h-48 overflow-y-auto pr-2 scrollbar-thin">
+          {countries.map((c) => (
+            <label key={c.country_id} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
+              <Checkbox 
+                checked={selectedCountries.includes(c.country_name)}
+                onCheckedChange={() => toggleFilter(c.country_name, selectedCountries, setSelectedCountries)}
+                className="rounded-[4px] w-4 h-4"
+              />
+              <span className="text-muted-foreground">{c.country_name}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="h-px bg-border" />
+
+      {/* Level Filter */}
+      <div>
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <GraduationCap className="w-4 h-4" /> Program Level
+        </h3>
+        <div className="space-y-2">
+          {availableLevels.map((lvl) => (
+            <label key={lvl} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
+              <Checkbox 
+                checked={selectedLevels.includes(lvl)}
+                onCheckedChange={() => toggleFilter(lvl, selectedLevels, setSelectedLevels)}
+                className="rounded-[4px] w-4 h-4"
+              />
+              <span className="text-muted-foreground">{lvl}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="h-px bg-border" />
+
+      {/* Category Filter */}
+      <div>
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <BookOpen className="w-4 h-4" /> Discipline
+        </h3>
+        <div className="space-y-2 max-h-48 overflow-y-auto pr-2 scrollbar-thin">
+          {availableCategories.map((cat) => (
+            <label key={cat} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
+              <Checkbox 
+                checked={selectedCategories.includes(cat)}
+                onCheckedChange={() => toggleFilter(cat, selectedCategories, setSelectedCategories)}
+                className="rounded-[4px] w-4 h-4"
+              />
+              <span className="text-muted-foreground">{cat}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-screen pt-24 pb-16 bg-slate-50 dark:bg-black">
       <div className="container mx-auto px-4">
-        {/* Header */}
-        <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="text-center mb-12">
-          <motion.span
-            variants={fadeInUp}
-            className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4"
-          >
-            Course Catalog
-          </motion.span>
-          <motion.h1 variants={fadeInUp} className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Find Your Perfect Course
-          </motion.h1>
-          <motion.p variants={fadeInUp} className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Browse through thousands of courses from top universities worldwide
-          </motion.p>
-        </motion.div>
-
-        {/* Search and Filters */}
-        <motion.div
-          variants={fadeInUp}
-          initial="hidden"
-          animate="visible"
-          className="flex flex-col md:flex-row gap-4 mb-8"
-        >
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search courses, universities..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 rounded-xl bg-card border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-foreground"
-            />
-          </div>
-          <Button
-            variant="outline"
-            className={`gap-2 bg-transparent ${showFilters ? "border-primary text-primary" : ""}`}
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <Filter className="w-4 h-4" />
-            Filters
-            {activeFiltersCount > 0 && (
-              <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
-                {activeFiltersCount}
-              </span>
-            )}
-          </Button>
-        </motion.div>
-
-        {/* Filter Panel */}
-        <AnimatePresence>
-          {showFilters && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden mb-8"
-            >
-              <div className="p-6 rounded-2xl bg-card border border-border space-y-6">
-                {/* Country Filter */}
-                <div>
-                  <h3 className="font-semibold text-foreground mb-3">Country</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {countries.map((country) => (
-                      <motion.button
-                        key={country.slug}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => setSelectedCountry(selectedCountry === country.slug ? null : country.slug)}
-                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                          selectedCountry === country.slug
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                        }`}
-                      >
-                        {country.flag} {country.name}
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Level Filter */}
-                <div>
-                  <h3 className="font-semibold text-foreground mb-3">Program Level</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {levels.map((level) => (
-                      <motion.button
-                        key={level}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => setSelectedLevel(selectedLevel === level ? null : level)}
-                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                          selectedLevel === level
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                        }`}
-                      >
-                        {level}
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Category Filter */}
-                <div>
-                  <h3 className="font-semibold text-foreground mb-3">Category</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {categories.map((category) => (
-                      <motion.button
-                        key={category}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
-                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                          selectedCategory === category
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                        }`}
-                      >
-                        {category}
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-
-                {activeFiltersCount > 0 && (
-                  <button onClick={clearFilters} className="text-sm text-primary hover:underline">
-                    Clear all filters
-                  </button>
-                )}
-              </div>
+        
+        {/* --- HEADER --- */}
+        <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="mb-12">
+          <div className="flex flex-col md:flex-row justify-between items-end gap-6">
+            <div>
+              <motion.span variants={fadeInUp} className="inline-block text-primary font-semibold mb-2">
+                Course Catalog
+              </motion.span>
+              <motion.h1 variants={fadeInUp} className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
+                Find Your Perfect Course
+              </motion.h1>
+              <motion.p variants={fadeInUp} className="text-muted-foreground mt-2 max-w-xl">
+                Explore over {courses.length} courses across various disciplines and top global universities.
+              </motion.p>
+            </div>
+            
+            {/* Search Bar */}
+            <motion.div variants={fadeInUp} className="w-full md:w-auto relative group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+              <input
+                type="text"
+                placeholder="Search courses, universities..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full md:w-80 pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-border focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all outline-none"
+              />
             </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Active Filters */}
-        {activeFiltersCount > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-wrap items-center gap-2 mb-6"
-          >
-            <span className="text-sm text-muted-foreground">Active filters:</span>
-            {selectedCountry && (
-              <button
-                onClick={() => setSelectedCountry(null)}
-                className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm"
-              >
-                {countries.find((c) => c.slug === selectedCountry)?.name}
-                <X className="w-3 h-3" />
-              </button>
-            )}
-            {selectedLevel && (
-              <button
-                onClick={() => setSelectedLevel(null)}
-                className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm"
-              >
-                {selectedLevel}
-                <X className="w-3 h-3" />
-              </button>
-            )}
-            {selectedCategory && (
-              <button
-                onClick={() => setSelectedCategory(null)}
-                className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm"
-              >
-                {selectedCategory}
-                <X className="w-3 h-3" />
-              </button>
-            )}
-          </motion.div>
-        )}
-
-        {/* Results */}
-        <motion.p variants={fadeInUp} initial="hidden" animate="visible" className="text-sm text-muted-foreground mb-6">
-          Showing {filteredCourses.length} courses
-        </motion.p>
-
-        {/* Courses Grid */}
-        {isLoading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <SkeletonCard key={i} />
-            ))}
           </div>
-        ) : (
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
-            layout
-          >
-            <AnimatePresence>
-              {filteredCourses.map((course) => (
-                <motion.div
-                  key={course.id}
-                  variants={fadeInUp}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                >
-                  <Link href={`/courses/${course.slug}`}>
+        </motion.div>
+
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+          
+          {/* --- DESKTOP SIDEBAR FILTERS --- */}
+          <aside className="w-full lg:w-64 shrink-0 space-y-8 hidden lg:block">
+            {/* Active Filters Summary (Desktop) */}
+            {(selectedCountries.length > 0 || selectedLevels.length > 0 || selectedCategories.length > 0) && (
+              <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-border">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-sm font-semibold">Active Filters</span>
+                  <button onClick={clearFilters} className="text-xs text-red-500 hover:underline">Clear All</button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {[...selectedCountries, ...selectedLevels, ...selectedCategories].map(f => (
+                    <Badge key={f} variant="secondary" className="text-[10px] h-6 px-2 gap-1">
+                      {f} <X className="w-3 h-3 cursor-pointer" onClick={() => {
+                        if(selectedCountries.includes(f)) toggleFilter(f, selectedCountries, setSelectedCountries)
+                        else if(selectedLevels.includes(f)) toggleFilter(f, selectedLevels, setSelectedLevels)
+                        else toggleFilter(f, selectedCategories, setSelectedCategories)
+                      }} />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            <FilterContent />
+          </aside>
+
+          {/* --- MAIN CONTENT --- */}
+          <div className="flex-1 min-w-0">
+            
+            {/* Toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-6 sticky top-20 z-30 bg-slate-50/80 dark:bg-black/80 backdrop-blur-md py-2 -mx-2 px-2 rounded-xl">
+              <div className="flex items-center gap-2">
+                
+                {/* --- MOBILE FILTER SHEET TRIGGER --- */}
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm" className="lg:hidden">
+                      <Filter className="w-4 h-4 mr-2" /> Filters
+                      {(selectedCountries.length > 0 || selectedLevels.length > 0 || selectedCategories.length > 0) && (
+                         <Badge variant="secondary" className="ml-2 h-5 w-5 p-0 flex items-center justify-center rounded-full bg-primary text-primary-foreground">
+                            {selectedCountries.length + selectedLevels.length + selectedCategories.length}
+                         </Badge>
+                      )}
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-[300px] sm:w-[400px] overflow-y-auto">
+                    <SheetHeader>
+                      <SheetTitle>Filter Courses</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-8">
+                       <FilterContent />
+                    </div>
+                    <SheetFooter className="mt-8 border-t pt-4">
+                        <SheetClose asChild>
+                           <Button className="w-full">Show {filteredCourses.length} Results</Button>
+                        </SheetClose>
+                    </SheetFooter>
+                  </SheetContent>
+                </Sheet>
+
+                <span className="text-sm text-muted-foreground font-medium">
+                  Showing {filteredCourses.length} results
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground hidden sm:inline">Sort by:</span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-9 gap-2">
+                      {sortBy === 'name' ? 'Name (A-Z)' : sortBy === 'tuition_low' ? 'Tuition (Low-High)' : 'Tuition (High-Low)'}
+                      <ChevronDown className="w-3 h-3 opacity-50" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setSortBy("name")}>Name (A-Z)</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortBy("tuition_low")}>Tuition (Low-High)</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortBy("tuition_high")}>Tuition (High-Low)</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+
+            {/* Course Grid */}
+            <motion.div layout className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <AnimatePresence mode="popLayout">
+                {visibleCourses.map((course) => {
+                  return (
                     <motion.div
-                      whileHover={{ y: -5 }}
-                      className="group h-full rounded-2xl bg-card border border-border hover:border-primary/50 overflow-hidden transition-all"
+                      key={course.course_id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
                     >
-                      {/* Header */}
-                      <div className="p-6 border-b border-border">
-                        <div className="flex items-start justify-between mb-3">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              course.level === "Master"
-                                ? "bg-primary/10 text-primary"
-                                : course.level === "Bachelor"
-                                  ? "bg-accent/10 text-accent"
-                                  : "bg-secondary text-secondary-foreground"
-                            }`}
-                          >
-                            {course.level}
-                          </span>
-                          <span className="text-lg font-bold text-primary">{course.tuition}</span>
-                        </div>
-                        <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors mb-2">
-                          {course.name}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">{course.universityName}</p>
-                      </div>
+                      <Link href={`/courses/${course.course_id}`}>
+                        <div className="group h-full flex flex-col rounded-2xl bg-white dark:bg-slate-900 border border-border p-5 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
+                          
+                          {/* Card Top: Level & Tuition */}
+                          <div className="flex items-center justify-between mb-4">
+                            <Badge variant={
+                              course.level === "Master" ? "default" : "secondary"
+                            } className="uppercase text-[10px] tracking-wider px-2.5">
+                              {course.level || "Course"}
+                            </Badge>
+                            <span className="text-sm font-bold text-primary">
+                              {formatCurrency(course.tuition_fees, course.currency)} <span className="text-[10px] text-muted-foreground font-normal">/year</span>
+                            </span>
+                          </div>
 
-                      {/* Details */}
-                      <div className="p-6 space-y-3">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <MapPin className="w-4 h-4 text-primary" />
-                          {course.country}
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Clock className="w-4 h-4 text-primary" />
-                          {course.duration}
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <GraduationCap className="w-4 h-4 text-primary" />
-                          {course.language}
-                        </div>
-                      </div>
+                          {/* Card Content: Title & Uni */}
+                          <div className="mb-6 flex-grow">
+                            <h3 className="font-bold text-lg text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                              {course.course_title || "Untitled Course"}
+                            </h3>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <School className="w-4 h-4 text-primary/70" />
+                              <span className="truncate font-medium">{course.university_name || "Unknown University"}</span>
+                            </div>
+                          </div>
 
-                      {/* CTA */}
-                      <div className="px-6 pb-6">
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          whileHover={{ opacity: 1, y: 0 }}
-                          className="flex items-center justify-between text-primary font-medium"
-                        >
-                          <span>View Details</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </motion.div>
-                      </div>
+                          {/* Stats Grid */}
+                          <div className="grid grid-cols-2 gap-3 mb-4">
+                             <div className="flex flex-col gap-1 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-border/50">
+                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                  <Clock className="w-3 h-3" /> Duration
+                                </div>
+                                <span className="text-xs font-semibold pl-4.5">{course.duration || "N/A"}</span>
+                             </div>
+                             <div className="flex flex-col gap-1 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-border/50">
+                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                  <Calendar className="w-3 h-3" /> Intake
+                                </div>
+                                <span className="text-xs font-semibold pl-4.5">{course.intake || "N/A"}</span>
+                             </div>
+                          </div>
+
+                          {/* Card Footer: Location */}
+                          <div className="pt-4 border-t border-border flex items-center justify-between mt-auto">
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                              <MapPin className="w-3.5 h-3.5" />
+                              <span className="truncate max-w-[140px]">{course.city || "Online"}, {course.country_name || ""}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 duration-300">
+                              View Details <ArrowRight className="w-3 h-3" />
+                            </div>
+                          </div>
+
+                        </div>
+                      </Link>
                     </motion.div>
-                  </Link>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
-        )}
+                  );
+                })}
+              </AnimatePresence>
+            </motion.div>
 
-        {/* Empty State */}
-        {!isLoading && filteredCourses.length === 0 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
-            <GraduationCap className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <p className="text-lg text-muted-foreground mb-4">No courses found matching your criteria.</p>
-            <Button variant="outline" onClick={clearFilters} className="bg-transparent">
-              Clear all filters
-            </Button>
-          </motion.div>
-        )}
+            {/* Loading / Infinite Scroll Sentinel */}
+            <div ref={loadMoreRef} className="py-12 flex justify-center w-full">
+              {isLoading && visibleCount < filteredCourses.length && (
+                <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  <span className="text-sm font-medium">Loading more courses...</span>
+                </div>
+              )}
+            </div>
+
+            {/* Empty State */}
+            {!isLoading && filteredCourses.length === 0 && (
+              <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-border border-dashed">
+                <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <BookOpen className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">No courses found</h3>
+                <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                  Try adjusting your filters or search query to find the program you are looking for.
+                </p>
+                <Button onClick={clearFilters} variant="outline">Clear Filters</Button>
+              </div>
+            )}
+            
+          </div>
+        </div>
       </div>
     </div>
   )

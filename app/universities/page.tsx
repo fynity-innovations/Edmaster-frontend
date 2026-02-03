@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { 
   Search, Filter, ArrowRight, MapPin, GraduationCap, 
-  Briefcase, Wallet, X, SlidersHorizontal, ChevronDown, 
-  Check, ArrowUpDown, Loader2
+  Briefcase, Wallet, X, ChevronDown, 
+  Loader2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -17,6 +17,16 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu"
 import { Checkbox } from "@/components/ui/checkbox"
+// 1. IMPORT SHEET COMPONENTS
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter,
+  SheetClose
+} from "@/components/ui/sheet"
 import { fadeInUp, staggerContainer } from "@/lib/motion"
 import { SkeletonCard } from "@/components/ui/skeleton-card"
 import universities from "@/data/universities.json"
@@ -34,12 +44,11 @@ export default function UniversitiesPage() {
   
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
   const [isLoading, setIsLoading] = useState(true)
-  const [showMobileFilters, setShowMobileFilters] = useState(false)
+  // const [showMobileFilters, setShowMobileFilters] = useState(false) // Not needed with SheetTrigger
   
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
   // --- Derived Data ---
-  // Extract unique badges for filter options
   const availableBadges = useMemo(() => {
     const badges = new Set<string>()
     universities.forEach(u => {
@@ -63,7 +72,7 @@ export default function UniversitiesPage() {
       )
     }
 
-    // 2. Country Filter (Multi-select)
+    // 2. Country Filter
     if (selectedCountries.length > 0) {
       result = result.filter((uni) => selectedCountries.includes(uni.country_name))
     }
@@ -82,7 +91,6 @@ export default function UniversitiesPage() {
     result = [...result].sort((a, b) => {
       if (sortBy === "name") return a.university_name.localeCompare(b.university_name)
       if (sortBy === "programs") return b.programs_count - a.programs_count
-      // Simple string comparison for tuition as placeholder
       if (sortBy === "tuition") return (a.average_tuition_fees || "").localeCompare(b.average_tuition_fees || "")
       return 0
     })
@@ -90,12 +98,11 @@ export default function UniversitiesPage() {
     return result
   }, [searchQuery, selectedCountries, selectedBadges, minPrograms, sortBy])
 
-  // --- Pagination Logic (Infinite Scroll) ---
+  // --- Pagination Logic ---
   const visibleUniversities = useMemo(() => {
     return filteredUniversities.slice(0, visibleCount)
   }, [filteredUniversities, visibleCount])
 
-  // Reset pagination when filters change
   useEffect(() => {
     setVisibleCount(ITEMS_PER_PAGE)
     setIsLoading(true)
@@ -103,7 +110,6 @@ export default function UniversitiesPage() {
     return () => clearTimeout(timer)
   }, [searchQuery, selectedCountries, selectedBadges, minPrograms, sortBy])
 
-  // Infinite Scroll Observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -112,7 +118,7 @@ export default function UniversitiesPage() {
           setTimeout(() => {
             setVisibleCount((prev) => prev + ITEMS_PER_PAGE)
             setIsLoading(false)
-          }, 600) // Artificial delay for smooth UX
+          }, 600)
         }
       },
       { threshold: 0.1 }
@@ -144,6 +150,102 @@ export default function UniversitiesPage() {
     setSelectedBadges([])
     setMinPrograms(null)
   }
+
+  // --- 2. REUSABLE FILTER COMPONENT (Used in Sidebar & Mobile Sheet) ---
+  const FilterContent = () => (
+    <div className="space-y-6">
+      {/* Active Filters Summary */}
+      {(selectedCountries.length > 0 || selectedBadges.length > 0 || minPrograms) && (
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-border mb-6">
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-sm font-semibold">Active Filters</span>
+            <button onClick={clearFilters} className="text-xs text-red-500 hover:underline">Clear All</button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {selectedCountries.map(c => (
+              <Badge key={c} variant="secondary" className="text-[10px] h-6 px-2 gap-1" onClick={() => toggleCountry(c)}>
+                {c} <X className="w-3 h-3 cursor-pointer" />
+              </Badge>
+            ))}
+            {selectedBadges.map(b => (
+              <Badge key={b} variant="secondary" className="text-[10px] h-6 px-2 gap-1" onClick={() => toggleBadge(b)}>
+                {b} <X className="w-3 h-3 cursor-pointer" />
+              </Badge>
+            ))}
+            {minPrograms && (
+               <Badge variant="secondary" className="text-[10px] h-6 px-2 gap-1" onClick={() => setMinPrograms(null)}>
+               {minPrograms}+ Programs <X className="w-3 h-3 cursor-pointer" />
+             </Badge>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Country Filter */}
+      <div>
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <MapPin className="w-4 h-4" /> Country
+        </h3>
+        <div className="space-y-2 max-h-60 overflow-y-auto pr-2 scrollbar-thin">
+          {countries.map((country) => (
+            <label key={country.country_id} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
+              <Checkbox 
+                checked={selectedCountries.includes(country.country_name)}
+                onCheckedChange={() => toggleCountry(country.country_name)}
+                className="rounded-[4px] w-4 h-4"
+              />
+              <span className="text-muted-foreground">{country.country_name}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="h-px bg-border" />
+
+      {/* Badges Filter */}
+      <div>
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <GraduationCap className="w-4 h-4" /> Categories
+        </h3>
+        <div className="space-y-2">
+          {availableBadges.map((badge) => (
+            <label key={badge} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
+              <Checkbox 
+                checked={selectedBadges.includes(badge)}
+                onCheckedChange={() => toggleBadge(badge)}
+                 className="rounded-[4px] w-4 h-4"
+              />
+              <span className="text-muted-foreground">{badge}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="h-px bg-border" />
+
+       {/* Programs Count Filter */}
+       <div>
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <Briefcase className="w-4 h-4" /> Program Size
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          {[10, 20, 50].map((num) => (
+              <button
+                key={num}
+                onClick={() => setMinPrograms(minPrograms === num ? null : num)}
+                className={`px-3 py-1.5 text-xs rounded-lg border transition-all ${
+                  minPrograms === num 
+                  ? "bg-primary text-primary-foreground border-primary" 
+                  : "bg-background border-border hover:border-primary/50"
+                }`}
+              >
+                {num}+ Courses
+              </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
 
   return (
     <div className="min-h-screen pt-24 pb-16 bg-slate-50 dark:bg-black">
@@ -180,97 +282,9 @@ export default function UniversitiesPage() {
 
         <div className="flex flex-col lg:flex-row gap-8 items-start">
           
-          {/* --- SIDEBAR FILTERS (Desktop) --- */}
-          <aside className={`w-full lg:w-64 shrink-0 space-y-8 ${showMobileFilters ? 'block' : 'hidden lg:block'}`}>
-            
-            {/* Active Filters Summary */}
-            {(selectedCountries.length > 0 || selectedBadges.length > 0 || minPrograms) && (
-              <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-border">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-sm font-semibold">Active Filters</span>
-                  <button onClick={clearFilters} className="text-xs text-red-500 hover:underline">Clear All</button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {selectedCountries.map(c => (
-                    <Badge key={c} variant="secondary" className="text-[10px] h-6 px-2 gap-1" onClick={() => toggleCountry(c)}>
-                      {c} <X className="w-3 h-3 cursor-pointer" />
-                    </Badge>
-                  ))}
-                  {selectedBadges.map(b => (
-                    <Badge key={b} variant="secondary" className="text-[10px] h-6 px-2 gap-1" onClick={() => toggleBadge(b)}>
-                      {b} <X className="w-3 h-3 cursor-pointer" />
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Filter Groups */}
-            <div className="space-y-6">
-              {/* Country Filter */}
-              <div>
-                <h3 className="font-semibold mb-4 flex items-center gap-2">
-                  <MapPin className="w-4 h-4" /> Country
-                </h3>
-                <div className="space-y-2 max-h-60 overflow-y-auto pr-2 scrollbar-thin">
-                  {countries.map((country) => (
-                    <label key={country.country_id} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
-                      <Checkbox 
-                        checked={selectedCountries.includes(country.country_name)}
-                        onCheckedChange={() => toggleCountry(country.country_name)}
-                        className="rounded-[4px] w-4 h-4"
-                      />
-                      <span className="text-muted-foreground">{country.country_name}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="h-px bg-border" />
-
-              {/* Badges Filter */}
-              <div>
-                <h3 className="font-semibold mb-4 flex items-center gap-2">
-                  <GraduationCap className="w-4 h-4" /> Categories
-                </h3>
-                <div className="space-y-2">
-                  {availableBadges.map((badge) => (
-                    <label key={badge} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
-                      <Checkbox 
-                        checked={selectedBadges.includes(badge)}
-                        onCheckedChange={() => toggleBadge(badge)}
-                         className="rounded-[4px] w-4 h-4"
-                      />
-                      <span className="text-muted-foreground">{badge}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="h-px bg-border" />
-
-               {/* Programs Count Filter */}
-               <div>
-                <h3 className="font-semibold mb-4 flex items-center gap-2">
-                  <Briefcase className="w-4 h-4" /> Program Size
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {[10, 20, 50].map((num) => (
-                     <button
-                        key={num}
-                        onClick={() => setMinPrograms(minPrograms === num ? null : num)}
-                        className={`px-3 py-1.5 text-xs rounded-lg border transition-all ${
-                          minPrograms === num 
-                          ? "bg-primary text-primary-foreground border-primary" 
-                          : "bg-background border-border hover:border-primary/50"
-                        }`}
-                     >
-                        {num}+ Courses
-                     </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+          {/* --- SIDEBAR FILTERS (Desktop Only) --- */}
+          <aside className="w-full lg:w-64 shrink-0 space-y-8 hidden lg:block">
+            <FilterContent />
           </aside>
 
           {/* --- MAIN GRID AREA --- */}
@@ -279,14 +293,34 @@ export default function UniversitiesPage() {
             {/* Toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6 sticky top-20 z-30 bg-slate-50/80 dark:bg-black/80 backdrop-blur-md py-2 -mx-2 px-2 rounded-xl">
               <div className="flex items-center gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="lg:hidden"
-                  onClick={() => setShowMobileFilters(!showMobileFilters)}
-                >
-                  <Filter className="w-4 h-4 mr-2" /> Filters
-                </Button>
+                
+                {/* 3. MOBILE FILTER SHEET TRIGGER */}
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm" className="lg:hidden">
+                      <Filter className="w-4 h-4 mr-2" /> Filters
+                      {(selectedCountries.length > 0 || selectedBadges.length > 0 || minPrograms) && (
+                         <Badge variant="secondary" className="ml-2 h-5 w-5 p-0 flex items-center justify-center rounded-full bg-primary text-primary-foreground">
+                            {selectedCountries.length + selectedBadges.length + (minPrograms ? 1 : 0)}
+                         </Badge>
+                      )}
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-[300px] sm:w-[400px] overflow-y-auto">
+                    <SheetHeader>
+                      <SheetTitle>Filter Universities</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-8">
+                       <FilterContent />
+                    </div>
+                    <SheetFooter className="mt-8 border-t pt-4">
+                        <SheetClose asChild>
+                           <Button className="w-full">Show {filteredUniversities.length} Results</Button>
+                        </SheetClose>
+                    </SheetFooter>
+                  </SheetContent>
+                </Sheet>
+
                 <span className="text-sm text-muted-foreground font-medium">
                   Showing {filteredUniversities.length} results
                 </span>
@@ -317,7 +351,6 @@ export default function UniversitiesPage() {
             >
               <AnimatePresence mode="popLayout">
                 {visibleUniversities.map((uni) => {
-                  // Find the country data to get the country_code for the flag
                   const countryData = countries.find(c => c.country_name === uni.country_name);
                   
                   return (
@@ -353,7 +386,6 @@ export default function UniversitiesPage() {
                                   {uni.badge}
                                 </Badge>
                               )}
-                              {/* New: Employability Badge */}
                               <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-full">
                                 <Briefcase className="w-3 h-3" />
                                 {uni.employability || "85%"} EMPLOYABILITY
@@ -384,7 +416,6 @@ export default function UniversitiesPage() {
                                 <span className="text-[10px] uppercase text-muted-foreground font-bold">Living Cost</span>
                                 <div className="flex items-center gap-1.5 text-xs font-semibold">
                                   <MapPin className="w-3.5 h-3.5 text-primary" />
-                                  {/* Assuming cost of living data exists or showing a placeholder */}
                                   {countryData?.annual_cost_of_living || "TBA"}
                                 </div>
                               </div>

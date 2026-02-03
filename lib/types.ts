@@ -31,22 +31,41 @@ export interface University {
   website: string
 }
 
-export interface Course {
-  id: string
-  name: string
-  slug: string
-  universityId: string
-  universityName: string
-  country: string
-  level: "Bachelor" | "Master" | "PhD" | "Diploma"
-  duration: string
-  tuition: string
-  startDates: string[]
-  language: string
+export interface UniversityJSON {
+  university_id: string
+  university_name: string
+  university_slug: string
+  country_name: string
+  location: string
+  rankings: {
+    world: number
+  }
   description: string
-  requirements: string[]
-  careerProspects: string[]
-  category: string
+}
+
+export interface Course {
+  course_id: string
+  course_title: string
+  university_name: string
+  country_name: string
+  city: string
+  duration: string // e.g., "2 Years"
+  currency: string // e.g., "Euros"
+  tuition_fees: number
+  application_fees: number
+  intake: string // e.g., "Fall 2026"
+  percentage: number
+  university_website: string
+  level: string // e.g., "Master", "Bachelor"
+  program_duration: string
+  location: string
+  ielts_score: string
+  toefl_score: string
+  min_education: string
+  required_percentage: number
+  logo: string | null
+  category?: string
+  university_id: string
 }
 
 export interface Service {
