@@ -2,37 +2,35 @@ import { notFound } from "next/navigation"
 import { Suspense } from "react"
 import type { Metadata } from "next"
 
-// Data Imports
-import coursesData from "@/data/courses_final.json"
-import universitiesData from "@/data/universities.json" // Optional if you have it
-import type { Course, UniversityJSON } from "@/lib/types"
+// 🔥 CRITICAL FIX
+export const dynamic = "force-dynamic"
+export const revalidate = 0
 
-// Component Imports
+// Data Imports (OK for dynamic pages)
+import coursesData from "@/data/courses_final.json"
+import universitiesData from "@/data/universities.json"
+
+import type { Course, UniversityJSON } from "@/lib/types"
 import { CourseContent } from "@/components/course/course-content"
 import { SkeletonCard } from "@/components/ui/skeleton-card"
 
 // Cast Data
 const courses = coursesData as unknown as Course[]
-// Assuming you have a University type, otherwise use any[] or define it
 const universities = (universitiesData || []) as unknown as UniversityJSON[]
 
 interface PageProps {
-  params: Promise<{ slug: string }>
+  params: { slug: string }
 }
 
-// 1. Generate Static Paths (SSG)
-export async function generateStaticParams() {
-  return courses.map((course) => ({
-    slug: course.course_id, // We use ID as the slug based on your routing
-  }))
-}
-
-// 2. Generate Metadata for SEO
+/**
+ * SEO Metadata (runs at request time)
+ */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params
-  const course = courses.find((c) => c.course_id === slug)
+  const course = courses.find((c) => c.course_id === params.slug)
 
-  if (!course) return { title: "Course Not Found" }
+  if (!course) {
+    return { title: "Course Not Found" }
+  }
 
   return {
     title: `${course.course_title} at ${course.university_name}`,
@@ -40,19 +38,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-// 3. Main Page Component
+/**
+ * Course Detail Page (FULLY DYNAMIC)
+ */
 export default async function CoursePage({ params }: PageProps) {
-  const { slug } = await params
-
-  // Find Course by ID
-  const course = courses.find((c) => c.course_id === slug)
+  const course = courses.find((c) => c.course_id === params.slug)
 
   if (!course) {
     notFound()
   }
 
-  // Find associated University (optional, passes undefined if not found)
-  const university = universities.find((u) => u.university_id === course.university_id)
+  const university = universities.find(
+    (u) => u.university_id === course.university_id
+  )
 
   return (
     <Suspense
