@@ -1,49 +1,49 @@
 import { notFound } from "next/navigation"
-import { Suspense } from "react"
 import type { Metadata } from "next"
 
-// 🔥 CRITICAL FIX
+// 🔥 IMPORTANT: dynamic rendering (prevents 75MB deploy error)
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 
-// Data Imports (OK for dynamic pages)
 import coursesData from "@/data/courses_final.json"
 import universitiesData from "@/data/universities.json"
 
 import type { Course, UniversityJSON } from "@/lib/types"
 import { CourseContent } from "@/components/course/course-content"
-import { SkeletonCard } from "@/components/ui/skeleton-card"
 
-// Cast Data
-const courses = coursesData as unknown as Course[]
-const universities = (universitiesData || []) as unknown as UniversityJSON[]
+const courses = coursesData as Course[]
+const universities = universitiesData as UniversityJSON[]
 
 interface PageProps {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 /**
- * SEO Metadata (runs at request time)
+ * SEO Metadata
  */
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const course = courses.find((c) => c.course_id === params.slug)
+export async function generateMetadata(
+  { params }: PageProps
+): Promise<Metadata> {
+  const { slug } = await params
 
+  const course = courses.find((c) => c.course_id === slug)
   if (!course) {
     return { title: "Course Not Found" }
   }
 
   return {
     title: `${course.course_title} at ${course.university_name}`,
-    description: `Study ${course.course_title} in ${course.city}, ${course.country_name}. Duration: ${course.duration}.`,
+    description: `Study ${course.course_title} in ${course.city}, ${course.country_name}.`,
   }
 }
 
 /**
- * Course Detail Page (FULLY DYNAMIC)
+ * Course Page
  */
 export default async function CoursePage({ params }: PageProps) {
-  const course = courses.find((c) => c.course_id === params.slug)
+  const { slug } = await params
 
+  const course = courses.find((c) => c.course_id === slug)
   if (!course) {
     notFound()
   }
@@ -52,15 +52,5 @@ export default async function CoursePage({ params }: PageProps) {
     (u) => u.university_id === course.university_id
   )
 
-  return (
-    <Suspense
-      fallback={
-        <div className="container mx-auto px-4 py-24">
-          <SkeletonCard />
-        </div>
-      }
-    >
-      <CourseContent course={course} university={university} />
-    </Suspense>
-  )
+  return <CourseContent course={course} university={university} />
 }

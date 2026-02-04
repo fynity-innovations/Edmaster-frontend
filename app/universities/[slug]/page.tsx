@@ -1,30 +1,28 @@
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
 
+// 🔥 REQUIRED: disable static generation
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
 import universities from "@/data/universities.json"
 import courses from "@/data/courses.json"
 
 import { UniversityContent } from "@/components/university/university-content"
 import { SkeletonCard } from "@/components/ui/skeleton-card"
 
-/**
- * 🔥 CRITICAL FIX
- * This completely disables static generation for this route.
- * Prevents Next.js from generating 180+ pages at build time.
- */
-export const dynamic = "force-dynamic"
-export const revalidate = 0
-
 interface PageProps {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 /**
- * SEO Metadata (runs at request time now)
+ * SEO Metadata (request-time)
  */
 export async function generateMetadata({ params }: PageProps) {
+  const { slug } = await params
+
   const university = universities.find(
-    (u) => u.university_slug === params.slug
+    (u) => u.university_slug === slug
   )
 
   if (!university) {
@@ -41,12 +39,13 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 /**
- * University Detail Page
- * Fully dynamic, Vercel-safe
+ * University Detail Page (fully dynamic, Vercel-safe)
  */
 export default async function UniversityPage({ params }: PageProps) {
+  const { slug } = await params
+
   const university = universities.find(
-    (u) => u.university_slug === params.slug
+    (u) => u.university_slug === slug
   )
 
   if (!university) {

@@ -306,11 +306,11 @@ export default function UniversitiesPage() {
                       )}
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="left" className="w-[300px] sm:w-[400px] overflow-y-auto">
+                  <SheetContent side="left" className="w-[260px] sm:w-[320px] overflow-y-auto">
                     <SheetHeader>
                       <SheetTitle>Filter Universities</SheetTitle>
                     </SheetHeader>
-                    <div className="mt-8">
+                    <div className="mt-6 pl-4 pr-3">
                        <FilterContent />
                     </div>
                     <SheetFooter className="mt-8 border-t pt-4">

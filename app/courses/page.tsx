@@ -17,7 +17,13 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu"
 import { Checkbox } from "@/components/ui/checkbox"
-// IMPORT SHEET COMPONENTS
+import { Slider } from "@/components/ui/slider"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import {
   Sheet,
   SheetContent,
@@ -51,17 +57,22 @@ const ITEMS_PER_PAGE = 9
 export default function CoursesPage() {
   // --- State ---
   const [searchQuery, setSearchQuery] = useState("")
+  
+  // Filter States
   const [selectedCountries, setSelectedCountries] = useState<string[]>([])
   const [selectedLevels, setSelectedLevels] = useState<string[]>([])
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [selectedIntakes, setSelectedIntakes] = useState<string[]>([])
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000])
+
+  // Sorting & UI States
   const [sortBy, setSortBy] = useState<"name" | "tuition_low" | "tuition_high">("name")
-  
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
   const [isLoading, setIsLoading] = useState(true)
   
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
-  // --- 1. DATA CLEANING ---
+  // --- 1. DATA PROCESSING ---
   const courses = useMemo(() => {
     const rawData = coursesData as unknown as Course[];
     const uniqueMap = new Map();
@@ -73,22 +84,38 @@ export default function CoursesPage() {
     return Array.from(uniqueMap.values());
   }, []);
 
-  // --- Derived Data ---
-  const availableLevels = useMemo(() => ["Bachelor", "Master", "PhD", "Diploma", "Certificate"], [])
-  
-  const availableCategories = useMemo(() => {
+  // --- 2. EXTRACT OPTIONS & RANGES ---
+  const { availableLevels, availableCategories, availableIntakes, maxTuition } = useMemo(() => {
     const cats = new Set<string>()
+    const levels = new Set<string>()
+    const intakes = new Set<string>()
+    let maxPrice = 0
+
     courses.forEach((c) => {
       if (c.category) cats.add(c.category)
+      if (c.level) levels.add(c.level)
+      if (c.intake) intakes.add(c.intake)
+      if (c.tuition_fees && c.tuition_fees > maxPrice) maxPrice = c.tuition_fees
     })
-    if (cats.size === 0) return ["Business", "Engineering", "Technology", "Health", "Arts"]
-    return Array.from(cats).sort()
+
+    return {
+      availableCategories: Array.from(cats).sort(),
+      availableLevels: Array.from(levels).sort(),
+      availableIntakes: Array.from(intakes).sort(),
+      maxTuition: maxPrice > 0 ? maxPrice : 100000
+    }
   }, [courses])
 
-  // --- Filtering Logic ---
+  // Set initial price range when maxTuition is calculated
+  useEffect(() => {
+    setPriceRange([0, maxTuition])
+  }, [maxTuition])
+
+  // --- 3. FILTERING LOGIC ---
   const filteredCourses = useMemo(() => {
     let result = courses
 
+    // Text Search
     if (searchQuery) {
       const query = searchQuery.toLowerCase().trim()
       result = result.filter((course) => {
@@ -99,24 +126,35 @@ export default function CoursesPage() {
       })
     }
 
+    // Checkbox Filters
     if (selectedCountries.length > 0) {
       result = result.filter((course) => 
         course.country_name && selectedCountries.includes(course.country_name)
       )
     }
-
     if (selectedLevels.length > 0) {
       result = result.filter((course) => 
         course.level && selectedLevels.includes(course.level)
       )
     }
-
     if (selectedCategories.length > 0) {
       result = result.filter((course) => 
         course.category && selectedCategories.includes(course.category)
       )
     }
+    if (selectedIntakes.length > 0) {
+      result = result.filter((course) => 
+        course.intake && selectedIntakes.includes(course.intake)
+      )
+    }
 
+    // Price Range Filter
+    result = result.filter((course) => {
+      const fee = course.tuition_fees || 0
+      return fee >= priceRange[0] && fee <= priceRange[1]
+    })
+
+    // Sorting
     result = [...result].sort((a, b) => {
       if (sortBy === "name") {
         const nameA = a.course_title || ""
@@ -129,9 +167,9 @@ export default function CoursesPage() {
     })
 
     return result
-  }, [searchQuery, selectedCountries, selectedLevels, selectedCategories, sortBy, courses])
+  }, [searchQuery, selectedCountries, selectedLevels, selectedCategories, selectedIntakes, priceRange, sortBy, courses])
 
-  // --- Pagination Logic ---
+  // --- 4. PAGINATION ---
   const visibleCourses = useMemo(() => {
     return filteredCourses.slice(0, visibleCount)
   }, [filteredCourses, visibleCount])
@@ -141,7 +179,7 @@ export default function CoursesPage() {
     setIsLoading(true)
     const timer = setTimeout(() => setIsLoading(false), 500)
     return () => clearTimeout(timer)
-  }, [searchQuery, selectedCountries, selectedLevels, selectedCategories, sortBy])
+  }, [searchQuery, selectedCountries, selectedLevels, selectedCategories, selectedIntakes, priceRange, sortBy])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -160,7 +198,7 @@ export default function CoursesPage() {
     return () => observer.disconnect()
   }, [visibleCount, filteredCourses.length])
 
-  // --- Helpers ---
+  // --- HELPERS ---
   const formatCurrency = (amount: number, currency: string) => {
     const val = amount || 0;
     const symbol = currency === "Euros" ? "€" : currency === "USD" ? "$" : currency || "$"
@@ -176,72 +214,134 @@ export default function CoursesPage() {
     setSelectedCountries([])
     setSelectedLevels([])
     setSelectedCategories([])
+    setSelectedIntakes([])
+    setPriceRange([0, maxTuition])
   }
 
-  // --- REUSABLE FILTER COMPONENT ---
+  // --- REUSABLE FILTER COMPONENT (SIDEBAR/SHEET) ---
   const FilterContent = () => (
     <div className="space-y-6">
       
-      {/* Country Filter */}
-      <div>
+      {/* Price Range Slider */}
+      <div className="px-1">
         <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <MapPin className="w-4 h-4" /> Country
+          <span className="text-sm">Tuition Range</span>
         </h3>
-        <div className="space-y-2 max-h-48 overflow-y-auto pr-2 scrollbar-thin">
-          {countries.map((c) => (
-            <label key={c.country_id} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
-              <Checkbox 
-                checked={selectedCountries.includes(c.country_name)}
-                onCheckedChange={() => toggleFilter(c.country_name, selectedCountries, setSelectedCountries)}
-                className="rounded-[4px] w-4 h-4"
-              />
-              <span className="text-muted-foreground">{c.country_name}</span>
-            </label>
-          ))}
+        <Slider
+          defaultValue={[0, maxTuition]}
+          value={priceRange}
+          max={maxTuition}
+          step={1000}
+          onValueChange={(val: number[]) => setPriceRange([val[0], val[1]])}
+          className="my-6"
+        />
+        <div className="flex items-center justify-between text-xs text-muted-foreground font-medium">
+          <div className="bg-white dark:bg-slate-800 border px-2 py-1 rounded">
+             {formatCurrency(priceRange[0], "USD")}
+          </div>
+          <div className="bg-white dark:bg-slate-800 border px-2 py-1 rounded">
+             {formatCurrency(priceRange[1], "USD")}
+          </div>
         </div>
       </div>
 
       <div className="h-px bg-border" />
 
-      {/* Level Filter */}
-      <div>
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <GraduationCap className="w-4 h-4" /> Program Level
-        </h3>
-        <div className="space-y-2">
-          {availableLevels.map((lvl) => (
-            <label key={lvl} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
-              <Checkbox 
-                checked={selectedLevels.includes(lvl)}
-                onCheckedChange={() => toggleFilter(lvl, selectedLevels, setSelectedLevels)}
-                className="rounded-[4px] w-4 h-4"
-              />
-              <span className="text-muted-foreground">{lvl}</span>
-            </label>
-          ))}
-        </div>
-      </div>
+      {/* Accordion for Checkbox Groups */}
+      <Accordion type="multiple" defaultValue={["country", "level"]} className="w-full">
+        
+        {/* Country Filter */}
+        <AccordionItem value="country" className="border-none">
+          <AccordionTrigger className="py-3 hover:no-underline hover:text-primary">
+            <span className="flex items-center gap-2 text-sm font-semibold">
+              <MapPin className="w-4 h-4" /> Country
+            </span>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-2 max-h-48 overflow-y-auto pr-2 scrollbar-thin pt-2">
+              {countries.map((c) => (
+                <label key={c.country_id} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
+                  <Checkbox 
+                    checked={selectedCountries.includes(c.country_name)}
+                    onCheckedChange={() => toggleFilter(c.country_name, selectedCountries, setSelectedCountries)}
+                    className="rounded-[4px] w-4 h-4"
+                  />
+                  <span className="text-muted-foreground">{c.country_name}</span>
+                </label>
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
 
-      <div className="h-px bg-border" />
+        {/* Level Filter */}
+        <AccordionItem value="level" className="border-none">
+          <AccordionTrigger className="py-3 hover:no-underline hover:text-primary">
+            <span className="flex items-center gap-2 text-sm font-semibold">
+              <GraduationCap className="w-4 h-4" /> Program Level
+            </span>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-2 pt-2">
+              {availableLevels.map((lvl) => (
+                <label key={lvl} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
+                  <Checkbox 
+                    checked={selectedLevels.includes(lvl)}
+                    onCheckedChange={() => toggleFilter(lvl, selectedLevels, setSelectedLevels)}
+                    className="rounded-[4px] w-4 h-4"
+                  />
+                  <span className="text-muted-foreground">{lvl}</span>
+                </label>
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
 
-      {/* Category Filter */}
-      <div>
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <BookOpen className="w-4 h-4" /> Discipline
-        </h3>
-        <div className="space-y-2 max-h-48 overflow-y-auto pr-2 scrollbar-thin">
-          {availableCategories.map((cat) => (
-            <label key={cat} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
-              <Checkbox 
-                checked={selectedCategories.includes(cat)}
-                onCheckedChange={() => toggleFilter(cat, selectedCategories, setSelectedCategories)}
-                className="rounded-[4px] w-4 h-4"
-              />
-              <span className="text-muted-foreground">{cat}</span>
-            </label>
-          ))}
-        </div>
-      </div>
+        {/* Category Filter */}
+        <AccordionItem value="category" className="border-none">
+          <AccordionTrigger className="py-3 hover:no-underline hover:text-primary">
+            <span className="flex items-center gap-2 text-sm font-semibold">
+              <BookOpen className="w-4 h-4" /> Discipline
+            </span>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-2 max-h-48 overflow-y-auto pr-2 scrollbar-thin pt-2">
+              {availableCategories.map((cat) => (
+                <label key={cat} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
+                  <Checkbox 
+                    checked={selectedCategories.includes(cat)}
+                    onCheckedChange={() => toggleFilter(cat, selectedCategories, setSelectedCategories)}
+                    className="rounded-[4px] w-4 h-4"
+                  />
+                  <span className="text-muted-foreground">{cat}</span>
+                </label>
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* Intake Filter */}
+        <AccordionItem value="intake" className="border-none">
+          <AccordionTrigger className="py-3 hover:no-underline hover:text-primary">
+            <span className="flex items-center gap-2 text-sm font-semibold">
+              <Calendar className="w-4 h-4" /> Intake
+            </span>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-2 max-h-48 overflow-y-auto pr-2 scrollbar-thin pt-2">
+              {availableIntakes.map((intake) => (
+                <label key={intake} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
+                  <Checkbox 
+                    checked={selectedIntakes.includes(intake)}
+                    onCheckedChange={() => toggleFilter(intake, selectedIntakes, setSelectedIntakes)}
+                    className="rounded-[4px] w-4 h-4"
+                  />
+                  <span className="text-muted-foreground">{intake}</span>
+                </label>
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   )
 
@@ -283,22 +383,31 @@ export default function CoursesPage() {
           {/* --- DESKTOP SIDEBAR FILTERS --- */}
           <aside className="w-full lg:w-64 shrink-0 space-y-8 hidden lg:block">
             {/* Active Filters Summary (Desktop) */}
-            {(selectedCountries.length > 0 || selectedLevels.length > 0 || selectedCategories.length > 0) && (
+            {(selectedCountries.length > 0 || selectedLevels.length > 0 || selectedCategories.length > 0 || selectedIntakes.length > 0 || priceRange[1] < maxTuition) && (
               <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-border">
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-sm font-semibold">Active Filters</span>
                   <button onClick={clearFilters} className="text-xs text-red-500 hover:underline">Clear All</button>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {[...selectedCountries, ...selectedLevels, ...selectedCategories].map(f => (
+                  {[...selectedCountries, ...selectedLevels, ...selectedCategories, ...selectedIntakes].map(f => (
                     <Badge key={f} variant="secondary" className="text-[10px] h-6 px-2 gap-1">
                       {f} <X className="w-3 h-3 cursor-pointer" onClick={() => {
                         if(selectedCountries.includes(f)) toggleFilter(f, selectedCountries, setSelectedCountries)
                         else if(selectedLevels.includes(f)) toggleFilter(f, selectedLevels, setSelectedLevels)
-                        else toggleFilter(f, selectedCategories, setSelectedCategories)
+                        else if(selectedCategories.includes(f)) toggleFilter(f, selectedCategories, setSelectedCategories)
+                        else toggleFilter(f, selectedIntakes, setSelectedIntakes)
                       }} />
                     </Badge>
                   ))}
+                  
+                  {/* Price Badge */}
+                  {(priceRange[0] > 0 || priceRange[1] < maxTuition) && (
+                    <Badge variant="secondary" className="text-[10px] h-6 px-2 gap-1">
+                      {formatCurrency(priceRange[0], 'USD')} - {formatCurrency(priceRange[1], 'USD')}
+                      <X className="w-3 h-3 cursor-pointer" onClick={() => setPriceRange([0, maxTuition])} />
+                    </Badge>
+                  )}
                 </div>
               </div>
             )}
@@ -318,19 +427,19 @@ export default function CoursesPage() {
                   <SheetTrigger asChild>
                     <Button variant="outline" size="sm" className="lg:hidden">
                       <Filter className="w-4 h-4 mr-2" /> Filters
-                      {(selectedCountries.length > 0 || selectedLevels.length > 0 || selectedCategories.length > 0) && (
-                         <Badge variant="secondary" className="ml-2 h-5 w-5 p-0 flex items-center justify-center rounded-full bg-primary text-primary-foreground">
-                            {selectedCountries.length + selectedLevels.length + selectedCategories.length}
-                         </Badge>
+                      {(selectedCountries.length > 0 || selectedLevels.length > 0 || selectedCategories.length > 0 || selectedIntakes.length > 0) && (
+                          <Badge variant="secondary" className="ml-2 h-5 w-5 p-0 flex items-center justify-center rounded-full bg-primary text-primary-foreground">
+                            {selectedCountries.length + selectedLevels.length + selectedCategories.length + selectedIntakes.length}
+                          </Badge>
                       )}
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="left" className="w-[300px] sm:w-[400px] overflow-y-auto">
+                  <SheetContent side="left" className="w-[260px] sm:w-[320px] overflow-y-auto">
                     <SheetHeader>
                       <SheetTitle>Filter Courses</SheetTitle>
                     </SheetHeader>
-                    <div className="mt-8">
-                       <FilterContent />
+                    <div className="mt-6 pl-4 pr-3">
+                        <FilterContent />
                     </div>
                     <SheetFooter className="mt-8 border-t pt-4">
                         <SheetClose asChild>
