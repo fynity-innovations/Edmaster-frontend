@@ -40,7 +40,7 @@ const servicesItems = [
   },
   { 
     name: "Health Insurance for Students", 
-    href: "/services/insurance", 
+    href: "/services/health-insurance", 
     icon: ShieldCheck 
   },
   { 

@@ -4,9 +4,9 @@ import { useState, useMemo, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { 
-  Search, Filter, ArrowRight, MapPin, BookOpen, 
+  Search, Filter, ArrowRight, MapPin, 
   Clock, Calendar, X, ChevronDown, 
-  Loader2, School, GraduationCap
+  Loader2, School, GraduationCap, Hourglass, Trash2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -45,7 +45,7 @@ interface Course {
   country_name: string
   city: string
   level: string 
-  category?: string 
+  // category removed
   duration: string
   tuition_fees: number
   currency: string
@@ -61,11 +61,14 @@ export default function CoursesPage() {
   // Filter States
   const [selectedCountries, setSelectedCountries] = useState<string[]>([])
   const [selectedLevels, setSelectedLevels] = useState<string[]>([])
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [selectedIntakes, setSelectedIntakes] = useState<string[]>([])
+  const [selectedDurations, setSelectedDurations] = useState<string[]>([])
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000])
 
-  // Sorting & UI States
+  // UI States
+  // FIX: Controlled Accordion State to prevent auto-collapsing
+  const [accordionValue, setAccordionValue] = useState<string[]>(["country", "level", "duration", "intake"])
+  
   const [sortBy, setSortBy] = useState<"name" | "tuition_low" | "tuition_high">("name")
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
   const [isLoading, setIsLoading] = useState(true)
@@ -85,23 +88,28 @@ export default function CoursesPage() {
   }, []);
 
   // --- 2. EXTRACT OPTIONS & RANGES ---
-  const { availableLevels, availableCategories, availableIntakes, maxTuition } = useMemo(() => {
-    const cats = new Set<string>()
+  const { 
+    availableLevels, 
+    availableIntakes, 
+    availableDurations,
+    maxTuition 
+  } = useMemo(() => {
     const levels = new Set<string>()
     const intakes = new Set<string>()
+    const durs = new Set<string>()
     let maxPrice = 0
 
     courses.forEach((c) => {
-      if (c.category) cats.add(c.category)
       if (c.level) levels.add(c.level)
       if (c.intake) intakes.add(c.intake)
+      if (c.duration) durs.add(c.duration)
       if (c.tuition_fees && c.tuition_fees > maxPrice) maxPrice = c.tuition_fees
     })
 
     return {
-      availableCategories: Array.from(cats).sort(),
       availableLevels: Array.from(levels).sort(),
       availableIntakes: Array.from(intakes).sort(),
+      availableDurations: Array.from(durs).sort(),
       maxTuition: maxPrice > 0 ? maxPrice : 100000
     }
   }, [courses])
@@ -128,24 +136,16 @@ export default function CoursesPage() {
 
     // Checkbox Filters
     if (selectedCountries.length > 0) {
-      result = result.filter((course) => 
-        course.country_name && selectedCountries.includes(course.country_name)
-      )
+      result = result.filter((course) => course.country_name && selectedCountries.includes(course.country_name))
     }
     if (selectedLevels.length > 0) {
-      result = result.filter((course) => 
-        course.level && selectedLevels.includes(course.level)
-      )
-    }
-    if (selectedCategories.length > 0) {
-      result = result.filter((course) => 
-        course.category && selectedCategories.includes(course.category)
-      )
+      result = result.filter((course) => course.level && selectedLevels.includes(course.level))
     }
     if (selectedIntakes.length > 0) {
-      result = result.filter((course) => 
-        course.intake && selectedIntakes.includes(course.intake)
-      )
+      result = result.filter((course) => course.intake && selectedIntakes.includes(course.intake))
+    }
+    if (selectedDurations.length > 0) {
+      result = result.filter((course) => course.duration && selectedDurations.includes(course.duration))
     }
 
     // Price Range Filter
@@ -167,7 +167,11 @@ export default function CoursesPage() {
     })
 
     return result
-  }, [searchQuery, selectedCountries, selectedLevels, selectedCategories, selectedIntakes, priceRange, sortBy, courses])
+  }, [
+    searchQuery, selectedCountries, selectedLevels, 
+    selectedIntakes, selectedDurations,
+    priceRange, sortBy, courses
+  ])
 
   // --- 4. PAGINATION ---
   const visibleCourses = useMemo(() => {
@@ -179,7 +183,11 @@ export default function CoursesPage() {
     setIsLoading(true)
     const timer = setTimeout(() => setIsLoading(false), 500)
     return () => clearTimeout(timer)
-  }, [searchQuery, selectedCountries, selectedLevels, selectedCategories, selectedIntakes, priceRange, sortBy])
+  }, [
+    searchQuery, selectedCountries, selectedLevels, 
+    selectedIntakes, selectedDurations, 
+    priceRange, sortBy
+  ])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -213,15 +221,30 @@ export default function CoursesPage() {
     setSearchQuery("")
     setSelectedCountries([])
     setSelectedLevels([])
-    setSelectedCategories([])
     setSelectedIntakes([])
+    setSelectedDurations([])
     setPriceRange([0, maxTuition])
   }
 
-  // --- REUSABLE FILTER COMPONENT (SIDEBAR/SHEET) ---
-  const FilterContent = () => (
+  // Check if any filter is active
+  const hasActiveFilters = selectedCountries.length > 0 || selectedLevels.length > 0 || selectedIntakes.length > 0 || selectedDurations.length > 0 || priceRange[1] < maxTuition
+
+  // --- REUSABLE FILTER COMPONENT ---
+  const FilterContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className="space-y-6">
       
+      {/* Mobile-only Clear Filter Button */}
+      {isMobile && hasActiveFilters && (
+        <Button 
+          variant="destructive" 
+          size="sm" 
+          onClick={clearFilters} 
+          className="w-full mb-4 gap-2"
+        >
+          <Trash2 className="w-4 h-4" /> Clear All Filters
+        </Button>
+      )}
+
       {/* Price Range Slider */}
       <div className="px-1">
         <h3 className="font-semibold mb-4 flex items-center gap-2">
@@ -248,7 +271,13 @@ export default function CoursesPage() {
       <div className="h-px bg-border" />
 
       {/* Accordion for Checkbox Groups */}
-      <Accordion type="multiple" defaultValue={["country", "level"]} className="w-full">
+      {/* FIX: Controlled Accordion using 'value' and 'onValueChange' */}
+      <Accordion 
+        type="multiple" 
+        value={accordionValue} 
+        onValueChange={setAccordionValue} 
+        className="w-full"
+      >
         
         {/* Country Filter */}
         <AccordionItem value="country" className="border-none">
@@ -296,23 +325,23 @@ export default function CoursesPage() {
           </AccordionContent>
         </AccordionItem>
 
-        {/* Category Filter */}
-        <AccordionItem value="category" className="border-none">
+        {/* Duration Filter */}
+        <AccordionItem value="duration" className="border-none">
           <AccordionTrigger className="py-3 hover:no-underline hover:text-primary">
             <span className="flex items-center gap-2 text-sm font-semibold">
-              <BookOpen className="w-4 h-4" /> Discipline
+              <Hourglass className="w-4 h-4" /> Duration
             </span>
           </AccordionTrigger>
           <AccordionContent>
             <div className="space-y-2 max-h-48 overflow-y-auto pr-2 scrollbar-thin pt-2">
-              {availableCategories.map((cat) => (
-                <label key={cat} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
+              {availableDurations.map((dur) => (
+                <label key={dur} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
                   <Checkbox 
-                    checked={selectedCategories.includes(cat)}
-                    onCheckedChange={() => toggleFilter(cat, selectedCategories, setSelectedCategories)}
+                    checked={selectedDurations.includes(dur)}
+                    onCheckedChange={() => toggleFilter(dur, selectedDurations, setSelectedDurations)}
                     className="rounded-[4px] w-4 h-4"
                   />
-                  <span className="text-muted-foreground">{cat}</span>
+                  <span className="text-muted-foreground">{dur}</span>
                 </label>
               ))}
             </div>
@@ -383,20 +412,20 @@ export default function CoursesPage() {
           {/* --- DESKTOP SIDEBAR FILTERS --- */}
           <aside className="w-full lg:w-64 shrink-0 space-y-8 hidden lg:block">
             {/* Active Filters Summary (Desktop) */}
-            {(selectedCountries.length > 0 || selectedLevels.length > 0 || selectedCategories.length > 0 || selectedIntakes.length > 0 || priceRange[1] < maxTuition) && (
+            {hasActiveFilters && (
               <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-border">
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-sm font-semibold">Active Filters</span>
                   <button onClick={clearFilters} className="text-xs text-red-500 hover:underline">Clear All</button>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {[...selectedCountries, ...selectedLevels, ...selectedCategories, ...selectedIntakes].map(f => (
+                  {[...selectedCountries, ...selectedLevels, ...selectedIntakes, ...selectedDurations].map(f => (
                     <Badge key={f} variant="secondary" className="text-[10px] h-6 px-2 gap-1">
                       {f} <X className="w-3 h-3 cursor-pointer" onClick={() => {
                         if(selectedCountries.includes(f)) toggleFilter(f, selectedCountries, setSelectedCountries)
                         else if(selectedLevels.includes(f)) toggleFilter(f, selectedLevels, setSelectedLevels)
-                        else if(selectedCategories.includes(f)) toggleFilter(f, selectedCategories, setSelectedCategories)
-                        else toggleFilter(f, selectedIntakes, setSelectedIntakes)
+                        else if(selectedIntakes.includes(f)) toggleFilter(f, selectedIntakes, setSelectedIntakes)
+                        else toggleFilter(f, selectedDurations, setSelectedDurations)
                       }} />
                     </Badge>
                   ))}
@@ -427,19 +456,20 @@ export default function CoursesPage() {
                   <SheetTrigger asChild>
                     <Button variant="outline" size="sm" className="lg:hidden">
                       <Filter className="w-4 h-4 mr-2" /> Filters
-                      {(selectedCountries.length > 0 || selectedLevels.length > 0 || selectedCategories.length > 0 || selectedIntakes.length > 0) && (
+                      {hasActiveFilters && (
                           <Badge variant="secondary" className="ml-2 h-5 w-5 p-0 flex items-center justify-center rounded-full bg-primary text-primary-foreground">
-                            {selectedCountries.length + selectedLevels.length + selectedCategories.length + selectedIntakes.length}
+                            {selectedCountries.length + selectedLevels.length + selectedIntakes.length + selectedDurations.length}
                           </Badge>
                       )}
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="left" className="w-[260px] sm:w-[320px] overflow-y-auto">
+                  <SheetContent side="left" className="w-[280px] sm:w-[320px] overflow-y-auto">
                     <SheetHeader>
                       <SheetTitle>Filter Courses</SheetTitle>
                     </SheetHeader>
                     <div className="mt-6 pl-4 pr-3">
-                        <FilterContent />
+                        {/* PASS isMobile PROP */}
+                        <FilterContent isMobile={true} />
                     </div>
                     <SheetFooter className="mt-8 border-t pt-4">
                         <SheetClose asChild>
@@ -560,7 +590,7 @@ export default function CoursesPage() {
             {!isLoading && filteredCourses.length === 0 && (
               <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-border border-dashed">
                 <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <BookOpen className="w-8 h-8 text-muted-foreground" />
+                  {/* <BookOpen className="w-8 h-8 text-muted-foreground" /> */}
                 </div>
                 <h3 className="text-xl font-bold mb-2">No courses found</h3>
                 <p className="text-muted-foreground mb-6 max-w-sm mx-auto">

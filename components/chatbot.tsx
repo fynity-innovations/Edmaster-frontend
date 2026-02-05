@@ -28,31 +28,61 @@ export function Chatbot() {
   const [input, setInput] = useState("")
   const [isTyping, setIsTyping] = useState(false)
 
-  const handleSend = (text?: string) => {
+  const handleSend = async (text?: string) => {
     const messageText = text || input
     if (!messageText.trim()) return
 
-    const newMessage: Message = {
+    const userMessage: Message = {
       id: Date.now(),
       text: messageText,
       sender: "user",
     }
 
-    setMessages((prev) => [...prev, newMessage])
+    setMessages((prev) => [...prev, userMessage])
     setInput("")
     setIsTyping(true)
 
-    // Simulate bot response
-    setTimeout(() => {
-      const botResponse: Message = {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/chat/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: messageText,
+          }),
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error("API error")
+      }
+
+      const data = await response.json()
+
+      const botMessage: Message = {
         id: Date.now() + 1,
-        text: getBotResponse(messageText),
+        text: data.reply,
         sender: "bot",
       }
-      setMessages((prev) => [...prev, botResponse])
+
+      setMessages((prev) => [...prev, botMessage])
+    } catch (error) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          text: "⚠️ Server error. Please try again.",
+          sender: "bot",
+        },
+      ])
+    } finally {
       setIsTyping(false)
-    }, 1500)
+    }
   }
+
 
   const getBotResponse = (query: string): string => {
     const lowerQuery = query.toLowerCase()
