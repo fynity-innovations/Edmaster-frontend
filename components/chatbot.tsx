@@ -1,32 +1,40 @@
+// Chatbot.tsx (updated to handle program level)
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { MessageCircle, X, Send, Bot, User } from "lucide-react"
+import { MessageCircle, X, Send, Bot, User, RefreshCw, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
 interface Message {
   id: number
   text: string
   sender: "user" | "bot"
+  redirectUrl?: string
+  buttonText?: string
 }
 
-const initialMessages: Message[] = [
-  {
-    id: 1,
-    text: "Hi! I'm your StudyGlobal assistant. How can I help you with your study abroad journey today?",
-    sender: "bot",
-  },
-]
-
-const quickReplies = ["Find universities", "Visa requirements", "Scholarship info", "Application process"]
+interface Session {
+  session_id: string | null;
+  step: string;
+}
 
 export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false)
-  const [messages, setMessages] = useState<Message[]>(initialMessages)
+  const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [isTyping, setIsTyping] = useState(false)
+  const [session, setSession] = useState<Session>({ session_id: null, step: 'greeting' })
+  const router = useRouter()
+
+  // Initialize chat when opened
+  useEffect(() => {
+    if (isOpen && messages.length === 0) {
+      handleSend("") // Send empty message to get greeting
+    }
+  }, [isOpen, messages.length])
 
   const handleSend = async (text?: string) => {
     const messageText = text || input
@@ -43,38 +51,53 @@ export function Chatbot() {
     setIsTyping(true)
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/chat/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            message: messageText,
-          }),
-        }
-      )
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL || 'https://uconnect-backend-026s.onrender.com'}/api/chat/`
+      
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: messageText,
+          session_id: session.session_id
+        }),
+      })
 
       if (!response.ok) {
-        throw new Error("API error")
+        const errorText = await response.text()
+        throw new Error(`Server error: ${response.status}`)
       }
 
       const data = await response.json()
+      
+      // Update session state
+      setSession({
+        session_id: data.session_id,
+        step: data.step
+      })
 
       const botMessage: Message = {
         id: Date.now() + 1,
         text: data.reply,
         sender: "bot",
       }
+      
+      // Add redirect URL and button text if available
+      if (data.redirect_url) {
+        botMessage.redirectUrl = data.redirect_url
+        botMessage.buttonText = data.button_text || "View Courses"
+      }
 
       setMessages((prev) => [...prev, botMessage])
+      
     } catch (error) {
+      console.error("Chat error:", error)
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now() + 1,
-          text: "⚠️ Server error. Please try again.",
+          text: `⚠️ ${error instanceof Error ? error.message : 'Connection error. Please try again.'}`,
           sender: "bot",
         },
       ])
@@ -83,22 +106,98 @@ export function Chatbot() {
     }
   }
 
+  const handleResendOTP = async () => {
+    if (!session.session_id) return
+    
+    setIsTyping(true)
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000'}/api/resend-otp/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            session_id: session.session_id
+          }),
+        }
+      )
 
-  const getBotResponse = (query: string): string => {
-    const lowerQuery = query.toLowerCase()
-    if (lowerQuery.includes("university") || lowerQuery.includes("find")) {
-      return "I'd be happy to help you find universities! You can use our AI-powered University Recommender tool, or tell me your preferred country and field of study, and I'll suggest some options."
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`)
+      }
+
+      const data = await response.json()
+      
+      setMessages((prev) => [...prev, {
+        id: Date.now() + 1,
+        text: data.message,
+        sender: "bot",
+      }])
+      
+    } catch (error) {
+      console.error("Resend OTP error:", error)
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          text: `⚠️ Failed to resend code. ${error instanceof Error ? error.message : 'Please try again.'}`,
+          sender: "bot",
+        },
+      ])
+    } finally {
+      setIsTyping(false)
     }
-    if (lowerQuery.includes("visa")) {
-      return "Visa requirements vary by country. Our Visa Advisor tool can provide detailed guidance based on your nationality and destination. Would you like me to direct you there?"
+  }
+
+  const handleRedirect = (url: string) => {
+    // Close the chatbot
+    setIsOpen(false)
+    // Navigate to the URL
+    router.push(url)
+  }
+
+  const getQuickReplies = () => {
+    if (session.step === 'preferences_collected') {
+      return ["Search again"]
+    } else if (session.step === 'otp') {
+      return ["Resend code"]
     }
-    if (lowerQuery.includes("scholarship")) {
-      return "There are many scholarships available for international students! Our platform can match you with scholarships based on your profile. Would you like to explore scholarship opportunities?"
+    return []
+  }
+
+  const handleQuickReply = (reply: string) => {
+    if (reply === "Resend code") {
+      handleResendOTP()
+    } else {
+      handleSend(reply)
     }
-    if (lowerQuery.includes("application")) {
-      return "The application process typically involves: 1) Choosing your program, 2) Preparing documents, 3) Writing your SOP, 4) Submitting applications, 5) Applying for visa. Our team can guide you through each step!"
+  }
+
+  const getInputPlaceholder = () => {
+    switch (session.step) {
+      case 'name':
+        return "Enter your name..."
+      case 'email':
+        return "Enter your email address..."
+      case 'otp':
+        return "Enter 6-digit verification code..."
+      case 'collect_country':
+        return "Which country would you like to study in?"
+      case 'collect_duration':
+        return "What duration are you looking for?"
+      case 'collect_level':  // NEW: Add placeholder for program level
+        return "What program level? (e.g., Bachelor's, Master's, PhD)"
+      case 'collect_course':
+        return "What course or field of study are you interested in?"
+      default:
+        return "Type your message..."
     }
-    return "Thank you for your question! Our team of experts can provide detailed guidance on this topic. Would you like to schedule a free consultation or explore our AI tools for instant answers?"
+  }
+
+  const getInputMaxLength = () => {
+    return session.step === 'otp' ? 6 : undefined
   }
 
   return (
@@ -129,7 +228,7 @@ export function Chatbot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-48px)] h-[600px] max-h-[calc(100vh-100px)] rounded-2xl overflow-hidden shadow-2xl border border-border glass flex flex-col"
+            className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-48px)] h-[600px] max-h-[calc(100vh-100px)] rounded-2xl overflow-hidden shadow-2xl border border-border bg-background flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 bg-primary text-primary-foreground">
@@ -139,7 +238,9 @@ export function Chatbot() {
                 </div>
                 <div>
                   <h3 className="font-semibold">StudyGlobal Assistant</h3>
-                  <p className="text-xs text-primary-foreground/80">Always here to help</p>
+                  <p className="text-xs text-primary-foreground/80">
+                    {session.step === 'verified' || session.step?.startsWith('collect_') || session.step === 'preferences_collected' ? 'Course Finder' : 'Authentication Required'}
+                  </p>
                 </div>
               </div>
               <button
@@ -152,34 +253,53 @@ export function Chatbot() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background/95">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.map((message) => (
                 <motion.div
                   key={message.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={cn("flex items-end gap-2", message.sender === "user" && "flex-row-reverse")}
+                  className={cn("flex flex-col", message.sender === "user" && "items-end")}
                 >
-                  <div
-                    className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
-                      message.sender === "bot"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary text-secondary-foreground",
-                    )}
-                  >
-                    {message.sender === "bot" ? <Bot className="w-4 h-4" /> : <User className="w-4 h-4" />}
+                  <div className={cn("flex items-end gap-2", message.sender === "user" && "flex-row-reverse")}>
+                    <div
+                      className={cn(
+                        "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
+                        message.sender === "bot"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-secondary text-secondary-foreground",
+                      )}
+                    >
+                      {message.sender === "bot" ? <Bot className="w-4 h-4" /> : <User className="w-4 h-4" />}
+                    </div>
+                    <div
+                      className={cn(
+                        "max-w-[75%] px-4 py-3 rounded-2xl text-sm whitespace-pre-wrap",
+                        message.sender === "bot"
+                          ? "bg-secondary text-secondary-foreground rounded-bl-md"
+                          : "bg-primary text-primary-foreground rounded-br-md",
+                      )}
+                    >
+                      {message.text}
+                    </div>
                   </div>
-                  <div
-                    className={cn(
-                      "max-w-[75%] px-4 py-3 rounded-2xl text-sm",
-                      message.sender === "bot"
-                        ? "bg-secondary text-secondary-foreground rounded-bl-md"
-                        : "bg-primary text-primary-foreground rounded-br-md",
-                    )}
-                  >
-                    {message.text}
-                  </div>
+                  
+                  {/* Redirect Button */}
+                  {message.redirectUrl && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="mt-2 ml-10"
+                    >
+                      <Button
+                        onClick={() => handleRedirect(message.redirectUrl!)}
+                        className="gap-2 bg-primary hover:bg-primary/90"
+                      >
+                        {message.buttonText} <ExternalLink className="w-4 h-4" />
+                      </Button>
+                    </motion.div>
+                  )}
                 </motion.div>
               ))}
 
@@ -210,22 +330,30 @@ export function Chatbot() {
             </div>
 
             {/* Quick Replies */}
-            <div className="px-4 py-2 border-t border-border bg-background/95">
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                {quickReplies.map((reply) => (
-                  <button
-                    key={reply}
-                    onClick={() => handleSend(reply)}
-                    className="flex-shrink-0 px-3 py-1.5 text-xs font-medium bg-secondary text-secondary-foreground rounded-full hover:bg-primary hover:text-primary-foreground transition-colors"
-                  >
-                    {reply}
-                  </button>
-                ))}
+            {getQuickReplies().length > 0 && (
+              <div className="px-4 py-2 border-t border-border bg-background">
+                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                  {getQuickReplies().map((reply) => (
+                    <button
+                      key={reply}
+                      onClick={() => handleQuickReply(reply)}
+                      className={cn(
+                        "flex-shrink-0 px-3 py-1.5 text-xs font-medium rounded-full transition-colors",
+                        reply === "Resend code" 
+                          ? "bg-orange-500 text-white hover:bg-orange-600"
+                          : "bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground"
+                      )}
+                    >
+                      {reply === "Resend code" && <RefreshCw className="w-3 h-3 mr-1 inline" />}
+                      {reply}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Input */}
-            <div className="p-4 border-t border-border bg-background/95">
+            <div className="p-4 border-t border-border bg-background">
               <form
                 onSubmit={(e) => {
                   e.preventDefault()
@@ -237,14 +365,16 @@ export function Chatbot() {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Type your message..."
+                  placeholder={getInputPlaceholder()}
+                  maxLength={getInputMaxLength()}
                   className="flex-1 px-4 py-2 text-sm rounded-full border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  disabled={isTyping}
                 />
                 <Button
                   type="submit"
                   size="icon"
                   className="rounded-full bg-primary hover:bg-primary/90"
-                  disabled={!input.trim()}
+                  disabled={!input.trim() || isTyping}
                 >
                   <Send className="w-4 h-4" />
                 </Button>
