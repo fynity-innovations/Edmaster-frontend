@@ -112,7 +112,7 @@ export function Chatbot() {
     setIsTyping(true)
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000'}/api/resend-otp/`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL || 'https://uconnect-backend-026s.onrender.com'}/api/resend-otp/`,
         {
           method: "POST",
           headers: {
