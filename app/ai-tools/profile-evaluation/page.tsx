@@ -28,12 +28,14 @@ export default function AIProfileEvaluator() {
   const [showOtpInput, setShowOtpInput] = useState(false)
   const [otp, setOtp] = useState("")
 
+  const NEXT_PUBLIC_API_URL= 'https://sap-backend-production-e729.up.railway.app'
+
   const handleGenerateReport = async () => {
     try {
       setLoading(true)
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/profile/initiate/`,
+        `https://sap-backend-production-e729.up.railway.app/api/profile/initiate/`,
         {
           method: "POST",
           headers: {
@@ -73,7 +75,7 @@ export default function AIProfileEvaluator() {
       setLoading(true)
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/profile/verify/`,
+        `https://sap-backend-production-e729.up.railway.app/api/profile/verify/`,
         {
           method: "POST",
           headers: {
