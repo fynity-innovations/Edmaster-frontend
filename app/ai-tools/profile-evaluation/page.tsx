@@ -24,6 +24,88 @@ export default function AIProfileEvaluator() {
   const totalSteps = 6
   const [step, setStep] = useState(1)
   const [search, setSearch] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [showOtpInput, setShowOtpInput] = useState(false)
+  const [otp, setOtp] = useState("")
+
+  const handleGenerateReport = async () => {
+    try {
+      setLoading(true)
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/profile/initiate/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone
+          })
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        alert(
+          data.errors?.phone?.[0] ||
+          data.message ||
+          "Something went wrong"
+        )
+        return
+      }
+
+      setShowOtpInput(true)
+
+    } catch (error) {
+      console.error(error)
+      alert("Server error")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleVerifyOtp = async () => {
+    try {
+      setLoading(true)
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/profile/verify/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            phone: formData.phone,
+            otp: otp
+          })
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        alert(data.message || "Invalid OTP")
+        return
+      }
+
+      alert("Profile Verified Successfully 🎉")
+      setShowOtpInput(false)
+
+    } catch (error) {
+      console.error(error)
+      alert("Verification failed")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+
+
 
   const [formData, setFormData] = useState({
     countries: [] as string[],
@@ -292,6 +374,38 @@ export default function AIProfileEvaluator() {
               )}
             </motion.div>
           </AnimatePresence>
+          {showOtpInput && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl w-full max-w-sm space-y-6">
+              <h3 className="text-xl font-bold text-center">
+                Enter OTP
+              </h3>
+
+              <Input
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="Enter 6 digit OTP"
+                maxLength={6}
+                className="h-14 text-center text-xl tracking-widest"
+              />
+
+              <Button
+                onClick={handleVerifyOtp}
+                disabled={loading || otp.length !== 6}
+                className="w-full h-12"
+              >
+                {loading ? "Verifying..." : "Verify OTP"}
+              </Button>
+
+              <button
+                onClick={() => setShowOtpInput(false)}
+                className="text-sm text-muted-foreground w-full"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
         </main>
       </div>
 
@@ -302,11 +416,24 @@ export default function AIProfileEvaluator() {
             Back
           </button>
           <Button
-            onClick={nextStep}
-            disabled={(step === 1 && !formData.countries.length) || (step === 3 && !formData.fields.length)}
+            onClick={() => {
+              if (step === totalSteps) {
+                handleGenerateReport()
+              } else {
+                nextStep()
+              }
+            }}
+            disabled={
+              loading ||
+              (step === 1 && !formData.countries.length) ||
+              (step === 3 && !formData.fields.length) ||
+              (step === 6 &&
+                (!formData.name || !formData.email || !formData.phone))
+            }
             className="h-14 px-10 rounded-xl font-bold shadow-xl shadow-primary/20"
           >
-            {step === totalSteps ? "Generate Full Report" : "Continue"}
+            {loading ? "Sending..." :
+              step === totalSteps ? "Generate Full Report" : "Continue"}
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
         </div>
