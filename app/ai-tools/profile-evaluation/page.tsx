@@ -2,12 +2,13 @@
 
 import { useState, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { useRouter } from "next/navigation"
 import {
   Zap, Search, Check, ArrowRight,
   GraduationCap, BookOpen, Microscope, FileText,
   Monitor, Building2, Heart, Brain, Sparkles,
   Globe, Layout, Target, Wallet, UserCircle,
-  Trophy, Calendar, Mail, Phone, User
+  Trophy, Calendar, Mail, Phone, User, ExternalLink
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -19,23 +20,28 @@ import { Slider } from "@/components/ui/slider"
 // Mock data structures - replace with your actual imports
 import countriesData from "@/data/countries.json" 
 import universitiesData from "@/data/universities.json"
+import coursesData from "@/data/courses_final.json" 
 
 export default function AIProfileEvaluator() {
+  const router = useRouter()
   const totalSteps = 6
   const [step, setStep] = useState(1)
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(false)
   const [showOtpInput, setShowOtpInput] = useState(false)
   const [otp, setOtp] = useState("")
+  const [verificationSuccess, setVerificationSuccess] = useState(false)
+  const [processingFilters, setProcessingFilters] = useState(false)
 
-  const NEXT_PUBLIC_API_URL= 'https://sap-backend-production-e729.up.railway.app'
+
+  const NEXT_PUBLIC_API_URL = 'https://sap-backend-production-e729.up.railway.app'
 
   const handleGenerateReport = async () => {
     try {
       setLoading(true)
 
       const response = await fetch(
-        `https://sap-backend-production-e729.up.railway.app/api/profile/initiate/`,
+        `${NEXT_PUBLIC_API_URL}/api/profile/initiate/`,
         {
           method: "POST",
           headers: {
@@ -75,7 +81,7 @@ export default function AIProfileEvaluator() {
       setLoading(true)
 
       const response = await fetch(
-        `https://sap-backend-production-e729.up.railway.app/api/profile/verify/`,
+        `${NEXT_PUBLIC_API_URL}/api/profile/verify/`,
         {
           method: "POST",
           headers: {
@@ -95,8 +101,8 @@ export default function AIProfileEvaluator() {
         return
       }
 
-      alert("Profile Verified Successfully 🎉")
-      setShowOtpInput(false)
+      // Success - show verification success state
+      setVerificationSuccess(true)
 
     } catch (error) {
       console.error(error)
@@ -106,13 +112,87 @@ export default function AIProfileEvaluator() {
     }
   }
 
+  // Update only the handleViewResults function in your component
 
+  const handleViewResults = async () => {
+    try {
+      setProcessingFilters(true)
 
+      // Get a sample of courses for AI context (first 50 courses)
+      const courseSample = (coursesData as any[]).slice(0, 50)
+
+      // Call Django backend to process filters with Gemini AI
+      const response = await fetch(
+        `${NEXT_PUBLIC_API_URL}/api/profile/process-filters/`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            countries: formData.countries,
+            degree: formData.degree,
+            fields: formData.fields,
+            completedDegree: formData.completedDegree,
+            cgpa: formData.cgpa,
+            gradYear: formData.gradYear,
+            budget: formData.budget,
+            courseSample
+          })
+        }
+      )
+
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to process filters')
+      }
+
+      const { filters } = result
+
+      // Build query parameters from AI-generated filters
+      const params = new URLSearchParams()
+      
+      if (filters.country) {
+        params.append('country', filters.country)
+      }
+      
+      if (filters.level) {
+        params.append('level', filters.level)
+      }
+      
+      if (filters.course) {
+        params.append('course', filters.course)
+      }
+      
+      if (filters.duration) {
+        params.append('duration', filters.duration)
+      }
+
+      if (filters.searchQuery) {
+        params.append('search', filters.searchQuery)
+      }
+
+      if (filters.maxBudgetUSD) {
+        params.append('maxBudget', filters.maxBudgetUSD.toString())
+      }
+      
+      // Navigate to courses page with AI-generated filters
+      router.push(`/courses?${params.toString()}`)
+
+    } catch (error) {
+      console.error('Error processing filters:', error)
+      alert('Failed to process your preferences. Please try again.')
+    } finally {
+      setProcessingFilters(false)
+    }
+  }
 
   const [formData, setFormData] = useState({
     countries: [] as string[],
     degree: "",
     fields: [] as string[],
+    completedDegree: "",
     cgpa: 8.0,
     gradYear: "2025",
     budget: [20],
@@ -139,7 +219,24 @@ export default function AIProfileEvaluator() {
     }))
   }
 
-  const nextStep = () => setStep(s => Math.min(s + 1, totalSteps))
+  const canProceed = () => {
+    switch(step) {
+      case 1: return formData.countries.length > 0
+      case 2: return formData.degree !== ""
+      case 3: return formData.fields.length > 0
+      case 4: return formData.completedDegree !== "" && formData.cgpa > 0 && formData.gradYear !== ""
+      case 5: return formData.budget[0] > 0
+      case 6: return formData.name.trim() !== "" && formData.email.trim() !== "" && formData.phone.trim() !== ""
+      default: return true
+    }
+  }
+
+  const nextStep = () => {
+    if (canProceed()) {
+      setStep(s => Math.min(s + 1, totalSteps))
+    }
+  }
+  
   const prevStep = () => setStep(s => Math.max(1, s - 1))
 
   return (
@@ -187,6 +284,7 @@ export default function AIProfileEvaluator() {
             <Summary icon={Globe} label="Countries" value={formData.countries.join(", ")} />
             <Summary icon={Target} label="Degree" value={formData.degree} />
             <Summary icon={Layout} label="Fields" value={formData.fields.join(", ")} />
+            <Summary icon={GraduationCap} label="Completed" value={formData.completedDegree} />
             <Summary icon={Trophy} label="Performance" value={`${formData.cgpa} CGPA (${formData.gradYear})`} />
             <Summary icon={Wallet} label="Budget" value={`₹${formData.budget[0]}L / year`} />
           </div>
@@ -209,7 +307,7 @@ export default function AIProfileEvaluator() {
                     "Where do you want to study?",
                     "What's your academic goal?",
                     "What sparks your interest?",
-                    "Your academic performance",
+                    "Your academic background",
                     "What's your financial plan?",
                     "Let's finalize your report"
                   ][step - 1]}
@@ -257,14 +355,16 @@ export default function AIProfileEvaluator() {
                   ].map(d => (
                     <button
                       key={d.name}
-                      onClick={() => { setFormData({ ...formData, degree: d.name }); nextStep(); }}
-                      className="p-6 rounded-2xl border bg-white dark:bg-slate-900 hover:border-primary transition-all text-left flex items-start gap-4"
+                      onClick={() => setFormData({ ...formData, degree: d.name })}
+                      className={`p-6 rounded-2xl border transition-all text-left flex items-start gap-4
+                      ${formData.degree === d.name ? "border-primary bg-primary/[0.03] ring-1 ring-primary" : "bg-white dark:bg-slate-900 hover:border-primary/50"}`}
                     >
                       <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary"><d.icon className="w-6 h-6" /></div>
-                      <div>
+                      <div className="flex-1">
                         <div className="font-bold text-lg">{d.name}</div>
                         <div className="text-sm text-muted-foreground">{d.desc}</div>
                       </div>
+                      {formData.degree === d.name && <Check className="w-5 h-5 text-primary" />}
                     </button>
                   ))}
                 </div>
@@ -298,6 +398,24 @@ export default function AIProfileEvaluator() {
                 <div className="max-w-md space-y-10">
                   <div className="space-y-4">
                     <label className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                      <GraduationCap className="w-4 h-4" /> Completed Degree
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {["High School", "Undergraduate", "Postgraduate", "Doctorate"].map(deg => (
+                        <button
+                          key={deg}
+                          onClick={() => setFormData({ ...formData, completedDegree: deg })}
+                          className={`py-4 px-3 rounded-xl border font-semibold text-sm transition-all
+                          ${formData.completedDegree === deg ? "border-primary bg-primary text-white shadow-lg shadow-primary/20" : "bg-white dark:bg-slate-900 hover:border-primary/50"}`}
+                        >
+                          {deg}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
                       <Trophy className="w-4 h-4" /> Current CGPA / Percentage
                     </label>
                     <div className="relative">
@@ -306,6 +424,9 @@ export default function AIProfileEvaluator() {
                         className="h-16 text-2xl font-bold pl-6 rounded-2xl"
                         value={formData.cgpa}
                         onChange={e => setFormData({ ...formData, cgpa: +e.target.value })}
+                        min="0"
+                        max="10"
+                        step="0.1"
                       />
                       <span className="absolute right-6 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">Out of 10</span>
                     </div>
@@ -376,45 +497,118 @@ export default function AIProfileEvaluator() {
               )}
             </motion.div>
           </AnimatePresence>
+
+          {/* OTP Modal */}
           {showOtpInput && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl w-full max-w-sm space-y-6">
-              <h3 className="text-xl font-bold text-center">
-                Enter OTP
-              </h3>
-
-              <Input
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder="Enter 6 digit OTP"
-                maxLength={6}
-                className="h-14 text-center text-xl tracking-widest"
-              />
-
-              <Button
-                onClick={handleVerifyOtp}
-                disabled={loading || otp.length !== 6}
-                className="w-full h-12"
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-white dark:bg-slate-900 p-8 rounded-2xl w-full max-w-sm space-y-6 shadow-2xl"
               >
-                {loading ? "Verifying..." : "Verify OTP"}
-              </Button>
+                {!verificationSuccess ? (
+                  <>
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Phone className="w-8 h-8 text-primary" />
+                      </div>
+                      <h3 className="text-xl font-bold mb-2">
+                        Enter OTP
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        We've sent a 6-digit code to {formData.phone}
+                      </p>
+                    </div>
 
-              <button
-                onClick={() => setShowOtpInput(false)}
-                className="text-sm text-muted-foreground w-full"
-              >
-                Cancel
-              </button>
+                    <Input
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                      placeholder="Enter 6 digit OTP"
+                      maxLength={6}
+                      className="h-14 text-center text-xl tracking-widest font-bold"
+                      autoFocus
+                    />
+
+                    <Button
+                      onClick={handleVerifyOtp}
+                      disabled={loading || otp.length !== 6}
+                      className="w-full h-12"
+                    >
+                      {loading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                          Verifying...
+                        </>
+                      ) : (
+                        "Verify OTP"
+                      )}
+                    </Button>
+
+                    <button
+                      onClick={() => {
+                        setShowOtpInput(false)
+                        setOtp("")
+                      }}
+                      className="text-sm text-muted-foreground w-full hover:text-foreground transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-center">
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", duration: 0.5 }}
+                        className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-4"
+                      >
+                        <Check className="w-8 h-8 text-green-600 dark:text-green-400" />
+                      </motion.div>
+                      <h3 className="text-xl font-bold mb-2 text-green-600 dark:text-green-400">
+                        Verification Successful! 🎉
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-6">
+                        Your profile has been verified. Click below to view your personalized course recommendations.
+                      </p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <Button
+                        onClick={handleViewResults}
+                        className="w-full h-12 gap-2"
+                        size="lg"
+                      >
+                        View Results
+                        <ExternalLink className="w-4 h-4" />
+                      </Button>
+                      
+                      <button
+                        onClick={() => {
+                          setShowOtpInput(false)
+                          setVerificationSuccess(false)
+                          setOtp("")
+                        }}
+                        className="text-sm text-muted-foreground w-full hover:text-foreground transition-colors"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </>
+                )}
+              </motion.div>
             </div>
-          </div>
-        )}
+          )}
         </main>
       </div>
 
       {/* ===== STICKY FOOTER ===== */}
       <footer className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800">
         <div className="container mx-auto px-4 h-24 flex items-center justify-between">
-          <button onClick={prevStep} className={`text-sm font-bold text-slate-500 hover:text-primary transition-colors ${step === 1 ? 'invisible' : 'visible'}`}>
+          <button 
+            onClick={prevStep} 
+            className={`text-sm font-bold text-slate-500 hover:text-primary transition-colors ${step === 1 ? 'invisible' : 'visible'}`}
+          >
             Back
           </button>
           <Button
@@ -425,18 +619,20 @@ export default function AIProfileEvaluator() {
                 nextStep()
               }
             }}
-            disabled={
-              loading ||
-              (step === 1 && !formData.countries.length) ||
-              (step === 3 && !formData.fields.length) ||
-              (step === 6 &&
-                (!formData.name || !formData.email || !formData.phone))
-            }
-            className="h-14 px-10 rounded-xl font-bold shadow-xl shadow-primary/20"
+            disabled={!canProceed() || loading}
+            className="h-14 px-10 rounded-xl font-bold shadow-xl shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Sending..." :
-              step === totalSteps ? "Generate Full Report" : "Continue"}
-            <ArrowRight className="ml-2 w-5 h-5" />
+            {loading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                Sending...
+              </>
+            ) : (
+              <>
+                {step === totalSteps ? "Generate Full Report" : "Continue"}
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </>
+            )}
           </Button>
         </div>
       </footer>

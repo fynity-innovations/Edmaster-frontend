@@ -292,6 +292,7 @@ export default function CoursesPage() {
     setSelectedLevels(newSelectedLevels)
   }, [countryFromChat, durationFromChat, levelFromChat, allCountries, allDurations, availableLevels, mounted, debugMode])
 
+
   // --- 3. FILTERING LOGIC ---
   const filteredCourses = useMemo(() => {
     let result = courses
@@ -358,7 +359,17 @@ export default function CoursesPage() {
       console.log(`After duration filter: ${result.length} courses remaining`)
     }
 
-    // Price Range Filter
+    // Budget Filter from AI (maxBudget URL param)
+    const maxBudgetParam = searchParams.get('maxBudget')
+    if (maxBudgetParam) {
+      const maxBudget = parseFloat(maxBudgetParam)
+      result = result.filter((course) => {
+        const fee = course.tuition_fees || 0
+        return fee <= maxBudget
+      })
+    }
+
+    // Price Range Filter (from slider)
     result = result.filter((course) => {
       const fee = course.tuition_fees || 0
       return fee >= priceRange[0] && fee <= priceRange[1]
@@ -380,7 +391,7 @@ export default function CoursesPage() {
   }, [
     searchQuery, selectedCountries, selectedLevels, 
     selectedIntakes, selectedDurations,
-    priceRange, sortBy, courses
+    priceRange, sortBy, courses, searchParams
   ])
 
   // --- 4. PAGINATION ---
