@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic"
 export const revalidate = 0
 
 import universities from "@/data/universities.json"
-import courses from "@/data/courses.json"
+// import courses from "@/data/courses.json"
 
 import { UniversityContent } from "@/components/university/university-content"
 import { SkeletonCard } from "@/components/ui/skeleton-card"
@@ -52,9 +52,9 @@ export default async function UniversityPage({ params }: PageProps) {
     notFound()
   }
 
-  const universityCourses = courses.filter(
-    (c) => c.universityId === university.university_id
-  )
+  // const universityCourses = courses.filter(
+  //   (c) => c.universityId === university.university_id
+  // )
 
   return (
     <main className="min-h-screen bg-background">
@@ -74,10 +74,10 @@ export default async function UniversityPage({ params }: PageProps) {
           </div>
         }
       >
-        <UniversityContent
+        {/* <UniversityContent
           university={university}
           courses={universityCourses}
-        />
+        /> */}
       </Suspense>
     </main>
   )
