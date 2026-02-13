@@ -1,4 +1,4 @@
-// app/courses/page.tsx (COMPLETE FIXED VERSION)
+// app/courses/page.tsx (CORRECTED VERSION)
 "use client"
 
 import { useState, useMemo, useEffect, useRef } from "react"
@@ -58,16 +58,19 @@ const ITEMS_PER_PAGE = 9
 export default function CoursesPage() {
   const searchParams = useSearchParams()
   
-  // Read URL parameters from chatbot
-  const countryFromChat = searchParams.get('country') || ""
-  const durationFromChat = searchParams.get('duration') || ""
-  const courseFromChat = searchParams.get('course') || ""
-  const levelFromChat = searchParams.get('level') || ""
+  // Read ALL URL parameters (can have multiple countries/intakes)
+  const countriesFromURL = searchParams.getAll('country')
+  const intakesFromURL = searchParams.getAll('intake')
+  const durationFromURL = searchParams.get('duration') || ""
+  const courseFromURL = searchParams.get('course') || ""
+  const levelFromURL = searchParams.get('level') || ""
+  const maxBudgetParam = searchParams.get('maxBudget')
+  const searchFromURL = searchParams.get('search') || ""
   
   // --- State ---
-  const [searchQuery, setSearchQuery] = useState(courseFromChat)
+  const [searchQuery, setSearchQuery] = useState(searchFromURL || courseFromURL)
   const [selectedCountries, setSelectedCountries] = useState<string[]>([])
-  const [selectedLevels, setSelectedLevels] = useState<string[]>(levelFromChat ? [levelFromChat] : [])
+  const [selectedLevels, setSelectedLevels] = useState<string[]>([])
   const [selectedIntakes, setSelectedIntakes] = useState<string[]>([])
   const [selectedDurations, setSelectedDurations] = useState<string[]>([])
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000])
@@ -151,60 +154,35 @@ export default function CoursesPage() {
     const courseLower = courseDuration.toLowerCase().trim()
     const selectedLower = selectedDuration.toLowerCase().trim()
     
-    console.log(`Matching: "${courseLower}" with "${selectedLower}"`)
-    
     // Extract numbers from both strings
     const courseNumbers = courseLower.match(/\d+/g) || []
     const selectedNumbers = selectedLower.match(/\d+/g) || []
     
-    // Case 1: User entered just a number (like "2")
-    // This should match any course with that number in duration
-    if (selectedNumbers.length > 0 && /^\d+$/.test(selectedLower.trim())) {
-      const selectedNum = selectedNumbers[0]
-      console.log(`User entered number "${selectedNum}", checking if course contains this number`)
-      
-      // Only match if the course duration contains exactly this number
-      // and doesn't contain other numbers (to avoid matching "2-3 years" when user wants "2 years")
-      return courseNumbers.length === 1 && courseNumbers[0] === selectedNum
-    }
-    
-    // Case 2: Exact match
+    // Case 1: Exact match
     if (courseLower === selectedLower) {
-      console.log("Exact match found")
       return true
     }
     
-    // Case 3: Contains match (but only if it doesn't contain other numbers)
+    // Case 2: Contains match
     if (courseLower.includes(selectedLower) || selectedLower.includes(courseLower)) {
-      // Make sure we're not accidentally matching durations with multiple numbers
       if (selectedNumbers.length > 0) {
         const courseHasMultipleNumbers = courseNumbers.length > 1
         if (courseHasMultipleNumbers) {
-          console.log("Course has multiple numbers, skipping match")
           return false
         }
       }
-      console.log("Contains match found")
       return true
     }
     
-    // Case 4: Number-based matching (exact number match only)
-    if (courseNumbers.length > 0 && selectedNumbers.length > 0) {
-      // Only match if both have exactly one number and they're the same
-      if (courseNumbers.length === 1 && selectedNumbers.length === 1) {
-        const numberMatch = courseNumbers[0] === selectedNumbers[0]
-        if (numberMatch) {
-          console.log("Exact number match found")
-          return true
-        }
-      }
+    // Case 3: Number-based matching
+    if (courseNumbers.length === 1 && selectedNumbers.length === 1) {
+      return courseNumbers[0] === selectedNumbers[0]
     }
     
-    console.log("No match found")
     return false
   }
 
-  // --- 3. SMART FILTER MATCHING ---
+  // --- 4. SMART FILTER MATCHING ---
   const findBestMatch = (searchTerm: string, options: string[]): string[] => {
     const term = searchTerm.toLowerCase().trim()
     const matches: string[] = []
@@ -212,23 +190,15 @@ export default function CoursesPage() {
     options.forEach(option => {
       const optionLower = option.toLowerCase()
       
-      // Exact match
       if (optionLower === term) {
         matches.push(option)
-      }
-      // Contains match (but be more strict)
-      else if (optionLower.includes(term) || term.includes(optionLower)) {
-        // Only add if it's not a partial match that could cause issues
-        // For example, don't match "2 years" with "2 years 3 months"
+      } else if (optionLower.includes(term) || term.includes(optionLower)) {
         const optionNumbers = optionLower.match(/\d+/g) || []
         const termNumbers = term.match(/\d+/g) || []
         
-        // If both have the same single number, allow the match
         if (optionNumbers.length === 1 && termNumbers.length === 1 && optionNumbers[0] === termNumbers[0]) {
           matches.push(option)
-        }
-        // If no numbers involved, allow normal contains match
-        else if (optionNumbers.length === 0 && termNumbers.length === 0) {
+        } else if (optionNumbers.length === 0 && termNumbers.length === 0) {
           matches.push(option)
         }
       }
@@ -237,65 +207,62 @@ export default function CoursesPage() {
     return matches
   }
 
-  // Initialize filters based on chat parameters
+  // --- 5. Initialize filters from URL parameters ---
+  // Add this near your other state declarations:
+  const initializedRef = useRef(false)
+
+  // Replace the initialization useEffect with this:
   useEffect(() => {
-    if (!mounted) return
+    if (!mounted || initializedRef.current) return
     
-    const newSelectedCountries: string[] = []
-    const newSelectedDurations: string[] = []
-    const newSelectedLevels: string[] = []
+    console.log('Initializing filters from URL...')
+    console.log('Countries from URL:', countriesFromURL)
+    console.log('Intakes from URL:', intakesFromURL)
+    console.log('Level from URL:', levelFromURL)
+    console.log('Duration from URL:', durationFromURL)
+    console.log('Max Budget from URL:', maxBudgetParam)
     
-    // Smart country matching
-    if (countryFromChat) {
-      const countryMatches = findBestMatch(countryFromChat, allCountries)
-      newSelectedCountries.push(...countryMatches)
+    // Set countries
+    if (countriesFromURL.length > 0) {
+      setSelectedCountries(countriesFromURL)
+      console.log('✓ Set countries:', countriesFromURL)
     }
     
-    // Smart duration matching (FIXED)
-    if (durationFromChat) {
-      console.log(`Processing duration from chat: "${durationFromChat}"`)
-      
-      // Normalize the input
-      const normalizedInput = durationFromChat.toLowerCase().trim()
-      
-      // If user entered just a number, find exact matches
-      if (/^\d+$/.test(normalizedInput)) {
-        const targetNumber = normalizedInput
-        console.log(`User entered number: ${targetNumber}`)
-        
-        // Find durations that contain exactly this number and no other numbers
-        const exactMatches = allDurations.filter(duration => {
-          const durationLower = duration.toLowerCase()
-          const numbers = durationLower.match(/\d+/g) || []
-          
-          // Must contain exactly one number and it must match the target
-          return numbers.length === 1 && numbers[0] === targetNumber
-        })
-        
-        console.log(`Found exact matches: ${exactMatches.join(", ")}`)
-        newSelectedDurations.push(...exactMatches)
-      } else {
-        // For text inputs, use the normal matching but be more strict
-        const durationMatches = findBestMatch(durationFromChat, allDurations)
-        newSelectedDurations.push(...durationMatches)
+    // Set intakes
+    if (intakesFromURL.length > 0) {
+      setSelectedIntakes(intakesFromURL)
+      console.log('✓ Set intakes:', intakesFromURL)
+    }
+    
+    // Set level
+    if (levelFromURL) {
+      const levelMatches = findBestMatch(levelFromURL, availableLevels)
+      if (levelMatches.length > 0) {
+        setSelectedLevels(levelMatches)
+        console.log('✓ Set levels:', levelMatches)
       }
     }
     
-    // Smart level matching
-    if (levelFromChat) {
-      const levelMatches = findBestMatch(levelFromChat, availableLevels)
-      newSelectedLevels.push(...levelMatches)
+    // Set duration
+    if (durationFromURL) {
+      const durationMatches = findBestMatch(durationFromURL, allDurations)
+      if (durationMatches.length > 0) {
+        setSelectedDurations(durationMatches)
+        console.log('✓ Set durations:', durationMatches)
+      }
     }
     
-    setSelectedCountries(newSelectedCountries)
-    setSelectedDurations(newSelectedDurations)
-    setSelectedLevels(newSelectedLevels)
-  }, [countryFromChat, durationFromChat, levelFromChat, allCountries, allDurations, availableLevels, mounted, debugMode])
+    // Mark as initialized
+    initializedRef.current = true
+    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted])
 
-
-  // --- 3. FILTERING LOGIC ---
+  // --- 6. FILTERING LOGIC ---
   const filteredCourses = useMemo(() => {
     let result = courses
+
+    console.log('Starting filter with', result.length, 'courses')
 
     // Text Search
     if (searchQuery) {
@@ -306,9 +273,10 @@ export default function CoursesPage() {
         const country = (course.country_name || "").toLowerCase()
         return title.includes(query) || uni.includes(query) || country.includes(query)
       })
+      console.log(`After search query "${searchQuery}": ${result.length} courses`)
     }
 
-    // Country Filter (case-insensitive)
+    // Country Filter
     if (selectedCountries.length > 0) {
       result = result.filter((course) => {
         if (!course.country_name) return false
@@ -316,9 +284,10 @@ export default function CoursesPage() {
           selected.toLowerCase() === course.country_name.toLowerCase()
         )
       })
+      console.log(`After country filter: ${result.length} courses`)
     }
 
-    // Level Filter (case-insensitive)
+    // Level Filter
     if (selectedLevels.length > 0) {
       result = result.filter((course) => {
         if (!course.level) return false
@@ -326,9 +295,10 @@ export default function CoursesPage() {
           selected.toLowerCase() === course.level.toLowerCase()
         )
       })
+      console.log(`After level filter: ${result.length} courses`)
     }
 
-    // Intake Filter (case-insensitive)
+    // Intake Filter
     if (selectedIntakes.length > 0) {
       result = result.filter((course) => {
         if (!course.intake) return false
@@ -336,37 +306,28 @@ export default function CoursesPage() {
           selected.toLowerCase() === course.intake.toLowerCase()
         )
       })
+      console.log(`After intake filter: ${result.length} courses`)
     }
 
-    // FIXED Duration Filter
+    // Duration Filter
     if (selectedDurations.length > 0) {
-      console.log(`Applying duration filter with: ${selectedDurations.join(", ")}`)
-      
       result = result.filter((course) => {
         if (!course.duration) return false
-        
-        const match = selectedDurations.some(selectedDuration => 
+        return selectedDurations.some(selectedDuration => 
           durationMatches(course.duration, selectedDuration)
         )
-        
-        if (match) {
-          console.log(`Course "${course.course_title}" matches duration filter`)
-        }
-        
-        return match
       })
-      
-      console.log(`After duration filter: ${result.length} courses remaining`)
+      console.log(`After duration filter: ${result.length} courses`)
     }
 
     // Budget Filter from AI (maxBudget URL param)
-    const maxBudgetParam = searchParams.get('maxBudget')
     if (maxBudgetParam) {
       const maxBudget = parseFloat(maxBudgetParam)
       result = result.filter((course) => {
         const fee = course.tuition_fees || 0
         return fee <= maxBudget
       })
+      console.log(`After budget filter (max $${maxBudget}): ${result.length} courses`)
     }
 
     // Price Range Filter (from slider)
@@ -387,14 +348,15 @@ export default function CoursesPage() {
       return 0
     })
 
+    console.log(`Final filtered courses: ${result.length}`)
     return result
   }, [
     searchQuery, selectedCountries, selectedLevels, 
     selectedIntakes, selectedDurations,
-    priceRange, sortBy, courses, searchParams
+    priceRange, sortBy, courses, maxBudgetParam
   ])
 
-  // --- 4. PAGINATION ---
+  // --- 7. PAGINATION ---
   const visibleCourses = useMemo(() => {
     return filteredCourses.slice(0, visibleCount)
   }, [filteredCourses, visibleCount])
@@ -457,11 +419,12 @@ export default function CoursesPage() {
     setSelectedCountries([])
     setSelectedDurations([])
     setSelectedLevels([])
+    setSelectedIntakes([])
   }
 
   // Check if any filter is active
   const hasActiveFilters = selectedCountries.length > 0 || selectedLevels.length > 0 || selectedIntakes.length > 0 || selectedDurations.length > 0 || priceRange[1] < maxTuition
-  const hasChatFilters = countryFromChat || durationFromChat || courseFromChat || levelFromChat
+  const hasChatFilters = countriesFromURL.length > 0 || intakesFromURL.length > 0 || durationFromURL || courseFromURL || levelFromURL || maxBudgetParam
 
   // --- REUSABLE FILTER COMPONENT ---
   const FilterContent = ({ isMobile = false }: { isMobile?: boolean }) => (
@@ -485,7 +448,7 @@ export default function CoursesPage() {
           <span className="text-sm">Tuition Range</span>
         </h3>
         <Slider
-          defaultValue={[0, maxTuition]}
+          // defaultValue={[0, maxTuition]}
           value={priceRange}
           max={maxTuition}
           step={1000}
@@ -516,7 +479,7 @@ export default function CoursesPage() {
         <AccordionItem value="country" className="border-none">
           <AccordionTrigger className="py-3 hover:no-underline hover:text-primary">
             <span className="flex items-center gap-2 text-sm font-semibold">
-              <MapPin className="w-4 h-4" /> Country
+              <MapPin className="w-4 h-4" /> Country ({selectedCountries.length})
             </span>
           </AccordionTrigger>
           <AccordionContent>
@@ -539,7 +502,7 @@ export default function CoursesPage() {
         <AccordionItem value="level" className="border-none">
           <AccordionTrigger className="py-3 hover:no-underline hover:text-primary">
             <span className="flex items-center gap-2 text-sm font-semibold">
-              <GraduationCap className="w-4 h-4" /> Program Level
+              <GraduationCap className="w-4 h-4" /> Program Level ({selectedLevels.length})
             </span>
           </AccordionTrigger>
           <AccordionContent>
@@ -562,7 +525,7 @@ export default function CoursesPage() {
         <AccordionItem value="duration" className="border-none">
           <AccordionTrigger className="py-3 hover:no-underline hover:text-primary">
             <span className="flex items-center gap-2 text-sm font-semibold">
-              <Hourglass className="w-4 h-4" /> Duration
+              <Hourglass className="w-4 h-4" /> Duration ({selectedDurations.length})
             </span>
           </AccordionTrigger>
           <AccordionContent>
@@ -585,7 +548,7 @@ export default function CoursesPage() {
         <AccordionItem value="intake" className="border-none">
           <AccordionTrigger className="py-3 hover:no-underline hover:text-primary">
             <span className="flex items-center gap-2 text-sm font-semibold">
-              <Calendar className="w-4 h-4" /> Intake
+              <Calendar className="w-4 h-4" /> Intake ({selectedIntakes.length})
             </span>
           </AccordionTrigger>
           <AccordionContent>
@@ -613,87 +576,6 @@ export default function CoursesPage() {
     <div className="min-h-screen pt-24 pb-16 bg-slate-50 dark:bg-black">
       <div className="container mx-auto px-4">
         
-        {/* Debug Panel */}
-        {mounted && debugMode && (
-          <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-medium text-yellow-900 dark:text-yellow-100">Debug Information</h3>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setDebugMode(false)}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-            <div className="space-y-2 text-sm">
-              <div><strong>URL Parameters:</strong></div>
-              <div>Country: "{countryFromChat}"</div>
-              <div>Duration: "{durationFromChat}"</div>
-              <div>Course: "{courseFromChat}"</div>
-              <div>Level: "{levelFromChat}"</div>
-              
-              <div className="mt-3"><strong>Duration Analysis:</strong></div>
-              <div>
-                {allDurations.map((duration, index) => {
-                  const durationLower = duration.toLowerCase()
-                  const numbers = durationLower.match(/\d+/g) || []
-                  const isNumericInput = /^\d+$/.test(durationFromChat?.trim() || "")
-                  const wouldMatch = selectedDurations.includes(duration)
-                  
-                  return (
-                    <div key={index} className="ml-2 mb-1 text-xs">
-                      <div className={wouldMatch ? "text-green-600" : "text-red-600"}>
-                        {wouldMatch ? "✓" : "✗"} "{duration}"
-                      </div>
-                      <div className="ml-4">
-                        Numbers: [{numbers.join(", ") || "none"}] | 
-                        Numeric Input: {isNumericInput ? "yes" : "no"} | 
-                        Would Match: {wouldMatch ? "yes" : "no"}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-              
-              <div className="mt-3"><strong>Selected Durations:</strong></div>
-              <div>{selectedDurations.join(", ") || "None"}</div>
-              
-              <div className="mt-3"><strong>Filter Test:</strong></div>
-              <div>
-                {selectedDurations.map(sel => (
-                  <div key={sel} className="ml-2 mb-2">
-                    <div><strong>Selected:</strong> "{sel}"</div>
-                    <div><strong>Would match courses:</strong></div>
-                    {courses
-                      .filter(course => durationMatches(course.duration || "", sel))
-                      .slice(0, 3)
-                      .map(course => <div key={course.course_id} className="ml-4 text-xs">✓ {course.course_title}</div>)}
-                    {courses.filter(course => durationMatches(course.duration || "", sel)).length === 0 && (
-                      <div className="ml-4 text-xs text-red-600">No courses would match</div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Debug Toggle */}
-        {mounted && (
-          <div className="mb-4">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => setDebugMode(!debugMode)}
-              className="gap-2"
-            >
-              <Bug className="w-4 h-4" />
-              {debugMode ? 'Hide' : 'Show'} Debug Info
-            </Button>
-          </div>
-        )}
-        
         {/* Chatbot Recommendation Notification */}
         <AnimatePresence>
           {renderChatNotification && (
@@ -710,23 +592,30 @@ export default function CoursesPage() {
                   </div>
                   <div>
                     <h3 className="font-medium text-blue-900 dark:text-blue-100 mb-1">
-                      Courses based on your chat preferences
+                      AI-Filtered Course Recommendations
                     </h3>
-                    <p className="text-sm text-blue-700 dark:text-blue-300 mb-2">
-                      {courseFromChat && (
-                        <span className="font-medium">{courseFromChat}</span>
-                      )}{" "}
-                      courses
-                      {levelFromChat && (
-                        <span> (<span className="font-medium">{levelFromChat}</span> level)</span>
+                    <div className="text-sm text-blue-700 dark:text-blue-300 mb-2 flex flex-wrap gap-2">
+                      {selectedCountries.length > 0 && (
+                        <span className="bg-blue-100 dark:bg-blue-800 px-2 py-0.5 rounded">
+                          📍 {selectedCountries.join(", ")}
+                        </span>
                       )}
-                      {countryFromChat && (
-                        <span> in <span className="font-medium">{countryFromChat}</span></span>
+                      {selectedLevels.length > 0 && (
+                        <span className="bg-blue-100 dark:bg-blue-800 px-2 py-0.5 rounded">
+                          🎓 {selectedLevels.join(", ")}
+                        </span>
                       )}
-                      {durationFromChat && (
-                        <span> with <span className="font-medium">{durationFromChat}</span> duration</span>
+                      {selectedIntakes.length > 0 && (
+                        <span className="bg-blue-100 dark:bg-blue-800 px-2 py-0.5 rounded">
+                          📅 {selectedIntakes.join(", ")}
+                        </span>
                       )}
-                    </p>
+                      {maxBudgetParam && (
+                        <span className="bg-blue-100 dark:bg-blue-800 px-2 py-0.5 rounded">
+                          💰 Up to ${parseInt(maxBudgetParam).toLocaleString()}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-blue-600 dark:text-blue-400">
                       Found {filteredCourses.length} matching courses
                     </p>
@@ -857,7 +746,7 @@ export default function CoursesPage() {
                   Showing {filteredCourses.length} results
                   {hasChatFilters && (
                     <span className="text-blue-600 dark:text-blue-400 ml-1">
-                      (from chat)
+                      (AI filtered)
                     </span>
                   )}
                 </span>
@@ -974,13 +863,13 @@ export default function CoursesPage() {
                 <h3 className="text-xl font-bold mb-2">No courses found</h3>
                 <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
                   {hasChatFilters 
-                    ? "No courses match your chat preferences. Try adjusting your search criteria."
+                    ? "No courses match your AI-generated preferences. Try adjusting your search criteria."
                     : "Try adjusting your filters or search query to find the program you are looking for."
                   }
                 </p>
                 <div className="flex gap-2 justify-center">
                   {hasChatFilters && (
-                    <Button onClick={clearChatFilters} variant="outline">Clear Chat Filters</Button>
+                    <Button onClick={clearChatFilters} variant="outline">Clear AI Filters</Button>
                   )}
                   <Button onClick={clearFilters} variant="outline">Clear All Filters</Button>
                 </div>

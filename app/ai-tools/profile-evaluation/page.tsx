@@ -24,7 +24,7 @@ import coursesData from "@/data/courses_final.json"
 
 export default function AIProfileEvaluator() {
   const router = useRouter()
-  const totalSteps = 6
+  const totalSteps = 7 // Changed from 6 to 7
   const [step, setStep] = useState(1)
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(false)
@@ -33,8 +33,9 @@ export default function AIProfileEvaluator() {
   const [verificationSuccess, setVerificationSuccess] = useState(false)
   const [processingFilters, setProcessingFilters] = useState(false)
 
-
   const NEXT_PUBLIC_API_URL = 'https://sap-backend-production-e729.up.railway.app'
+  // const NEXT_PUBLIC_API_URL = 'http://127.0.0.1:8000/'
+
 
   const handleGenerateReport = async () => {
     try {
@@ -112,16 +113,24 @@ export default function AIProfileEvaluator() {
     }
   }
 
-  // Update only the handleViewResults function in your component
-
   const handleViewResults = async () => {
     try {
       setProcessingFilters(true)
 
-      // Get a sample of courses for AI context (first 50 courses)
-      const courseSample = (coursesData as any[]).slice(0, 50)
+      // Get MORE courses for better AI context
+      const courseSample = (coursesData as any[]).slice(0, 100)
 
-      // Call Django backend to process filters with Gemini AI
+      console.log('Sending to AI:', {
+        countries: formData.countries,
+        degree: formData.degree,
+        fields: formData.fields,
+        intakes: formData.intakes,
+        completedDegree: formData.completedDegree,
+        budget: formData.budget,
+        sampleSize: courseSample.length
+      })
+
+      // Call Django backend to process filters with AI
       const response = await fetch(
         `${NEXT_PUBLIC_API_URL}/api/profile/process-filters/`,
         {
@@ -133,6 +142,7 @@ export default function AIProfileEvaluator() {
             countries: formData.countries,
             degree: formData.degree,
             fields: formData.fields,
+            intakes: formData.intakes,
             completedDegree: formData.completedDegree,
             cgpa: formData.cgpa,
             gradYear: formData.gradYear,
@@ -144,45 +154,70 @@ export default function AIProfileEvaluator() {
 
       const result = await response.json()
 
+      console.log('AI Response:', result)
+
       if (!result.success) {
+        console.error('AI Error:', result.error)
         throw new Error(result.error || 'Failed to process filters')
       }
 
       const { filters } = result
 
+      console.log('Generated Filters:', filters)
+
       // Build query parameters from AI-generated filters
       const params = new URLSearchParams()
       
-      if (filters.country) {
-        params.append('country', filters.country)
+      // Handle multiple countries
+      if (filters.countries && filters.countries.length > 0) {
+        filters.countries.forEach((country: string) => {
+          params.append('country', country)
+        })
+        console.log('✓ Country filters:', filters.countries)
       }
       
       if (filters.level) {
         params.append('level', filters.level)
+        console.log('✓ Level filter:', filters.level)
       }
       
       if (filters.course) {
         params.append('course', filters.course)
+        console.log('✓ Course filter:', filters.course)
       }
       
       if (filters.duration) {
         params.append('duration', filters.duration)
+        console.log('✓ Duration filter:', filters.duration)
+      }
+
+      // Handle multiple intakes
+      if (filters.intakes && filters.intakes.length > 0) {
+        filters.intakes.forEach((intake: string) => {
+          params.append('intake', intake)
+        })
+        console.log('✓ Intake filters:', filters.intakes)
       }
 
       if (filters.searchQuery) {
         params.append('search', filters.searchQuery)
+        console.log('✓ Search query:', filters.searchQuery)
       }
 
       if (filters.maxBudgetUSD) {
         params.append('maxBudget', filters.maxBudgetUSD.toString())
+        console.log('✓ Budget filter:', filters.maxBudgetUSD)
       }
       
+      const finalUrl = `/courses?${params.toString()}`
+      console.log('Navigating to:', finalUrl)
+      
       // Navigate to courses page with AI-generated filters
-      router.push(`/courses?${params.toString()}`)
+      router.push(finalUrl)
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error processing filters:', error)
-      alert('Failed to process your preferences. Please try again.')
+      alert(`Failed to process your preferences: ${error.message}`)
     } finally {
       setProcessingFilters(false)
     }
@@ -192,8 +227,9 @@ export default function AIProfileEvaluator() {
     countries: [] as string[],
     degree: "",
     fields: [] as string[],
+    intakes: [] as string[], // NEW: Added intakes
     completedDegree: "",
-    cgpa: 8.0,
+    cgpa: 0.0,
     gradYear: "2025",
     budget: [20],
     name: "",
@@ -210,7 +246,7 @@ export default function AIProfileEvaluator() {
     ).length
   }, [formData.countries])
 
-  const toggleValue = (key: "countries" | "fields", value: string) => {
+  const toggleValue = (key: "countries" | "fields" | "intakes", value: string) => {
     setFormData(prev => ({
       ...prev,
       [key]: prev[key].includes(value)
@@ -224,9 +260,10 @@ export default function AIProfileEvaluator() {
       case 1: return formData.countries.length > 0
       case 2: return formData.degree !== ""
       case 3: return formData.fields.length > 0
-      case 4: return formData.completedDegree !== "" && formData.cgpa > 0 && formData.gradYear !== ""
-      case 5: return formData.budget[0] > 0
-      case 6: return formData.name.trim() !== "" && formData.email.trim() !== "" && formData.phone.trim() !== ""
+      case 4: return formData.intakes.length > 0 // NEW: Intake validation
+      case 5: return formData.completedDegree !== "" && formData.cgpa > 0 && formData.gradYear !== ""
+      case 6: return formData.budget[0] > 0
+      case 7: return formData.name.trim() !== "" && formData.email.trim() !== "" && formData.phone.trim() !== ""
       default: return true
     }
   }
@@ -284,6 +321,7 @@ export default function AIProfileEvaluator() {
             <Summary icon={Globe} label="Countries" value={formData.countries.join(", ")} />
             <Summary icon={Target} label="Degree" value={formData.degree} />
             <Summary icon={Layout} label="Fields" value={formData.fields.join(", ")} />
+            <Summary icon={Calendar} label="Intakes" value={formData.intakes.join(", ")} />
             <Summary icon={GraduationCap} label="Completed" value={formData.completedDegree} />
             <Summary icon={Trophy} label="Performance" value={`${formData.cgpa} CGPA (${formData.gradYear})`} />
             <Summary icon={Wallet} label="Budget" value={`₹${formData.budget[0]}L / year`} />
@@ -307,6 +345,7 @@ export default function AIProfileEvaluator() {
                     "Where do you want to study?",
                     "What's your academic goal?",
                     "What sparks your interest?",
+                    "When do you want to start?", // NEW: Intake step
                     "Your academic background",
                     "What's your financial plan?",
                     "Let's finalize your report"
@@ -341,6 +380,13 @@ export default function AIProfileEvaluator() {
                         </button>
                       ))}
                   </div>
+                  {formData.countries.length > 0 && (
+                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                      <p className="text-sm text-blue-700 dark:text-blue-300">
+                        Selected {formData.countries.length} {formData.countries.length === 1 ? 'country' : 'countries'}: <strong>{formData.countries.join(", ")}</strong>
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -393,8 +439,33 @@ export default function AIProfileEvaluator() {
                 </div>
               )}
 
-              {/* STEP 4: ACADEMICS */}
+              {/* STEP 4: INTAKES - NEW */}
               {step === 4 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {[
+                    "Fall 2025",
+                    "Spring 2026",
+                    "Fall 2026",
+                    "Winter 2026",
+                    "Summer 2026",
+                    "Any Intake"
+                  ].map(intake => (
+                    <button
+                      key={intake}
+                      onClick={() => toggleValue("intakes", intake)}
+                      className={`p-6 rounded-2xl border flex flex-col items-center gap-3 transition-all
+                      ${formData.intakes.includes(intake) ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-white dark:bg-slate-900 hover:border-primary/50"}`}
+                    >
+                      <Calendar className="w-8 h-8 text-primary" />
+                      <span className="font-bold text-sm text-center">{intake}</span>
+                      {formData.intakes.includes(intake) && <Check className="w-5 h-5 text-primary" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* STEP 5: ACADEMICS */}
+              {step === 5 && (
                 <div className="max-w-md space-y-10">
                   <div className="space-y-4">
                     <label className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
@@ -452,8 +523,8 @@ export default function AIProfileEvaluator() {
                 </div>
               )}
 
-              {/* STEP 5: BUDGET */}
-              {step === 5 && (
+              {/* STEP 6: BUDGET */}
+              {step === 6 && (
                 <div className="max-w-xl p-8 rounded-[2rem] bg-gradient-to-br from-primary to-indigo-700 text-white shadow-2xl shadow-primary/30">
                   <div className="flex justify-between items-start mb-8">
                     <div>
@@ -477,8 +548,8 @@ export default function AIProfileEvaluator() {
                 </div>
               )}
 
-              {/* STEP 6: CONTACT */}
-              {step === 6 && (
+              {/* STEP 7: CONTACT */}
+              {step === 7 && (
                 <div className="max-w-md space-y-4">
                   <div className="relative">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -498,7 +569,7 @@ export default function AIProfileEvaluator() {
             </motion.div>
           </AnimatePresence>
 
-          {/* OTP Modal */}
+          {/* OTP Modal - Same as before */}
           {showOtpInput && (
             <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
               <motion.div 
@@ -576,11 +647,21 @@ export default function AIProfileEvaluator() {
                     <div className="space-y-3">
                       <Button
                         onClick={handleViewResults}
+                        disabled={processingFilters}
                         className="w-full h-12 gap-2"
                         size="lg"
                       >
-                        View Results
-                        <ExternalLink className="w-4 h-4" />
+                        {processingFilters ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            AI Processing...
+                          </>
+                        ) : (
+                          <>
+                            View Results
+                            <ExternalLink className="w-4 h-4" />
+                          </>
+                        )}
                       </Button>
                       
                       <button
@@ -589,7 +670,8 @@ export default function AIProfileEvaluator() {
                           setVerificationSuccess(false)
                           setOtp("")
                         }}
-                        className="text-sm text-muted-foreground w-full hover:text-foreground transition-colors"
+                        disabled={processingFilters}
+                        className="text-sm text-muted-foreground w-full hover:text-foreground transition-colors disabled:opacity-50"
                       >
                         Close
                       </button>
