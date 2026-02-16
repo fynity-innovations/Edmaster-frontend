@@ -34,7 +34,7 @@ export default function AIProfileEvaluator() {
   const [processingFilters, setProcessingFilters] = useState(false)
 
   const NEXT_PUBLIC_API_URL = 'https://sap-backend-production-e729.up.railway.app'
-  // const NEXT_PUBLIC_API_URL = 'http://127.0.0.1:8000/'
+  // const NEXT_PUBLIC_API_URL = 'http://127.0.0.1:8000'
 
 
   const handleGenerateReport = async () => {

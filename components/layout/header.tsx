@@ -156,9 +156,9 @@ export function Header() {
           {/* Logo */}
           <a href="/" className="flex items-center gap-3 relative z-10">
             <img
-              src="/logo-uconnect.svg"
+              src="/edmaster_logo.svg"
               alt="Uconnect Logo"
-              className={`transition-all duration-300 ${isScrolled ? "h-8" : "h-10"}`}
+              className={`transition-all duration-300 ${isScrolled ? "h-12" : "h-14"}`}
             />
           </a>
 

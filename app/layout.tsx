@@ -5,7 +5,7 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
-import { Chatbot } from "@/components/chatbot"
+import Chatbot from "@/components/chatbot"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   title: "StudyGlobal - Your Gateway to International Education",
   description: "Discover world-class universities, courses, and study abroad opportunities with AI-powered guidance.",
   icons: {
-    icon: "/logo-uconnect.svg",
+    icon: "/edmaster_logo_copy.jpeg",
   },
   keywords: ["study abroad", "international education", "universities", "courses", "student visa"],
   generator: 'v0.app'
