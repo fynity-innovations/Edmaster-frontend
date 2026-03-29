@@ -39,8 +39,8 @@ const PRESET_PROMPTS = [
   { icon: TrendingUp,    label: "Career prospects",      prompt: "What are career prospects after studying abroad?" },
 ]
 
-const API_URL = "https://sap-backend-production-e729.up.railway.app"
-// const API_URL = "http://127.0.0.1:8000"
+// const API_URL = "https://sap-backend-production-e729.up.railway.app"
+const API_URL = "http://127.0.0.1:8000"
 
 // ── Markdown renderer ─────────────────────────────────────────────────────
 
