@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback, useRef } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 
 const API_URL = "http://127.0.0.1:8000"
@@ -36,6 +36,83 @@ interface Stats {
 
 type Tab = "students" | "otps"
 type SortDir = "asc" | "desc"
+
+// ── Date helpers ───────────────────────────────────────────────────────────────
+
+function toDateInput(d: Date) {
+  return d.toISOString().slice(0, 10)
+}
+
+function presetRange(days: number): [string, string] {
+  const to = new Date()
+  const from = new Date()
+  from.setDate(from.getDate() - days + 1)
+  return [toDateInput(from), toDateInput(to)]
+}
+
+function DateRangeFilter({
+  from, to, onFrom, onTo, onClear,
+}: {
+  from: string; to: string
+  onFrom: (v: string) => void
+  onTo: (v: string) => void
+  onClear: () => void
+}) {
+  const today = toDateInput(new Date())
+  return (
+    <div className="flex flex-wrap gap-2 items-center">
+      <span className="text-xs font-medium text-gray-500 whitespace-nowrap">Date:</span>
+      <input
+        type="date"
+        value={from}
+        max={to || today}
+        onChange={e => onFrom(e.target.value)}
+        className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      />
+      <span className="text-gray-400 text-sm">→</span>
+      <input
+        type="date"
+        value={to}
+        min={from || undefined}
+        max={today}
+        onChange={e => onTo(e.target.value)}
+        className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      />
+      {(from || to) && (
+        <button
+          type="button"
+          onClick={onClear}
+          className="text-xs text-gray-400 hover:text-gray-600 underline"
+        >
+          Clear dates
+        </button>
+      )}
+    </div>
+  )
+}
+
+function QuickPresets({ onSelect }: { onSelect: (from: string, to: string) => void }) {
+  const presets = [
+    { label: "Today", days: 1 },
+    { label: "7d", days: 7 },
+    { label: "30d", days: 30 },
+    { label: "90d", days: 90 },
+  ]
+  return (
+    <div className="flex gap-1">
+      {presets.map(p => (
+        <button
+          key={p.label}
+          type="button"
+          onClick={() => { const [f, t] = presetRange(p.days); onSelect(f, t) }}
+          className="text-xs px-2 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-indigo-50 hover:border-indigo-400 hover:text-indigo-700 transition-colors"
+        >
+          {p.label}
+        </button>
+      ))}
+    </div>
+  )
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -109,6 +186,8 @@ export default function AdminDashboard() {
   const [stuSortDir, setStuSortDir] = useState<SortDir>("desc")
   const [stuLoading, setStuLoading] = useState(true)
   const [stuExporting, setStuExporting] = useState(false)
+  const [stuDateFrom, setStuDateFrom] = useState("")
+  const [stuDateTo, setStuDateTo] = useState("")
 
   // OTPs state
   const [otps, setOtps] = useState<OTP[]>([])
@@ -121,6 +200,8 @@ export default function AdminDashboard() {
   const [otpSortDir, setOtpSortDir] = useState<SortDir>("desc")
   const [otpLoading, setOtpLoading] = useState(true)
   const [otpExporting, setOtpExporting] = useState(false)
+  const [otpDateFrom, setOtpDateFrom] = useState("")
+  const [otpDateTo, setOtpDateTo] = useState("")
 
   const perPage = 20
 
@@ -151,13 +232,15 @@ export default function AdminDashboard() {
       sort_by: stuSortBy, sort_dir: stuSortDir,
       ...(stuSearch ? { search: stuSearch } : {}),
       ...(stuVerified ? { verified: stuVerified } : {}),
+      ...(stuDateFrom ? { date_from: stuDateFrom } : {}),
+      ...(stuDateTo ? { date_to: stuDateTo } : {}),
     })
     const res = await fetch(`${API_URL}/api/admin/students?${p}`, { headers: authHeaders() })
     if (!guard(res)) return
     const data = await res.json()
     if (data.success) { setStudents(data.students); setStuTotal(data.total) }
     setStuLoading(false)
-  }, [stuPage, stuSearch, stuVerified, stuSortBy, stuSortDir])
+  }, [stuPage, stuSearch, stuVerified, stuSortBy, stuSortDir, stuDateFrom, stuDateTo])
 
   // ── Fetch OTPs ──
   const fetchOtps = useCallback(async () => {
@@ -167,13 +250,15 @@ export default function AdminDashboard() {
       sort_by: otpSortBy, sort_dir: otpSortDir,
       ...(otpSearch ? { search: otpSearch } : {}),
       ...(otpUsed ? { used: otpUsed } : {}),
+      ...(otpDateFrom ? { date_from: otpDateFrom } : {}),
+      ...(otpDateTo ? { date_to: otpDateTo } : {}),
     })
     const res = await fetch(`${API_URL}/api/admin/otps?${p}`, { headers: authHeaders() })
     if (!guard(res)) return
     const data = await res.json()
     if (data.success) { setOtps(data.otps); setOtpTotal(data.total) }
     setOtpLoading(false)
-  }, [otpPage, otpSearch, otpUsed, otpSortBy, otpSortDir])
+  }, [otpPage, otpSearch, otpUsed, otpSortBy, otpSortDir, otpDateFrom, otpDateTo])
 
   useEffect(() => {
     if (!getToken()) { router.push("/admin/login"); return }
@@ -202,6 +287,8 @@ export default function AdminDashboard() {
       export: "true", sort_by: stuSortBy, sort_dir: stuSortDir,
       ...(stuSearch ? { search: stuSearch } : {}),
       ...(stuVerified ? { verified: stuVerified } : {}),
+      ...(stuDateFrom ? { date_from: stuDateFrom } : {}),
+      ...(stuDateTo ? { date_to: stuDateTo } : {}),
     })
     const res = await fetch(`${API_URL}/api/admin/students?${p}`, { headers: authHeaders() })
     const data = await res.json()
@@ -223,6 +310,8 @@ export default function AdminDashboard() {
       export: "true", sort_by: otpSortBy, sort_dir: otpSortDir,
       ...(otpSearch ? { search: otpSearch } : {}),
       ...(otpUsed ? { used: otpUsed } : {}),
+      ...(otpDateFrom ? { date_from: otpDateFrom } : {}),
+      ...(otpDateTo ? { date_to: otpDateTo } : {}),
     })
     const res = await fetch(`${API_URL}/api/admin/otps?${p}`, { headers: authHeaders() })
     const data = await res.json()
@@ -292,45 +381,62 @@ export default function AdminDashboard() {
         {tab === "students" && (
           <div className="bg-white rounded-xl shadow-sm">
             {/* Toolbar */}
-            <div className="p-4 border-b border-gray-100 flex flex-wrap gap-3 items-center justify-between">
-              <div className="flex flex-wrap gap-2 items-center">
-                {/* Search */}
-                <form onSubmit={e => { e.preventDefault(); setStuPage(1); setStuSearch(stuSearchInput) }} className="flex gap-2">
-                  <input
-                    value={stuSearchInput}
-                    onChange={e => setStuSearchInput(e.target.value)}
-                    placeholder="Search name, email, phone…"
-                    className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-52"
-                  />
-                  <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-3 py-1.5 rounded-lg transition-colors">
-                    Search
-                  </button>
-                  {stuSearch && (
-                    <button type="button" onClick={() => { setStuSearchInput(""); setStuSearch(""); setStuPage(1) }}
-                      className="text-sm text-gray-500 hover:text-gray-700">
-                      Clear
+            <div className="p-4 border-b border-gray-100 space-y-3">
+              <div className="flex flex-wrap gap-3 items-center justify-between">
+                <div className="flex flex-wrap gap-2 items-center">
+                  {/* Search */}
+                  <form onSubmit={e => { e.preventDefault(); setStuPage(1); setStuSearch(stuSearchInput) }} className="flex gap-2">
+                    <input
+                      value={stuSearchInput}
+                      onChange={e => setStuSearchInput(e.target.value)}
+                      placeholder="Search name, email, phone…"
+                      className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-52"
+                    />
+                    <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-3 py-1.5 rounded-lg transition-colors">
+                      Search
                     </button>
-                  )}
-                </form>
-                {/* Verified filter */}
-                <select
-                  value={stuVerified}
-                  onChange={e => { setStuVerified(e.target.value); setStuPage(1) }}
-                  className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    {stuSearch && (
+                      <button type="button" onClick={() => { setStuSearchInput(""); setStuSearch(""); setStuPage(1) }}
+                        className="text-sm text-gray-500 hover:text-gray-700">
+                        Clear
+                      </button>
+                    )}
+                  </form>
+                  {/* Verified filter */}
+                  <select
+                    value={stuVerified}
+                    onChange={e => { setStuVerified(e.target.value); setStuPage(1) }}
+                    className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="">All statuses</option>
+                    <option value="true">Verified</option>
+                    <option value="false">Unverified</option>
+                  </select>
+                </div>
+                {/* Export */}
+                <button
+                  onClick={exportStudents}
+                  disabled={stuExporting}
+                  className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white text-sm px-4 py-1.5 rounded-lg transition-colors"
                 >
-                  <option value="">All statuses</option>
-                  <option value="true">Verified</option>
-                  <option value="false">Unverified</option>
-                </select>
+                  {stuExporting ? "Exporting…" : "Export CSV"}
+                </button>
               </div>
-              {/* Export */}
-              <button
-                onClick={exportStudents}
-                disabled={stuExporting}
-                className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white text-sm px-4 py-1.5 rounded-lg transition-colors"
-              >
-                {stuExporting ? "Exporting…" : "Export CSV"}
-              </button>
+              {/* Date range row */}
+              <div className="flex flex-wrap gap-3 items-center">
+                <DateRangeFilter
+                  from={stuDateFrom} to={stuDateTo}
+                  onFrom={v => { setStuDateFrom(v); setStuPage(1) }}
+                  onTo={v => { setStuDateTo(v); setStuPage(1) }}
+                  onClear={() => { setStuDateFrom(""); setStuDateTo(""); setStuPage(1) }}
+                />
+                <QuickPresets onSelect={(f, t) => { setStuDateFrom(f); setStuDateTo(t); setStuPage(1) }} />
+                {(stuDateFrom || stuDateTo) && (
+                  <span className="text-xs text-indigo-600 font-medium bg-indigo-50 px-2 py-0.5 rounded-full">
+                    {stuDateFrom || "…"} → {stuDateTo || "…"}
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Table */}
@@ -380,42 +486,59 @@ export default function AdminDashboard() {
         {tab === "otps" && (
           <div className="bg-white rounded-xl shadow-sm">
             {/* Toolbar */}
-            <div className="p-4 border-b border-gray-100 flex flex-wrap gap-3 items-center justify-between">
-              <div className="flex flex-wrap gap-2 items-center">
-                <form onSubmit={e => { e.preventDefault(); setOtpPage(1); setOtpSearch(otpSearchInput) }} className="flex gap-2">
-                  <input
-                    value={otpSearchInput}
-                    onChange={e => setOtpSearchInput(e.target.value)}
-                    placeholder="Search phone…"
-                    className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-52"
-                  />
-                  <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-3 py-1.5 rounded-lg transition-colors">
-                    Search
-                  </button>
-                  {otpSearch && (
-                    <button type="button" onClick={() => { setOtpSearchInput(""); setOtpSearch(""); setOtpPage(1) }}
-                      className="text-sm text-gray-500 hover:text-gray-700">
-                      Clear
+            <div className="p-4 border-b border-gray-100 space-y-3">
+              <div className="flex flex-wrap gap-3 items-center justify-between">
+                <div className="flex flex-wrap gap-2 items-center">
+                  <form onSubmit={e => { e.preventDefault(); setOtpPage(1); setOtpSearch(otpSearchInput) }} className="flex gap-2">
+                    <input
+                      value={otpSearchInput}
+                      onChange={e => setOtpSearchInput(e.target.value)}
+                      placeholder="Search phone…"
+                      className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-52"
+                    />
+                    <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-3 py-1.5 rounded-lg transition-colors">
+                      Search
                     </button>
-                  )}
-                </form>
-                <select
-                  value={otpUsed}
-                  onChange={e => { setOtpUsed(e.target.value); setOtpPage(1) }}
-                  className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    {otpSearch && (
+                      <button type="button" onClick={() => { setOtpSearchInput(""); setOtpSearch(""); setOtpPage(1) }}
+                        className="text-sm text-gray-500 hover:text-gray-700">
+                        Clear
+                      </button>
+                    )}
+                  </form>
+                  <select
+                    value={otpUsed}
+                    onChange={e => { setOtpUsed(e.target.value); setOtpPage(1) }}
+                    className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="">All OTPs</option>
+                    <option value="true">Used</option>
+                    <option value="false">Unused</option>
+                  </select>
+                </div>
+                <button
+                  onClick={exportOtps}
+                  disabled={otpExporting}
+                  className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white text-sm px-4 py-1.5 rounded-lg transition-colors"
                 >
-                  <option value="">All OTPs</option>
-                  <option value="true">Used</option>
-                  <option value="false">Unused</option>
-                </select>
+                  {otpExporting ? "Exporting…" : "Export CSV"}
+                </button>
               </div>
-              <button
-                onClick={exportOtps}
-                disabled={otpExporting}
-                className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white text-sm px-4 py-1.5 rounded-lg transition-colors"
-              >
-                {otpExporting ? "Exporting…" : "Export CSV"}
-              </button>
+              {/* Date range row */}
+              <div className="flex flex-wrap gap-3 items-center">
+                <DateRangeFilter
+                  from={otpDateFrom} to={otpDateTo}
+                  onFrom={v => { setOtpDateFrom(v); setOtpPage(1) }}
+                  onTo={v => { setOtpDateTo(v); setOtpPage(1) }}
+                  onClear={() => { setOtpDateFrom(""); setOtpDateTo(""); setOtpPage(1) }}
+                />
+                <QuickPresets onSelect={(f, t) => { setOtpDateFrom(f); setOtpDateTo(t); setOtpPage(1) }} />
+                {(otpDateFrom || otpDateTo) && (
+                  <span className="text-xs text-indigo-600 font-medium bg-indigo-50 px-2 py-0.5 rounded-full">
+                    {otpDateFrom || "…"} → {otpDateTo || "…"}
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Table */}
