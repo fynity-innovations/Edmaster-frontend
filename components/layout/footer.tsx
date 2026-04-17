@@ -22,15 +22,11 @@ const footerLinks = {
   ],
   resources: [
     { name: "AI Tools", href: "/ai-tools" },
-    { name: "Blog", href: "/blog" },
-    { name: "Success Stories", href: "/testimonials" },
-    { name: "FAQs", href: "/faqs" },
-    { name: "Contact Us", href: "/contact" },
+    { name: "Contact Us", href: "/get-started" },
   ],
   legal: [
     { name: "Privacy Policy", href: "/privacy" },
     { name: "Terms of Service", href: "/terms" },
-    { name: "Cookie Policy", href: "/cookies" },
   ],
 }
 
@@ -51,10 +47,10 @@ export function Footer() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"
         >
           {/* Brand Column */}
-          <motion.div variants={fadeInUp} className="lg:col-span-1">
+          <motion.div variants={fadeInUp} className="lg:col-span-1 md:col-span-2">
             <Link href="/" className="inline-block mb-4">
               <span className="font-bold text-2xl">
                 <span className="text-primary">Study</span>Global
@@ -122,31 +118,36 @@ export function Footer() {
             </ul>
           </motion.div>
 
-          {/* Newsletter */}
-          <motion.div variants={fadeInUp}>
-            <h4 className="font-semibold text-foreground mb-4">Stay Updated</h4>
-            <p className="text-sm text-muted-foreground mb-4">
-              Subscribe for the latest study abroad tips and opportunities.
-            </p>
-            <form className="space-y-3">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="w-full px-4 py-2 text-sm rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-              <button
-                type="submit"
-                className="w-full px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-lg hover:bg-primary/90 transition-colors"
-              >
-                Subscribe
-              </button>
-            </form>
-          </motion.div>
         </motion.div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-border">
+        <div className="mt-12 pt-8 pb-20 md:pb-0 border-t border-border">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            {/* Left — copyright + legal + developer */}
+            <div className="flex flex-col items-center md:items-start gap-1">
+              <p className="text-sm text-muted-foreground">
+                © {new Date().getFullYear()} EdMaster. All rights reserved.
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Developed by{" "}
+                <a
+                  href="https://www.fynityinnovations.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-primary hover:underline"
+                >
+                  Fynity Innovations
+                </a>
+              </p>
+            </div>
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+              {footerLinks.legal.map((link) => (
+                <Link key={link.name} href={link.href} className="hover:text-primary transition-colors">
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+            {/* Right — social icons */}
             <div className="flex items-center gap-4">
               {socialLinks.map((social) => (
                 <motion.a
@@ -161,16 +162,6 @@ export function Footer() {
                 </motion.a>
               ))}
             </div>
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              {footerLinks.legal.map((link) => (
-                <Link key={link.name} href={link.href} className="hover:text-primary transition-colors">
-                  {link.name}
-                </Link>
-              ))}
-            </div>
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} StudyGlobal. All rights reserved.
-            </p>
           </div>
         </div>
       </div>

@@ -34,6 +34,123 @@ import countries from "@/data/countries.json"
 
 const ITEMS_PER_PAGE = 9
 
+interface FilterContentProps {
+  selectedCountries: string[]
+  selectedBadges: string[]
+  minPrograms: number | null
+  availableBadges: string[]
+  toggleCountry: (c: string) => void
+  toggleBadge: (b: string) => void
+  setMinPrograms: (n: number | null) => void
+  clearFilters: () => void
+}
+
+function FilterContent({
+  selectedCountries,
+  selectedBadges,
+  minPrograms,
+  availableBadges,
+  toggleCountry,
+  toggleBadge,
+  setMinPrograms,
+  clearFilters,
+}: FilterContentProps) {
+  return (
+    <div className="space-y-6">
+      {/* Active Filters Summary */}
+      {(selectedCountries.length > 0 || selectedBadges.length > 0 || minPrograms) && (
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-border mb-6">
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-sm font-semibold">Active Filters</span>
+            <button onClick={clearFilters} className="text-xs text-red-500 hover:underline">Clear All</button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {selectedCountries.map(c => (
+              <Badge key={c} variant="secondary" className="text-[10px] h-6 px-2 gap-1" onClick={() => toggleCountry(c)}>
+                {c} <X className="w-3 h-3 cursor-pointer" />
+              </Badge>
+            ))}
+            {selectedBadges.map(b => (
+              <Badge key={b} variant="secondary" className="text-[10px] h-6 px-2 gap-1" onClick={() => toggleBadge(b)}>
+                {b} <X className="w-3 h-3 cursor-pointer" />
+              </Badge>
+            ))}
+            {minPrograms && (
+              <Badge variant="secondary" className="text-[10px] h-6 px-2 gap-1" onClick={() => setMinPrograms(null)}>
+                {minPrograms}+ Programs <X className="w-3 h-3 cursor-pointer" />
+              </Badge>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Country Filter */}
+      <div>
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <MapPin className="w-4 h-4" /> Country
+        </h3>
+        <div className="space-y-2 max-h-60 overflow-y-auto pr-2 scrollbar-thin">
+          {countries.map((country) => (
+            <label key={country.country_id} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
+              <Checkbox
+                checked={selectedCountries.includes(country.country_name)}
+                onCheckedChange={() => toggleCountry(country.country_name)}
+                className="rounded-[4px] w-4 h-4"
+              />
+              <span className="text-muted-foreground">{country.country_name}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="h-px bg-border" />
+
+      {/* Badges Filter */}
+      <div>
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <GraduationCap className="w-4 h-4" /> Categories
+        </h3>
+        <div className="space-y-2">
+          {availableBadges.map((badge) => (
+            <label key={badge} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
+              <Checkbox
+                checked={selectedBadges.includes(badge)}
+                onCheckedChange={() => toggleBadge(badge)}
+                className="rounded-[4px] w-4 h-4"
+              />
+              <span className="text-muted-foreground">{badge}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="h-px bg-border" />
+
+      {/* Programs Count Filter */}
+      <div>
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <Briefcase className="w-4 h-4" /> Program Size
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          {[10, 20, 50].map((num) => (
+            <button
+              key={num}
+              onClick={() => setMinPrograms(minPrograms === num ? null : num)}
+              className={`px-3 py-1.5 text-xs rounded-lg border transition-all ${
+                minPrograms === num
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-background border-border hover:border-primary/50"
+              }`}
+            >
+              {num}+ Courses
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function UniversitiesPage() {
   // --- State ---
   const [searchQuery, setSearchQuery] = useState("")
@@ -52,9 +169,12 @@ export default function UniversitiesPage() {
   const availableBadges = useMemo(() => {
     const badges = new Set<string>()
     universities.forEach(u => {
-      if (u.badge) badges.add(u.badge)
+      if (u.badge) {
+        const normalized = u.badge === "Most Preffered" ? "Most Preferred" : u.badge
+        badges.add(normalized)
+      }
     })
-    return Array.from(badges)
+    return Array.from(badges).sort()
   }, [])
 
   // --- Filtering Logic ---
@@ -79,7 +199,11 @@ export default function UniversitiesPage() {
 
     // 3. Badge Filter
     if (selectedBadges.length > 0) {
-      result = result.filter((uni) => uni.badge && selectedBadges.includes(uni.badge))
+      result = result.filter((uni) => {
+        if (!uni.badge) return false
+        const normalized = uni.badge === "Most Preffered" ? "Most Preferred" : uni.badge
+        return selectedBadges.includes(normalized)
+      })
     }
 
     // 4. Programs Filter
@@ -151,101 +275,6 @@ export default function UniversitiesPage() {
     setMinPrograms(null)
   }
 
-  // --- 2. REUSABLE FILTER COMPONENT (Used in Sidebar & Mobile Sheet) ---
-  const FilterContent = () => (
-    <div className="space-y-6">
-      {/* Active Filters Summary */}
-      {(selectedCountries.length > 0 || selectedBadges.length > 0 || minPrograms) && (
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-border mb-6">
-          <div className="flex justify-between items-center mb-3">
-            <span className="text-sm font-semibold">Active Filters</span>
-            <button onClick={clearFilters} className="text-xs text-red-500 hover:underline">Clear All</button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {selectedCountries.map(c => (
-              <Badge key={c} variant="secondary" className="text-[10px] h-6 px-2 gap-1" onClick={() => toggleCountry(c)}>
-                {c} <X className="w-3 h-3 cursor-pointer" />
-              </Badge>
-            ))}
-            {selectedBadges.map(b => (
-              <Badge key={b} variant="secondary" className="text-[10px] h-6 px-2 gap-1" onClick={() => toggleBadge(b)}>
-                {b} <X className="w-3 h-3 cursor-pointer" />
-              </Badge>
-            ))}
-            {minPrograms && (
-               <Badge variant="secondary" className="text-[10px] h-6 px-2 gap-1" onClick={() => setMinPrograms(null)}>
-               {minPrograms}+ Programs <X className="w-3 h-3 cursor-pointer" />
-             </Badge>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Country Filter */}
-      <div>
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <MapPin className="w-4 h-4" /> Country
-        </h3>
-        <div className="space-y-2 max-h-60 overflow-y-auto pr-2 scrollbar-thin">
-          {countries.map((country) => (
-            <label key={country.country_id} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
-              <Checkbox 
-                checked={selectedCountries.includes(country.country_name)}
-                onCheckedChange={() => toggleCountry(country.country_name)}
-                className="rounded-[4px] w-4 h-4"
-              />
-              <span className="text-muted-foreground">{country.country_name}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <div className="h-px bg-border" />
-
-      {/* Badges Filter */}
-      <div>
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <GraduationCap className="w-4 h-4" /> Categories
-        </h3>
-        <div className="space-y-2">
-          {availableBadges.map((badge) => (
-            <label key={badge} className="flex items-center gap-2.5 text-sm cursor-pointer hover:text-primary transition-colors">
-              <Checkbox 
-                checked={selectedBadges.includes(badge)}
-                onCheckedChange={() => toggleBadge(badge)}
-                 className="rounded-[4px] w-4 h-4"
-              />
-              <span className="text-muted-foreground">{badge}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <div className="h-px bg-border" />
-
-       {/* Programs Count Filter */}
-       <div>
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <Briefcase className="w-4 h-4" /> Program Size
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {[10, 20, 50].map((num) => (
-              <button
-                key={num}
-                onClick={() => setMinPrograms(minPrograms === num ? null : num)}
-                className={`px-3 py-1.5 text-xs rounded-lg border transition-all ${
-                  minPrograms === num 
-                  ? "bg-primary text-primary-foreground border-primary" 
-                  : "bg-background border-border hover:border-primary/50"
-                }`}
-              >
-                {num}+ Courses
-              </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
 
   return (
     <div className="min-h-screen pt-24 pb-16 bg-slate-50 dark:bg-black">
@@ -284,7 +313,16 @@ export default function UniversitiesPage() {
           
           {/* --- SIDEBAR FILTERS (Desktop Only) --- */}
           <aside className="w-full lg:w-64 shrink-0 space-y-8 hidden lg:block">
-            <FilterContent />
+            <FilterContent
+              selectedCountries={selectedCountries}
+              selectedBadges={selectedBadges}
+              minPrograms={minPrograms}
+              availableBadges={availableBadges}
+              toggleCountry={toggleCountry}
+              toggleBadge={toggleBadge}
+              setMinPrograms={setMinPrograms}
+              clearFilters={clearFilters}
+            />
           </aside>
 
           {/* --- MAIN GRID AREA --- */}
@@ -311,7 +349,16 @@ export default function UniversitiesPage() {
                       <SheetTitle>Filter Universities</SheetTitle>
                     </SheetHeader>
                     <div className="mt-6 pl-4 pr-3">
-                       <FilterContent />
+                       <FilterContent
+              selectedCountries={selectedCountries}
+              selectedBadges={selectedBadges}
+              minPrograms={minPrograms}
+              availableBadges={availableBadges}
+              toggleCountry={toggleCountry}
+              toggleBadge={toggleBadge}
+              setMinPrograms={setMinPrograms}
+              clearFilters={clearFilters}
+            />
                     </div>
                     <SheetFooter className="mt-8 border-t pt-4">
                         <SheetClose asChild>

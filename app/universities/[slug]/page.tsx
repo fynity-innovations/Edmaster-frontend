@@ -48,13 +48,7 @@ export default async function UniversityPage({ params }: PageProps) {
     (u) => u.university_slug === slug
   )
 
-  if (!university) {
-    notFound()
-  }
-
-  // const universityCourses = courses.filter(
-  //   (c) => c.universityId === university.university_id
-  // )
+  if (!university) notFound()
 
   return (
     <main className="min-h-screen bg-background">
@@ -74,10 +68,7 @@ export default async function UniversityPage({ params }: PageProps) {
           </div>
         }
       >
-        {/* <UniversityContent
-          university={university}
-          courses={universityCourses}
-        /> */}
+        <UniversityContent university={university} />
       </Suspense>
     </main>
   )
