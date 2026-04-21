@@ -4,6 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   Search,
   Building2,
@@ -30,11 +31,13 @@ const icons: Record<string, React.ComponentType<{ className?: string }>> = {
 }
 
 export default function AIToolsPage() {
+  const router = useRouter()
   const [activeTool, setActiveTool] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleToolClick = (toolId: string, comingSoon?: boolean) => {
+  const handleToolClick = (toolId: string, comingSoon?: boolean, href?: string) => {
     if (comingSoon) return
+    if (href) { router.push(href); return }
     setActiveTool(toolId)
     setIsLoading(true)
     setTimeout(() => setIsLoading(false), 1500)
@@ -72,12 +75,13 @@ export default function AIToolsPage() {
             const Icon = icons[tool.icon] || Search
             const isActive = activeTool === tool.id
             const isComingSoon = tool.comingSoon
+            const toolHref = (tool as any).href
 
             return (
               <motion.div key={tool.id} variants={fadeInUp}>
                 <motion.div
                   whileHover={!isComingSoon ? { y: -10, scale: 1.02 } : {}}
-                  onClick={() => handleToolClick(tool.id, isComingSoon)}
+                  onClick={() => handleToolClick(tool.id, isComingSoon, toolHref)}
                   className={`group relative h-full p-8 rounded-3xl border transition-all cursor-pointer overflow-hidden ${
                     isComingSoon
                       ? "bg-secondary/50 border-border opacity-70 cursor-not-allowed"

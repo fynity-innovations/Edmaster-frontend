@@ -18,7 +18,8 @@
     "name": "SOP Generator",
     "description": "AI-powered Statement of Purpose generator that creates compelling, personalized essays.",
     "icon": "FileEdit",
-    "features": ["Template library", "Personalization engine", "Grammar check", "University-specific tips"]
+    "href": "/ai-tools/sop-generator",
+    "features": ["Personalised AI essay", "3-step guided form", "PDF download", "University-specific tips"]
   },
   {
     "id": "4",

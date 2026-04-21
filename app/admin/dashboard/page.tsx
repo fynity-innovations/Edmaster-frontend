@@ -32,9 +32,20 @@ interface Stats {
   unverified_students: number
   total_otps: number
   used_otps: number
+  total_sop_leads: number
+  verified_sop_leads: number
 }
 
-type Tab = "students" | "otps"
+interface SOPLead {
+  id: string
+  name: string
+  phone: string
+  target_program: string
+  is_verified: boolean
+  created_at: string
+}
+
+type Tab = "students" | "otps" | "sop_leads"
 type SortDir = "asc" | "desc"
 
 // ── Date helpers ───────────────────────────────────────────────────────────────
@@ -203,6 +214,20 @@ export default function AdminDashboard() {
   const [otpDateFrom, setOtpDateFrom] = useState("")
   const [otpDateTo, setOtpDateTo] = useState("")
 
+  // SOP Leads state
+  const [sopLeads, setSopLeads] = useState<SOPLead[]>([])
+  const [sopTotal, setSopTotal] = useState(0)
+  const [sopPage, setSopPage] = useState(1)
+  const [sopSearch, setSopSearch] = useState("")
+  const [sopSearchInput, setSopSearchInput] = useState("")
+  const [sopVerified, setSopVerified] = useState("")
+  const [sopSortBy, setSopSortBy] = useState("created_at")
+  const [sopSortDir, setSopSortDir] = useState<SortDir>("desc")
+  const [sopLoading, setSopLoading] = useState(true)
+  const [sopExporting, setSopExporting] = useState(false)
+  const [sopDateFrom, setSopDateFrom] = useState("")
+  const [sopDateTo, setSopDateTo] = useState("")
+
   const perPage = 20
 
   function getToken() {
@@ -260,6 +285,24 @@ export default function AdminDashboard() {
     setOtpLoading(false)
   }, [otpPage, otpSearch, otpUsed, otpSortBy, otpSortDir, otpDateFrom, otpDateTo])
 
+  // ── Fetch SOP Leads ──
+  const fetchSopLeads = useCallback(async () => {
+    setSopLoading(true)
+    const p = new URLSearchParams({
+      page: String(sopPage), per_page: String(perPage),
+      sort_by: sopSortBy, sort_dir: sopSortDir,
+      ...(sopSearch ? { search: sopSearch } : {}),
+      ...(sopVerified ? { verified: sopVerified } : {}),
+      ...(sopDateFrom ? { date_from: sopDateFrom } : {}),
+      ...(sopDateTo ? { date_to: sopDateTo } : {}),
+    })
+    const res = await fetch(`${API_URL}/api/admin/sop-leads?${p}`, { headers: authHeaders() })
+    if (!guard(res)) return
+    const data = await res.json()
+    if (data.success) { setSopLeads(data.sop_leads); setSopTotal(data.total) }
+    setSopLoading(false)
+  }, [sopPage, sopSearch, sopVerified, sopSortBy, sopSortDir, sopDateFrom, sopDateTo])
+
   useEffect(() => {
     if (!getToken()) { router.push("/admin/login"); return }
     fetchStats()
@@ -267,6 +310,7 @@ export default function AdminDashboard() {
 
   useEffect(() => { if (getToken()) fetchStudents() }, [fetchStudents])
   useEffect(() => { if (getToken()) fetchOtps() }, [fetchOtps])
+  useEffect(() => { if (getToken()) fetchSopLeads() }, [fetchSopLeads])
 
   // ── Sort helpers ──
   function toggleStuSort(col: string) {
@@ -278,6 +322,11 @@ export default function AdminDashboard() {
     if (otpSortBy === col) setOtpSortDir(d => d === "asc" ? "desc" : "asc")
     else { setOtpSortBy(col); setOtpSortDir("desc") }
     setOtpPage(1)
+  }
+  function toggleSopSort(col: string) {
+    if (sopSortBy === col) setSopSortDir(d => d === "asc" ? "desc" : "asc")
+    else { setSopSortBy(col); setSopSortDir("desc") }
+    setSopPage(1)
   }
 
   // ── CSV export ──
@@ -327,6 +376,29 @@ export default function AdminDashboard() {
     setOtpExporting(false)
   }
 
+  async function exportSopLeads() {
+    setSopExporting(true)
+    const p = new URLSearchParams({
+      export: "true", sort_by: sopSortBy, sort_dir: sopSortDir,
+      ...(sopSearch ? { search: sopSearch } : {}),
+      ...(sopVerified ? { verified: sopVerified } : {}),
+      ...(sopDateFrom ? { date_from: sopDateFrom } : {}),
+      ...(sopDateTo ? { date_to: sopDateTo } : {}),
+    })
+    const res = await fetch(`${API_URL}/api/admin/sop-leads?${p}`, { headers: authHeaders() })
+    const data = await res.json()
+    if (data.success) {
+      const headers = ["#", "Name", "Phone", "Target Program", "Verified", "Submitted"]
+      const rows = data.sop_leads.map((l: SOPLead, i: number) => [
+        String(i + 1), l.name, l.phone, l.target_program || "",
+        l.is_verified ? "Yes" : "No",
+        fmt(l.created_at),
+      ])
+      downloadCSV(`sop_leads_${new Date().toISOString().slice(0,10)}.csv`, rows, headers)
+    }
+    setSopExporting(false)
+  }
+
   function handleLogout() {
     fetch(`${API_URL}/api/admin/logout`, { method: "POST", headers: authHeaders() })
     localStorage.removeItem("admin_token")
@@ -353,26 +425,30 @@ export default function AdminDashboard() {
 
         {/* Stats */}
         {stats && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4">
             <StatCard label="Total Students" value={stats.total_students} color="text-indigo-600" />
             <StatCard label="Verified" value={stats.verified_students} color="text-green-600" />
             <StatCard label="Unverified" value={stats.unverified_students} color="text-yellow-600" />
             <StatCard label="Total OTPs" value={stats.total_otps} color="text-gray-700" />
             <StatCard label="OTPs Used" value={stats.used_otps} color="text-gray-700" />
+            <StatCard label="SOP Leads" value={stats.total_sop_leads ?? 0} color="text-violet-600" />
+            <StatCard label="SOP Verified" value={stats.verified_sop_leads ?? 0} color="text-violet-500" />
           </div>
         )}
 
         {/* Tabs */}
         <div className="flex gap-1 bg-gray-200 rounded-xl p-1 w-fit">
-          {(["students", "otps"] as Tab[]).map(t => (
+          {(["students", "otps", "sop_leads"] as Tab[]).map(t => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`px-5 py-1.5 rounded-lg text-sm font-medium transition-colors capitalize ${
+              className={`px-5 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 tab === t ? "bg-white shadow text-indigo-700" : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              {t === "students" ? `Students (${stuTotal.toLocaleString()})` : `OTPs (${otpTotal.toLocaleString()})`}
+              {t === "students" ? `Students (${stuTotal.toLocaleString()})`
+                : t === "otps" ? `OTPs (${otpTotal.toLocaleString()})`
+                : `SOP Leads (${sopTotal.toLocaleString()})`}
             </button>
           ))}
         </div>
@@ -578,6 +654,95 @@ export default function AdminDashboard() {
             </div>
 
             <Pagination page={otpPage} total={otpPages} totalRecords={otpTotal} perPage={perPage} onPage={setOtpPage} />
+          </div>
+        )}
+
+        {/* ── SOP Leads Tab ── */}
+        {tab === "sop_leads" && (
+          <div className="bg-white rounded-xl shadow-sm">
+            <div className="p-4 border-b border-gray-100 space-y-3">
+              <div className="flex flex-wrap gap-3 items-center justify-between">
+                <div className="flex flex-wrap gap-2 items-center">
+                  <form onSubmit={e => { e.preventDefault(); setSopPage(1); setSopSearch(sopSearchInput) }} className="flex gap-2">
+                    <input
+                      value={sopSearchInput}
+                      onChange={e => setSopSearchInput(e.target.value)}
+                      placeholder="Search name, phone, program…"
+                      className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-56"
+                    />
+                    <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-3 py-1.5 rounded-lg transition-colors">
+                      Search
+                    </button>
+                    {sopSearch && (
+                      <button type="button" onClick={() => { setSopSearchInput(""); setSopSearch(""); setSopPage(1) }}
+                        className="text-sm text-gray-500 hover:text-gray-700">Clear</button>
+                    )}
+                  </form>
+                  <select
+                    value={sopVerified}
+                    onChange={e => { setSopVerified(e.target.value); setSopPage(1) }}
+                    className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="">All statuses</option>
+                    <option value="true">Verified</option>
+                    <option value="false">Unverified</option>
+                  </select>
+                </div>
+                <button
+                  onClick={exportSopLeads}
+                  disabled={sopExporting}
+                  className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white text-sm px-4 py-1.5 rounded-lg transition-colors"
+                >
+                  {sopExporting ? "Exporting…" : "Export CSV"}
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-3 items-center">
+                <DateRangeFilter
+                  from={sopDateFrom} to={sopDateTo}
+                  onFrom={v => { setSopDateFrom(v); setSopPage(1) }}
+                  onTo={v => { setSopDateTo(v); setSopPage(1) }}
+                  onClear={() => { setSopDateFrom(""); setSopDateTo(""); setSopPage(1) }}
+                />
+                <QuickPresets onSelect={(f, t) => { setSopDateFrom(f); setSopDateTo(t); setSopPage(1) }} />
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-50 text-left">
+                    <th className="px-4 py-3 font-medium text-gray-600">#</th>
+                    <Th label="Name" col="name" sortBy={sopSortBy} sortDir={sopSortDir} onSort={toggleSopSort} />
+                    <Th label="Phone" col="phone" sortBy={sopSortBy} sortDir={sopSortDir} onSort={toggleSopSort} />
+                    <Th label="Target Program" col="target_program" sortBy={sopSortBy} sortDir={sopSortDir} onSort={toggleSopSort} />
+                    <Th label="Status" col="is_verified" sortBy={sopSortBy} sortDir={sopSortDir} onSort={toggleSopSort} />
+                    <Th label="Submitted" col="created_at" sortBy={sopSortBy} sortDir={sopSortDir} onSort={toggleSopSort} />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {sopLoading ? (
+                    <tr><td colSpan={6} className="px-4 py-10 text-center text-gray-400">Loading…</td></tr>
+                  ) : sopLeads.length === 0 ? (
+                    <tr><td colSpan={6} className="px-4 py-10 text-center text-gray-400">No SOP leads found</td></tr>
+                  ) : sopLeads.map((l, i) => (
+                    <tr key={l.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-4 py-3 text-gray-400 tabular-nums">{(sopPage - 1) * perPage + i + 1}</td>
+                      <td className="px-4 py-3 font-medium text-gray-900">{l.name}</td>
+                      <td className="px-4 py-3 text-gray-600 tabular-nums">{l.phone}</td>
+                      <td className="px-4 py-3 text-gray-600 max-w-xs truncate" title={l.target_program}>{l.target_program || "—"}</td>
+                      <td className="px-4 py-3">
+                        {l.is_verified
+                          ? <span className="bg-violet-100 text-violet-700 text-xs font-medium px-2 py-0.5 rounded-full">Verified</span>
+                          : <span className="bg-yellow-100 text-yellow-700 text-xs font-medium px-2 py-0.5 rounded-full">Pending</span>}
+                      </td>
+                      <td className="px-4 py-3 text-gray-500 tabular-nums whitespace-nowrap">{fmt(l.created_at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <Pagination page={sopPage} total={Math.ceil(sopTotal / perPage)} totalRecords={sopTotal} perPage={perPage} onPage={setSopPage} />
           </div>
         )}
       </main>

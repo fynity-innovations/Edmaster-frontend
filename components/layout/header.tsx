@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { 
-  Menu, X, ChevronDown, 
-  Globe, School, BookOpen, 
+import {
+  Menu, X, ChevronDown,
+  Globe, School, BookOpen, FileEdit,
   GraduationCap, LayoutGrid, Sparkles, Home,
   Plane, ShieldCheck, Banknote, Lock, MessageCircle, HeartHandshake
 } from "lucide-react"
@@ -77,6 +77,7 @@ const prepHubItems = [
 
 const aiToolsItems = [
   { name: "AI Profile Evaluation", href: "/ai-tools/profile-evaluation", icon: Sparkles },
+  { name: "SOP Generator", href: "/ai-tools/sop-generator", icon: FileEdit },
   { name: "University Finder", href: "/universities", icon: School },
   { name: "Course Finder", href: "/courses", icon: BookOpen },
 ]
