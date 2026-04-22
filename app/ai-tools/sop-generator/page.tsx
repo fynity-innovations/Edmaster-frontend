@@ -470,22 +470,24 @@ export default function SOPGeneratorPage() {
       <BackgroundGlow />
 
       <div className="container relative z-10 mx-auto px-4">
-        <div className="grid gap-8 xl:grid-cols-[380px_minmax(0,1fr)]">
-          <aside className="space-y-6 xl:sticky xl:top-28 xl:self-start">
-            <div className="rounded-[32px] border border-primary/15 bg-gradient-to-br from-primary/10 via-card to-card p-7 shadow-sm backdrop-blur">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
-                <Sparkles className="h-4 w-4" />
-                AI SOP Generator
+        <div className="grid gap-8 xl:grid-cols-[300px_minmax(0,1fr)_320px]">
+          <aside className="order-1 xl:order-1 xl:sticky xl:self-start">
+            <div className="overflow-hidden rounded-[32px] border border-primary/15 bg-card/90 shadow-xl backdrop-blur">
+              <div className="border-b border-border/70 bg-gradient-to-br from-primary/10 via-card to-card px-6 py-6">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
+                  <Sparkles className="h-4 w-4" />
+                  AI SOP Generator
+                </div>
+
+                <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                  Build a polished SOP draft for your university application.
+                </h1>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                  Share your academic background, project highlights, and motivation. The tool converts that into a clean first draft you can refine.
+                </p>
               </div>
 
-              <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-                Build a polished SOP draft for your university application.
-              </h1>
-              <p className="mt-4 text-base leading-7 text-muted-foreground">
-                Share your academic profile, project highlights, and motivation. The tool will turn it into a structured first draft for your university application.
-              </p>
-
-              <div className="mt-8 space-y-3">
+              <div className="space-y-3 px-6 py-6">
                 {STEP_FEATURES.map(feature => (
                   <div key={feature} className="flex items-start gap-3 rounded-2xl bg-background/80 px-4 py-3">
                     <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
@@ -494,63 +496,9 @@ export default function SOPGeneratorPage() {
                 ))}
               </div>
             </div>
-
-            <div className="rounded-[28px] border border-border/70 bg-card/85 p-6 shadow-sm backdrop-blur">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-foreground">Progress</p>
-                <span className="text-sm text-muted-foreground">0{step} / 03</span>
-              </div>
-
-              <div className="mt-4 flex gap-2">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="h-2 flex-1 overflow-hidden rounded-full bg-secondary">
-                    <div
-                      className={`h-full rounded-full transition-all duration-300 ${
-                        i <= step ? "bg-primary" : "bg-transparent"
-                      }`}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-5 space-y-4">
-                {STEP_META.map((item, index) => {
-                  const itemStep = index + 1
-                  const active = itemStep === step
-                  const complete = itemStep < step
-
-                  return (
-                    <div
-                      key={item.heading}
-                      className={`rounded-2xl border px-4 py-4 transition ${
-                        active
-                          ? "border-primary/30 bg-primary/5"
-                          : "border-border/70 bg-background"
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div
-                          className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
-                            complete || active
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-secondary text-secondary-foreground"
-                          }`}
-                        >
-                          {complete ? <Check className="h-4 w-4" /> : `0${itemStep}`}
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{item.heading}</p>
-                          <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.description}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
           </aside>
 
-          <main>
+          <main className="order-3 xl:order-2">
             <AnimatePresence mode="wait">
               <motion.div
                 key={step}
@@ -571,11 +519,6 @@ export default function SOPGeneratorPage() {
                 </div>
 
                 <div className="px-6 py-6 sm:px-8 sm:py-8">
-                  <div className="mb-8 rounded-[24px] border border-primary/15 bg-primary/5 p-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Prompt Tip</p>
-                    <p className="mt-2 text-sm leading-6 text-foreground/80">{meta.tip}</p>
-                  </div>
-
                   {step === 1 && (
                     <div className="grid gap-6 md:grid-cols-2">
                       <Field label="Name">
@@ -658,6 +601,82 @@ export default function SOPGeneratorPage() {
               </motion.div>
             </AnimatePresence>
           </main>
+
+          <aside className="order-2 xl:order-3 xl:sticky xl:top-24 xl:self-start">
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-1">
+              <div className="rounded-[30px] border border-border/70 bg-card/85 p-6 shadow-sm backdrop-blur">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-foreground">Progress</p>
+                  <span className="text-sm text-muted-foreground">0{step} / 03</span>
+                </div>
+
+                <div className="mt-4 flex gap-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="h-2 flex-1 overflow-hidden rounded-full bg-secondary">
+                      <div
+                        className={`h-full rounded-full transition-all duration-300 ${
+                          i <= step ? "bg-primary" : "bg-transparent"
+                        }`}
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-5 space-y-4">
+                  {STEP_META.map((item, index) => {
+                    const itemStep = index + 1
+                    const active = itemStep === step
+                    const complete = itemStep < step
+
+                    return (
+                      <div
+                        key={item.heading}
+                        className={`rounded-2xl border px-4 py-4 transition ${
+                          active
+                            ? "border-primary/30 bg-primary/5"
+                            : "border-border/70 bg-background"
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div
+                            className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
+                              complete || active
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-secondary text-secondary-foreground"
+                            }`}
+                          >
+                            {complete ? <Check className="h-4 w-4" /> : `0${itemStep}`}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{item.heading}</p>
+                            <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.description}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="rounded-[30px] border border-border/70 bg-card/85 p-6 shadow-sm backdrop-blur">
+                <p className="text-sm font-semibold text-foreground">Current step guidance</p>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  Use this section to strengthen the final draft quality before generation.
+                </p>
+
+                <div className="mt-5 rounded-2xl border border-primary/15 bg-primary/5 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Prompt Tip</p>
+                  <p className="mt-2 text-sm leading-6 text-foreground/80">{meta.tip}</p>
+                </div>
+
+                <div className="mt-4 rounded-2xl bg-background px-4 py-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Current focus</p>
+                  <p className="mt-2 text-sm font-medium text-foreground">{meta.heading}</p>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">{meta.description}</p>
+                </div>
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
 
