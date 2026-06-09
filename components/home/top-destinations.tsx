@@ -8,8 +8,8 @@ import countries from "@/data/countries.json"
 
 export function TopDestinations() {
   return (
-    <section className="py-14 bg-secondary/20">
-      <div className="container mx-auto px-4">
+    <section className="py-20 lg:py-28 bg-secondary/20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
         <motion.div

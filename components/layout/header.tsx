@@ -152,7 +152,7 @@ export function Header() {
     <>
       {/* ================= HEADER ================= */}
       <header className={headerClass}>
-        <div className="container mx-auto px-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
 
           {/* Logo */}
           <a href="/" className="flex items-center gap-3 relative z-10">

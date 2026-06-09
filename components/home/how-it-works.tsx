@@ -187,8 +187,8 @@ export function HowItWorks() {
   const lineHeight = useTransform(scrollYProgress, [0, 0.8], ["0%", "100%"])
 
   return (
-    <section ref={containerRef} className="py-24 relative overflow-hidden">
-      <div className="container mx-auto px-4">
+    <section ref={containerRef} className="py-20 lg:py-28 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
         <motion.div

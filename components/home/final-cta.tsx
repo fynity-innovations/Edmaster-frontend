@@ -29,7 +29,7 @@ export function FinalCTA() {
   }, [])
 
   return (
-    <section className="py-24 relative overflow-hidden">
+    <section className="py-20 lg:py-28 relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-accent" />
 
@@ -54,7 +54,7 @@ export function FinalCTA() {
         ))}
       </div>
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           variants={staggerContainer}
           initial="hidden"

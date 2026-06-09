@@ -37,7 +37,7 @@ export function HeroSection() {
         />
       </div>
 
-      <div className="container mx-auto px-4 relative z-10 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-12">
         {/* Two-column layout: text left, globe right */}
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-8">
 
