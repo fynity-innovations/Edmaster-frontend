@@ -1,7 +1,7 @@
 "use client"
 
 import { motion, useScroll, useTransform } from "framer-motion"
-import { useRef } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import {
   ArrowRight,
@@ -14,12 +14,14 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { fadeInUp, staggerContainer } from "@/lib/motion"
-import type { Country, University } from "@/lib/types"
+import type { Country, UniversityJSON } from "@/lib/types"
 
 interface CountryContentProps {
   country: Country
-  universities: University[]
+  universities: UniversityJSON[]
 }
+
+const PAGE_SIZE = 9
 
 export function CountryContent({ country, universities }: CountryContentProps) {
   const heroRef = useRef<HTMLDivElement>(null)
@@ -31,6 +33,40 @@ export function CountryContent({ country, universities }: CountryContentProps) {
 
   const y = useTransform(scrollYProgress, [0, 1], [0, 120])
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
+
+  // Best-ranked first (lower world rank = better; missing ranks go last)
+  const sortedUniversities = useMemo(
+    () =>
+      [...universities].sort(
+        (a, b) => (a.rankings?.world ?? Infinity) - (b.rankings?.world ?? Infinity)
+      ),
+    [universities]
+  )
+
+  // Show top 10 first, then load 10 more whenever the sentinel scrolls into view
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const visibleUniversities = sortedUniversities.slice(0, visibleCount)
+  const hasMore = visibleCount < sortedUniversities.length
+
+  const sentinelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!hasMore) return
+    const sentinel = sentinelRef.current
+    if (!sentinel) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((c) => Math.min(c + PAGE_SIZE, sortedUniversities.length))
+        }
+      },
+      { rootMargin: "200px" }
+    )
+
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [hasMore, sortedUniversities.length])
 
   return (
     <div className="min-h-screen">
@@ -189,37 +225,37 @@ export function CountryContent({ country, universities }: CountryContentProps) {
             </motion.p>
           </motion.div>
 
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {universities.map((uni) => (
-              <motion.div key={uni.id} variants={fadeInUp}>
-                <Link href={`/universities/${uni.slug}`}>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {visibleUniversities.map((uni) => (
+              <motion.div
+                key={uni.university_id}
+                variants={fadeInUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "0px 0px -80px 0px" }}
+              >
+                <Link href={`/universities/${uni.university_slug}`}>
                   <motion.div
                     whileHover={{ y: -6 }}
                     className="group p-6 rounded-2xl bg-white border shadow-sm hover:shadow-xl transition-all"
                   >
                     <h3 className="font-bold text-lg group-hover:text-primary transition">
-                      {uni.name}
+                      {uni.university_name}
                     </h3>
 
                     <div className="flex items-center gap-1 text-sm text-muted-foreground mt-2">
                       <MapPin className="w-3 h-3" />
-                      {uni.city}
+                      {uni.location}
                     </div>
 
                     <p className="text-sm text-muted-foreground mt-3 line-clamp-2">
-                      {uni.shortDescription}
+                      {uni.description}
                     </p>
 
                     <div className="mt-4 flex justify-between text-sm">
                       <span className="flex items-center gap-1">
                         <Trophy className="w-4 h-4 text-primary" />
-                        Rank #{uni.ranking}
+                        Rank #{uni.rankings?.world}
                       </span>
 
                       <span className="text-primary flex items-center gap-1">
@@ -230,7 +266,14 @@ export function CountryContent({ country, universities }: CountryContentProps) {
                 </Link>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
+
+          {/* Sentinel: when it scrolls into view, the next 10 load */}
+          {hasMore && (
+            <div ref={sentinelRef} className="flex justify-center py-10">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
+            </div>
+          )}
 
           {universities.length === 0 && (
             <div className="text-center py-12 text-muted-foreground">

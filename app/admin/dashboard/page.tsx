@@ -34,6 +34,8 @@ interface Stats {
   used_otps: number
   total_sop_leads: number
   verified_sop_leads: number
+  total_consultations: number
+  new_consultations: number
 }
 
 interface SOPLead {
@@ -45,7 +47,25 @@ interface SOPLead {
   created_at: string
 }
 
-type Tab = "students" | "otps" | "sop_leads"
+interface Consultation {
+  id: string
+  name: string
+  first_name: string
+  last_name: string
+  email: string
+  phone: string
+  education: string
+  country: string
+  study_level: string
+  preferred_country: string
+  intake_year: string
+  preferred_date: string
+  preferred_time: string
+  status: string
+  created_at: string
+}
+
+type Tab = "students" | "otps" | "sop_leads" | "consultations"
 type SortDir = "asc" | "desc"
 
 // ── Date helpers ───────────────────────────────────────────────────────────────
@@ -228,6 +248,20 @@ export default function AdminDashboard() {
   const [sopDateFrom, setSopDateFrom] = useState("")
   const [sopDateTo, setSopDateTo] = useState("")
 
+  // Consultations state
+  const [consults, setConsults] = useState<Consultation[]>([])
+  const [conTotal, setConTotal] = useState(0)
+  const [conPage, setConPage] = useState(1)
+  const [conSearch, setConSearch] = useState("")
+  const [conSearchInput, setConSearchInput] = useState("")
+  const [conStatus, setConStatus] = useState("")   // "" | "new" | "contacted" | "closed"
+  const [conSortBy, setConSortBy] = useState("created_at")
+  const [conSortDir, setConSortDir] = useState<SortDir>("desc")
+  const [conLoading, setConLoading] = useState(true)
+  const [conExporting, setConExporting] = useState(false)
+  const [conDateFrom, setConDateFrom] = useState("")
+  const [conDateTo, setConDateTo] = useState("")
+
   const perPage = 20
 
   function getToken() {
@@ -303,6 +337,24 @@ export default function AdminDashboard() {
     setSopLoading(false)
   }, [sopPage, sopSearch, sopVerified, sopSortBy, sopSortDir, sopDateFrom, sopDateTo])
 
+  // ── Fetch Consultations ──
+  const fetchConsults = useCallback(async () => {
+    setConLoading(true)
+    const p = new URLSearchParams({
+      page: String(conPage), per_page: String(perPage),
+      sort_by: conSortBy, sort_dir: conSortDir,
+      ...(conSearch ? { search: conSearch } : {}),
+      ...(conStatus ? { status: conStatus } : {}),
+      ...(conDateFrom ? { date_from: conDateFrom } : {}),
+      ...(conDateTo ? { date_to: conDateTo } : {}),
+    })
+    const res = await fetch(`${API_URL}/api/admin/consultations?${p}`, { headers: authHeaders() })
+    if (!guard(res)) return
+    const data = await res.json()
+    if (data.success) { setConsults(data.consultations); setConTotal(data.total) }
+    setConLoading(false)
+  }, [conPage, conSearch, conStatus, conSortBy, conSortDir, conDateFrom, conDateTo])
+
   useEffect(() => {
     if (!getToken()) { router.push("/admin/login"); return }
     fetchStats()
@@ -311,6 +363,7 @@ export default function AdminDashboard() {
   useEffect(() => { if (getToken()) fetchStudents() }, [fetchStudents])
   useEffect(() => { if (getToken()) fetchOtps() }, [fetchOtps])
   useEffect(() => { if (getToken()) fetchSopLeads() }, [fetchSopLeads])
+  useEffect(() => { if (getToken()) fetchConsults() }, [fetchConsults])
 
   // ── Sort helpers ──
   function toggleStuSort(col: string) {
@@ -327,6 +380,11 @@ export default function AdminDashboard() {
     if (sopSortBy === col) setSopSortDir(d => d === "asc" ? "desc" : "asc")
     else { setSopSortBy(col); setSopSortDir("desc") }
     setSopPage(1)
+  }
+  function toggleConSort(col: string) {
+    if (conSortBy === col) setConSortDir(d => d === "asc" ? "desc" : "asc")
+    else { setConSortBy(col); setConSortDir("desc") }
+    setConPage(1)
   }
 
   // ── CSV export ──
@@ -399,6 +457,30 @@ export default function AdminDashboard() {
     setSopExporting(false)
   }
 
+  async function exportConsults() {
+    setConExporting(true)
+    const p = new URLSearchParams({
+      export: "true", sort_by: conSortBy, sort_dir: conSortDir,
+      ...(conSearch ? { search: conSearch } : {}),
+      ...(conStatus ? { status: conStatus } : {}),
+      ...(conDateFrom ? { date_from: conDateFrom } : {}),
+      ...(conDateTo ? { date_to: conDateTo } : {}),
+    })
+    const res = await fetch(`${API_URL}/api/admin/consultations?${p}`, { headers: authHeaders() })
+    const data = await res.json()
+    if (data.success) {
+      const headers = ["#", "Name", "Email", "Phone", "Education", "Country",
+        "Study Level", "Preferred Country", "Intake", "Date", "Time", "Status", "Booked"]
+      const rows = data.consultations.map((c: Consultation, i: number) => [
+        String(i + 1), c.name, c.email, c.phone, c.education, c.country,
+        c.study_level, c.preferred_country, c.intake_year,
+        c.preferred_date, c.preferred_time, c.status, fmt(c.created_at),
+      ])
+      downloadCSV(`consultations_${new Date().toISOString().slice(0,10)}.csv`, rows, headers)
+    }
+    setConExporting(false)
+  }
+
   function handleLogout() {
     fetch(`${API_URL}/api/admin/logout`, { method: "POST", headers: authHeaders() })
     localStorage.removeItem("admin_token")
@@ -425,7 +507,7 @@ export default function AdminDashboard() {
 
         {/* Stats */}
         {stats && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-4">
             <StatCard label="Total Students" value={stats.total_students} color="text-indigo-600" />
             <StatCard label="Verified" value={stats.verified_students} color="text-green-600" />
             <StatCard label="Unverified" value={stats.unverified_students} color="text-yellow-600" />
@@ -433,12 +515,14 @@ export default function AdminDashboard() {
             <StatCard label="OTPs Used" value={stats.used_otps} color="text-gray-700" />
             <StatCard label="SOP Leads" value={stats.total_sop_leads ?? 0} color="text-violet-600" />
             <StatCard label="SOP Verified" value={stats.verified_sop_leads ?? 0} color="text-violet-500" />
+            <StatCard label="Consultations" value={stats.total_consultations ?? 0} color="text-rose-600" />
+            <StatCard label="New Bookings" value={stats.new_consultations ?? 0} color="text-rose-500" />
           </div>
         )}
 
         {/* Tabs */}
         <div className="flex gap-1 bg-gray-200 rounded-xl p-1 w-fit">
-          {(["students", "otps", "sop_leads"] as Tab[]).map(t => (
+          {(["students", "otps", "sop_leads", "consultations"] as Tab[]).map(t => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -448,7 +532,8 @@ export default function AdminDashboard() {
             >
               {t === "students" ? `Students (${stuTotal.toLocaleString()})`
                 : t === "otps" ? `OTPs (${otpTotal.toLocaleString()})`
-                : `SOP Leads (${sopTotal.toLocaleString()})`}
+                : t === "sop_leads" ? `SOP Leads (${sopTotal.toLocaleString()})`
+                : `Consultations (${conTotal.toLocaleString()})`}
             </button>
           ))}
         </div>
@@ -743,6 +828,102 @@ export default function AdminDashboard() {
             </div>
 
             <Pagination page={sopPage} total={Math.ceil(sopTotal / perPage)} totalRecords={sopTotal} perPage={perPage} onPage={setSopPage} />
+          </div>
+        )}
+
+        {/* ── Consultations Tab ── */}
+        {tab === "consultations" && (
+          <div className="bg-white rounded-xl shadow-sm">
+            <div className="p-4 border-b border-gray-100 space-y-3">
+              <div className="flex flex-wrap gap-3 items-center justify-between">
+                <div className="flex flex-wrap gap-2 items-center">
+                  <form onSubmit={e => { e.preventDefault(); setConPage(1); setConSearch(conSearchInput) }} className="flex gap-2">
+                    <input
+                      value={conSearchInput}
+                      onChange={e => setConSearchInput(e.target.value)}
+                      placeholder="Search name, email, phone…"
+                      className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-56"
+                    />
+                    <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-3 py-1.5 rounded-lg transition-colors">
+                      Search
+                    </button>
+                    {conSearch && (
+                      <button type="button" onClick={() => { setConSearchInput(""); setConSearch(""); setConPage(1) }}
+                        className="text-sm text-gray-500 hover:text-gray-700">Clear</button>
+                    )}
+                  </form>
+                  <select
+                    value={conStatus}
+                    onChange={e => { setConStatus(e.target.value); setConPage(1) }}
+                    className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="">All statuses</option>
+                    <option value="new">New</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="closed">Closed</option>
+                  </select>
+                </div>
+                <button
+                  onClick={exportConsults}
+                  disabled={conExporting}
+                  className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white text-sm px-4 py-1.5 rounded-lg transition-colors"
+                >
+                  {conExporting ? "Exporting…" : "Export CSV"}
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-3 items-center">
+                <DateRangeFilter
+                  from={conDateFrom} to={conDateTo}
+                  onFrom={v => { setConDateFrom(v); setConPage(1) }}
+                  onTo={v => { setConDateTo(v); setConPage(1) }}
+                  onClear={() => { setConDateFrom(""); setConDateTo(""); setConPage(1) }}
+                />
+                <QuickPresets onSelect={(f, t) => { setConDateFrom(f); setConDateTo(t); setConPage(1) }} />
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-50 text-left">
+                    <th className="px-4 py-3 font-medium text-gray-600">#</th>
+                    <Th label="Name" col="first_name" sortBy={conSortBy} sortDir={conSortDir} onSort={toggleConSort} />
+                    <Th label="Email" col="email" sortBy={conSortBy} sortDir={conSortDir} onSort={toggleConSort} />
+                    <Th label="Phone" col="phone" sortBy={conSortBy} sortDir={conSortDir} onSort={toggleConSort} />
+                    <Th label="Study Level" col="study_level" sortBy={conSortBy} sortDir={conSortDir} onSort={toggleConSort} />
+                    <Th label="Preferred Country" col="preferred_country" sortBy={conSortBy} sortDir={conSortDir} onSort={toggleConSort} />
+                    <th className="px-4 py-3 font-medium text-gray-600 whitespace-nowrap">Schedule</th>
+                    <Th label="Status" col="status" sortBy={conSortBy} sortDir={conSortDir} onSort={toggleConSort} />
+                    <Th label="Booked" col="created_at" sortBy={conSortBy} sortDir={conSortDir} onSort={toggleConSort} />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {conLoading ? (
+                    <tr><td colSpan={9} className="px-4 py-10 text-center text-gray-400">Loading…</td></tr>
+                  ) : consults.length === 0 ? (
+                    <tr><td colSpan={9} className="px-4 py-10 text-center text-gray-400">No consultations found</td></tr>
+                  ) : consults.map((c, i) => (
+                    <tr key={c.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-4 py-3 text-gray-400 tabular-nums">{(conPage - 1) * perPage + i + 1}</td>
+                      <td className="px-4 py-3 font-medium text-gray-900">{c.name || "—"}</td>
+                      <td className="px-4 py-3 text-gray-600">{c.email || "—"}</td>
+                      <td className="px-4 py-3 text-gray-600 tabular-nums">{c.phone || "—"}</td>
+                      <td className="px-4 py-3 text-gray-600 capitalize">{c.study_level || "—"}</td>
+                      <td className="px-4 py-3 text-gray-600 uppercase">{c.preferred_country || "—"}</td>
+                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
+                        {c.preferred_date ? `${c.preferred_date}${c.preferred_time ? ` · ${c.preferred_time}` : ""}` : "—"}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="bg-rose-100 text-rose-700 text-xs font-medium px-2 py-0.5 rounded-full capitalize">{c.status || "new"}</span>
+                      </td>
+                      <td className="px-4 py-3 text-gray-500 tabular-nums whitespace-nowrap">{fmt(c.created_at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <Pagination page={conPage} total={Math.ceil(conTotal / perPage)} totalRecords={conTotal} perPage={perPage} onPage={setConPage} />
           </div>
         )}
       </main>

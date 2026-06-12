@@ -31,7 +31,9 @@ export default async function StudyInCountryPage({ params }: PageProps) {
   const country = countries.find((c) => c.country_slug === countrySlug)
   if (!country) notFound()
 
-  const countryUniversities = universities.filter((u) => u.countrySlug === countrySlug)
+  const countryUniversities = universities.filter(
+    (u) => u.country_name === country.country_name
+  )
 
   return (
     <Suspense

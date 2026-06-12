@@ -8,6 +8,8 @@ import { ArrowRight, CheckCircle, User, Mail, Phone, GraduationCap, Globe, Calen
 import { Button } from "@/components/ui/button"
 import { fadeInUp, staggerContainer } from "@/lib/motion"
 
+const API_URL = "http://127.0.0.1:8000"
+
 const steps = [
   { id: 1, title: "Personal Info" },
   { id: 2, title: "Education" },
@@ -48,7 +50,8 @@ export default function GetStartedPage() {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/send-email", {
+      // Persist the booking so it shows up in the admin panel
+      const saveRes = await fetch(`${API_URL}/api/consultations/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -56,13 +59,24 @@ export default function GetStartedPage() {
         body: JSON.stringify(formData),
       });
 
-      if (res.ok) {
-        setIsSubmitted(true);
-      } else {
-        alert("Failed to send email");
+      if (!saveRes.ok) {
+        alert("Failed to book consultation. Please try again.");
+        setIsSubmitting(false);
+        return;
       }
+
+      // Email notification is best-effort — don't block the booking on it
+      fetch("/api/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      }).catch(() => {});
+
+      setIsSubmitted(true);
     } catch (error) {
-      alert("Something went wrong");
+      alert("Cannot connect to the server. Please try again.");
     }
 
     setIsSubmitting(false);
