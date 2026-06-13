@@ -7,26 +7,27 @@ import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, Youtube } 
 
 const footerLinks = {
   destinations: [
-    { name: "Study in UK", href: "/study-in/united-kingdom" },
-    { name: "Study in USA", href: "/study-in/united-states" },
-    { name: "Study in Canada", href: "/study-in/canada" },
-    { name: "Study in Australia", href: "/study-in/australia" },
+    { name: "Study in UK", href: "/study-in/uk" },
+    { name: "Study in Ireland", href: "/study-in/ireland" },
     { name: "Study in Germany", href: "/study-in/germany" },
+    { name: "Study in France", href: "/study-in/france" },
+    { name: "Study in Sweden", href: "/study-in/sweden" },
   ],
   services: [
-    { name: "University Selection", href: "/services" },
-    { name: "Application Support", href: "/services" },
-    { name: "Visa Assistance", href: "/services" },
-    { name: "Test Preparation", href: "/services" },
-    { name: "Scholarships", href: "/services" },
+    { name: "Education Counselling", href: "/services/counselling" },
+    { name: "Health Insurance", href: "/services/health-insurance" },
+    { name: "Accommodation Support", href: "/services/accommodation" },
+    { name: "Education Loan", href: "/services/loan" },
+    { name: "Block Account (Germany)", href: "/services/block-account" },
   ],
   resources: [
+    { name: "About Us", href: "/about" },
     { name: "AI Tools", href: "/ai-tools" },
     { name: "Contact Us", href: "/get-started" },
   ],
   legal: [
     { name: "Privacy Policy", href: "/privacy" },
-    { name: "Terms of Service", href: "/terms" },
+    { name: "Terms & Conditions", href: "/terms" },
   ],
 }
 
@@ -123,22 +124,27 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 pb-20 md:pb-0 border-t border-border">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            {/* Left — copyright + legal + developer */}
-            <div className="flex flex-col items-center md:items-start gap-1">
+            {/* Left — copyright + developer badge */}
+            <div className="flex flex-col items-center gap-3 md:items-start">
               <p className="text-sm text-muted-foreground">
                 © {new Date().getFullYear()} EdMaster. All rights reserved.
               </p>
-              <p className="text-xs text-muted-foreground">
-                Developed by{" "}
-                <a
-                  href="https://www.fynityinnovations.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold text-primary hover:underline"
-                >
-                  Fynity Innovations
-                </a>
-              </p>
+              <a
+                href="https://www.fynityinnovations.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/25 bg-primary/5 px-3 py-2 text-sm text-foreground shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/10 hover:shadow-md"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/fynity.png"
+                  alt="Fynity Innovations LLP"
+                  className="h-7 w-7 rounded-full bg-white object-contain p-1 ring-1 ring-border"
+                />
+                <span>
+                  Developed by <span className="font-bold text-primary">Fynity Innovations LLP</span>
+                </span>
+              </a>
             </div>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
               {footerLinks.legal.map((link) => (
