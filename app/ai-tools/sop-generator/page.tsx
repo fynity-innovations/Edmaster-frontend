@@ -4,15 +4,16 @@ import type { ChangeEvent, ComponentType, ReactNode } from "react"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
-  Phone,
+  Mail,
   Check,
   Download,
-  Copy,
+  Lock,
   ArrowLeft,
   Sparkles,
   ShieldCheck,
   FilePenLine,
   CheckCircle2,
+  AlertCircle,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -54,7 +55,7 @@ const STEP_META = [
 const STEP_FEATURES = [
   "Tailored structure for university applications",
   "Focused prompts to improve academic relevance",
-  "Editable output with copy and PDF export",
+  "Unlock and export your SOP as a PDF after email verification",
 ]
 
 export default function SOPGeneratorPage() {
@@ -73,12 +74,21 @@ export default function SOPGeneratorPage() {
   const [generating, setGenerating] = useState(false)
 
   const [showOtpModal, setShowOtpModal] = useState(false)
+  const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
   const [otp, setOtp] = useState("")
   const [otpSent, setOtpSent] = useState(false)
   const [otpLoading, setOtpLoading] = useState(false)
   const [verified, setVerified] = useState(false)
-  const [copied, setCopied] = useState(false)
+  const [downloadAfterVerify, setDownloadAfterVerify] = useState(false)
+  const [otpError, setOtpError] = useState("")
+  const [toast, setToast] = useState<{ text: string; tone: "error" | "info" } | null>(null)
+
+  const notify = (text: string, tone: "error" | "info" = "error") => {
+    setToast({ text, tone })
+    window.clearTimeout((notify as unknown as { _t?: number })._t)
+    ;(notify as unknown as { _t?: number })._t = window.setTimeout(() => setToast(null), 4000)
+  }
 
   const update = (key: keyof FormData, value: string) =>
     setFormData(prev => ({ ...prev, [key]: value }))
@@ -107,16 +117,17 @@ export default function SOPGeneratorPage() {
         setSopText(data.sop)
         setStep(4)
       } else {
-        alert(data.error || "Failed to generate SOP. Please try again.")
+        notify(data.error || "Failed to generate SOP. Please try again.")
       }
     } catch {
-      alert("Server error. Please try again.")
+      notify("Server error. Please try again.")
     } finally {
       setGenerating(false)
     }
   }
 
   const handleSendOtp = async () => {
+    setOtpError("")
     setOtpLoading(true)
     try {
       const res = await fetch(`${NEXT_PUBLIC_API_URL}/api/sop/initiate/`, {
@@ -124,6 +135,7 @@ export default function SOPGeneratorPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: formData.name,
+          email,
           phone,
           targetProgram: formData.targetProgram,
         }),
@@ -132,17 +144,18 @@ export default function SOPGeneratorPage() {
       if (res.ok && data.success) {
         setOtpSent(true)
       } else {
-        const errMsg = data.errors?.phone || data.errors?.name || data.message || "Failed to send OTP"
-        alert(errMsg)
+        const errMsg = data.errors?.email || data.errors?.phone || data.errors?.name || data.message || "Failed to send OTP"
+        setOtpError(errMsg)
       }
     } catch {
-      alert("Server error. Please try again.")
+      setOtpError("Server error. Please try again.")
     } finally {
       setOtpLoading(false)
     }
   }
 
-  const handleVerifyAndDownload = async () => {
+  const handleVerifyAndView = async () => {
+    setOtpError("")
     setOtpLoading(true)
     try {
       const res = await fetch(`${NEXT_PUBLIC_API_URL}/api/sop/verify/`, {
@@ -156,12 +169,15 @@ export default function SOPGeneratorPage() {
         setShowOtpModal(false)
         setOtpSent(false)
         setOtp("")
-        await triggerDownload()
+        if (downloadAfterVerify) {
+          setDownloadAfterVerify(false)
+          await triggerDownload()
+        }
       } else {
-        alert(data.message || "Invalid or expired OTP")
+        setOtpError(data.message || "Invalid or expired OTP")
       }
     } catch {
-      alert("Verification failed. Please try again.")
+      setOtpError("Verification failed. Please try again.")
     } finally {
       setOtpLoading(false)
     }
@@ -226,12 +242,6 @@ export default function SOPGeneratorPage() {
     doc.save(`SOP_${formData.name.replace(/\s+/g, "_")}.pdf`)
   }
 
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(sopText)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
   if (step === 4) {
     return (
       <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-background via-background to-secondary/40 pt-24 pb-16">
@@ -249,7 +259,7 @@ export default function SOPGeneratorPage() {
                   Review, refine, and export your statement of purpose.
                 </h1>
                 <p className="mt-4 text-base text-muted-foreground md:text-lg">
-                  Your draft is generated and ready to use. Copy the text instantly or verify your number to unlock PDF download.
+                  Your draft is ready. Verify your email to unlock and view the full statement of purpose.
                 </p>
               </div>
 
@@ -272,11 +282,66 @@ export default function SOPGeneratorPage() {
                 </div>
 
                 <div className="relative">
-                  <div className="max-h-[70vh] overflow-y-auto px-6 py-6 whitespace-pre-line text-sm leading-7 text-foreground/85 sm:text-[15px]">
-                    {sopText}
-                  </div>
-                  {!verified && (
-                    <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-card via-card/95 to-transparent" />
+                  {verified ? (
+                    <div className="max-h-[70vh] overflow-y-auto px-6 py-6 whitespace-pre-line text-sm leading-7 text-foreground/85 sm:text-[15px]">
+                      {sopText}
+                    </div>
+                  ) : (
+                    <div className="relative h-[440px] overflow-hidden">
+                      {/* First lines are crisp, then the real content fades away */}
+                      <div
+                        className="select-none px-6 py-6 whitespace-pre-line text-sm leading-7 text-foreground/85 sm:text-[15px]"
+                        aria-hidden
+                        style={{
+                          WebkitMaskImage:
+                            "linear-gradient(to bottom, #000 0%, #000 26%, transparent 82%)",
+                          maskImage:
+                            "linear-gradient(to bottom, #000 0%, #000 26%, transparent 82%)",
+                        }}
+                      >
+                        {sopText}
+                      </div>
+
+                      {/* Floating unlock card over the faded region */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
+                        className="group absolute inset-x-4 bottom-5 sm:inset-x-8"
+                      >
+                        <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-card/80 p-6 shadow-[0_20px_60px_-15px_rgba(88,28,135,0.35)] backdrop-blur-md transition-all duration-300 group-hover:-translate-y-1 group-hover:border-primary/40 group-hover:shadow-[0_28px_70px_-15px_rgba(88,28,135,0.45)]">
+                          {/* sweeping shimmer */}
+                          <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/10 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />
+
+                          <div className="relative flex flex-col items-center gap-4 text-center sm:flex-row sm:gap-5 sm:text-left">
+                            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                              <span className="absolute inset-0 animate-ping rounded-2xl bg-primary/10" />
+                              <Lock className="relative h-6 w-6 transition-transform duration-300 group-hover:rotate-[8deg]" />
+                            </div>
+
+                            <div className="flex-1">
+                              <p className="text-base font-semibold text-foreground">
+                                Continue reading your statement of purpose
+                              </p>
+                              <p className="mt-1 text-sm text-muted-foreground">
+                                You&apos;re seeing the opening lines. Verify your email to unlock the full draft.
+                              </p>
+                            </div>
+
+                            <button
+                              onClick={() => {
+                                setOtpError("")
+                                setShowOtpModal(true)
+                              }}
+                              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+                            >
+                              <ShieldCheck className="h-4 w-4" />
+                              Verify to View
+                            </button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </div>
                   )}
                 </div>
               </div>
@@ -285,18 +350,10 @@ export default function SOPGeneratorPage() {
                 <div className="rounded-[28px] border border-border/70 bg-card/85 p-6 shadow-sm backdrop-blur">
                   <p className="text-sm font-semibold text-foreground">Actions</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Export stays locked until phone verification is complete.
+                    Your SOP stays locked until email verification is complete.
                   </p>
 
                   <div className="mt-5 space-y-3">
-                    <button
-                      onClick={handleCopy}
-                      className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-background px-4 py-3 text-sm font-medium text-foreground transition hover:border-primary/30 hover:bg-secondary"
-                    >
-                      {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
-                      {copied ? "Copied" : "Copy SOP Text"}
-                    </button>
-
                     {verified ? (
                       <button
                         onClick={triggerDownload}
@@ -306,13 +363,25 @@ export default function SOPGeneratorPage() {
                         Download PDF
                       </button>
                     ) : (
-                      <button
-                        onClick={() => setShowOtpModal(true)}
-                        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
-                      >
-                        <ShieldCheck className="h-4 w-4" />
-                        Verify to Download
-                      </button>
+                      <>
+                        <button
+                          onClick={() => setShowOtpModal(true)}
+                          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+                        >
+                          <ShieldCheck className="h-4 w-4" />
+                          Verify to View
+                        </button>
+                        <button
+                          onClick={() => {
+                            setDownloadAfterVerify(true)
+                            setShowOtpModal(true)
+                          }}
+                          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-background px-4 py-3 text-sm font-medium text-foreground transition hover:border-primary/30 hover:bg-secondary"
+                        >
+                          <Download className="h-4 w-4" />
+                          Download PDF
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -327,8 +396,8 @@ export default function SOPGeneratorPage() {
                     />
                     <InfoRow
                       icon={ShieldCheck}
-                      title="Verify phone"
-                      text="OTP verification unlocks the PDF export flow and stores the lead in your system."
+                      title="Verify email"
+                      text="An OTP is sent to your email. Verifying unlocks the full SOP and PDF export."
                     />
                     <InfoRow
                       icon={CheckCircle2}
@@ -370,29 +439,55 @@ export default function SOPGeneratorPage() {
               >
                 <div className="mb-6">
                   <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                    <Phone className="h-6 w-6" />
+                    <Mail className="h-6 w-6" />
                   </div>
-                  <h2 className="text-2xl font-bold text-foreground">Verify to unlock PDF export</h2>
+                  <h2 className="text-2xl font-bold text-foreground">Verify to view your SOP</h2>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Lead will be saved for <span className="font-medium text-foreground">{formData.name}</span>.
+                    We&apos;ll email a 6-digit code to verify <span className="font-medium text-foreground">{formData.name}</span>.
                   </p>
                 </div>
 
+                <AnimatePresence initial={false}>
+                  {otpError && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                      animate={{ opacity: 1, height: "auto", marginBottom: 20 }}
+                      exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="flex items-start gap-3 rounded-2xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                        <span>{otpError}</span>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 {!otpSent ? (
                   <div className="space-y-5">
+                    <Field label="Email">
+                      <Input
+                        type="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        className="h-12 rounded-2xl border-border bg-background"
+                        autoFocus
+                      />
+                    </Field>
+
                     <Field label="Phone Number">
                       <Input
                         placeholder="+91 9876543210"
                         value={phone}
                         onChange={e => setPhone(e.target.value)}
                         className="h-12 rounded-2xl border-border bg-background"
-                        autoFocus
                       />
                     </Field>
 
                     <Button
                       onClick={handleSendOtp}
-                      disabled={otpLoading || phone.trim() === ""}
+                      disabled={otpLoading || email.trim() === "" || phone.trim() === ""}
                       className="h-12 w-full rounded-2xl bg-primary hover:bg-primary/90"
                     >
                       {otpLoading ? (
@@ -406,7 +501,7 @@ export default function SOPGeneratorPage() {
                 ) : (
                   <div className="space-y-5">
                     <p className="text-sm text-muted-foreground">
-                      Enter the 6-digit code sent to <span className="font-medium text-foreground">{phone}</span>.
+                      Enter the 6-digit code sent to <span className="font-medium text-foreground">{email}</span>.
                     </p>
                     <Input
                       value={otp}
@@ -417,7 +512,7 @@ export default function SOPGeneratorPage() {
                       autoFocus
                     />
                     <Button
-                      onClick={handleVerifyAndDownload}
+                      onClick={handleVerifyAndView}
                       disabled={otpLoading || otp.length !== 6}
                       className="h-12 w-full rounded-2xl bg-primary hover:bg-primary/90"
                     >
@@ -426,7 +521,7 @@ export default function SOPGeneratorPage() {
                           <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
                           Verifying...
                         </>
-                      ) : "Verify & Download PDF"}
+                      ) : "Verify & View SOP"}
                     </Button>
                   </div>
                 )}
@@ -436,6 +531,8 @@ export default function SOPGeneratorPage() {
                     setShowOtpModal(false)
                     setOtpSent(false)
                     setOtp("")
+                    setDownloadAfterVerify(false)
+                    setOtpError("")
                   }}
                   className="mt-5 w-full text-sm font-medium text-muted-foreground transition hover:text-foreground"
                 >
@@ -455,10 +552,12 @@ export default function SOPGeneratorPage() {
               className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full bg-green-600 px-6 py-3 text-sm font-medium text-white shadow-lg"
             >
               <Check className="h-4 w-4" />
-              Verified. Your PDF is downloading.
+              Verified. Your SOP is now unlocked.
             </motion.div>
           )}
         </AnimatePresence>
+
+        <Toast toast={toast} onClose={() => setToast(null)} />
       </div>
     )
   }
@@ -721,7 +820,44 @@ export default function SOPGeneratorPage() {
           </button>
         </div>
       </footer>
+
+      <Toast toast={toast} onClose={() => setToast(null)} />
     </div>
+  )
+}
+
+function Toast({
+  toast,
+  onClose,
+}: {
+  toast: { text: string; tone: "error" | "info" } | null
+  onClose: () => void
+}) {
+  return (
+    <AnimatePresence>
+      {toast && (
+        <motion.div
+          initial={{ opacity: 0, y: -24, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -24, scale: 0.96 }}
+          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+          className="fixed left-1/2 top-6 z-[60] -translate-x-1/2"
+          role="status"
+        >
+          <button
+            onClick={onClose}
+            className={`flex items-center gap-3 rounded-2xl border px-5 py-3 text-sm font-medium shadow-xl backdrop-blur ${
+              toast.tone === "error"
+                ? "border-destructive/25 bg-destructive/10 text-destructive"
+                : "border-primary/25 bg-primary/10 text-primary"
+            }`}
+          >
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span>{toast.text}</span>
+          </button>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 
