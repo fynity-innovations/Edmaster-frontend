@@ -41,6 +41,8 @@ export default function AIProfileEvaluator() {
   const [loading, setLoading] = useState(false)
   const [showOtpInput, setShowOtpInput] = useState(false)
   const [otp, setOtp] = useState("")
+  const [otpChannel, setOtpChannel] = useState("sms")
+  const [otpDestination, setOtpDestination] = useState("")
   const [verificationSuccess, setVerificationSuccess] = useState(false)
   const [processingFilters, setProcessingFilters] = useState(false)
   const [filteredCourses, setFilteredCourses] = useState<any[]>([])
@@ -48,8 +50,7 @@ export default function AIProfileEvaluator() {
   const [currentQuestion, setCurrentQuestion] = useState("")
   const [isChatLoading, setIsChatLoading] = useState(false)
 
-  const NEXT_PUBLIC_API_URL = "http://127.0.0.1:8000"
-  // const NEXT_PUBLIC_API_URL = "https://sap-backend-production-e729.up.railway.app"
+  const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
 
   const getDurationRange = (degree: string) => {
     switch (degree) {
@@ -142,6 +143,8 @@ export default function AIProfileEvaluator() {
       })
       const data = await res.json()
       if (!res.ok) { alert(data.errors?.phone?.[0] || data.message || "Something went wrong"); return }
+      setOtpChannel(data.channel || "sms")
+      setOtpDestination(data.destination || formData.phone)
       setShowOtpInput(true)
     } catch { alert("Server error") } finally { setLoading(false) }
   }
@@ -903,10 +906,21 @@ export default function AIProfileEvaluator() {
             >
               <div className="text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Phone className="w-7 h-7 text-primary" />
+                  {otpChannel === "email"
+                    ? <Mail className="w-7 h-7 text-primary" />
+                    : <Phone className="w-7 h-7 text-primary" />}
                 </div>
-                <h3 className="text-xl font-bold mb-2">Verify Your Phone</h3>
-                <p className="text-sm text-muted-foreground">We sent a 6-digit code to <span className="font-semibold text-foreground">{formData.phone}</span></p>
+                <h3 className="text-xl font-bold mb-2">
+                  {otpChannel === "email" ? "Verify Your Email"
+                    : otpChannel === "whatsapp" ? "Verify on WhatsApp"
+                    : "Verify Your Phone"}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  We sent a 6-digit code {otpChannel === "email" ? "to your email"
+                    : otpChannel === "whatsapp" ? "on WhatsApp to"
+                    : "via SMS to"}{" "}
+                  <span className="font-semibold text-foreground">{otpDestination || formData.phone}</span>
+                </p>
               </div>
               <Input
                 value={otp}

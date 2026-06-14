@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import {
   Search,
   Building2,
+  ClipboardCheck,
   FileEdit,
   Shield,
   Calculator,
@@ -24,6 +25,7 @@ import aiTools from "@/data/ai-tools.json"
 const icons: Record<string, React.ComponentType<{ className?: string }>> = {
   Search,
   Building2,
+  ClipboardCheck,
   FileEdit,
   Shield,
   Calculator,

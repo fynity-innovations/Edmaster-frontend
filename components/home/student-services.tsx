@@ -4,29 +4,55 @@ import type React from "react"
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { ArrowRight, GraduationCap, FileText, Stamp, PenTool, Award, Plane } from "lucide-react"
+import { ArrowRight, MessageCircle, ShieldCheck, Home, Plane, Banknote, Lock } from "lucide-react"
 import { fadeInUp, staggerContainer } from "@/lib/motion"
 
 const icons: Record<string, React.ComponentType<{ className?: string }>> = {
-  GraduationCap,
-  FileText,
-  Stamp,
-  PenTool,
-  Award,
+  MessageCircle,
+  ShieldCheck,
+  Home,
   Plane,
+  Banknote,
+  Lock,
 }
 
 const services = [
   {
-    icon: "GraduationCap",
-    title: "University Selection",
-    description: "Personalized recommendations based on your profile",
+    icon: "MessageCircle",
+    title: "Education Counselling",
+    description: "1:1 guidance from certified counsellors",
+    href: "/services/counselling",
   },
-  { icon: "FileText", title: "Application Support", description: "End-to-end assistance with your applications" },
-  { icon: "Stamp", title: "Visa Assistance", description: "Expert guidance for visa success" },
-  { icon: "PenTool", title: "Test Preparation", description: "IELTS, TOEFL, GRE, GMAT prep" },
-  { icon: "Award", title: "Scholarships", description: "Find and apply for financial aid" },
-  { icon: "Plane", title: "Pre-Departure", description: "Everything you need before you fly" },
+  {
+    icon: "ShieldCheck",
+    title: "Health Insurance",
+    description: "Compliant student health cover for your destination",
+    href: "/services/health-insurance",
+  },
+  {
+    icon: "Home",
+    title: "Accommodation Support",
+    description: "Verified student housing near campus",
+    href: "/services/accommodation",
+  },
+  {
+    icon: "Plane",
+    title: "Pre-departure Orientation",
+    description: "Everything you need before you fly",
+    href: "/services/orientation",
+  },
+  {
+    icon: "Banknote",
+    title: "Education Loan",
+    description: "Collateral & non-collateral options for your offer",
+    href: "/services/loan",
+  },
+  {
+    icon: "Lock",
+    title: "Block Account (Germany)",
+    description: "Open your German blocked account quickly",
+    href: "/services/block-account",
+  },
 ]
 
 export function StudentServices() {
@@ -66,23 +92,27 @@ export function StudentServices() {
           {services.map((service, index) => {
             const Icon = icons[service.icon]
             return (
-              <motion.div
-                key={service.title}
-                variants={fadeInUp}
-                whileHover={{ y: -5, scale: 1.02 }}
-                className="group p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all"
-              >
-                <motion.div
-                  className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary transition-colors"
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ repeat: Number.POSITIVE_INFINITY, duration: 2, delay: index * 0.2 }}
+              <motion.div key={service.title} variants={fadeInUp} whileHover={{ y: -5, scale: 1.02 }}>
+                <Link
+                  href={service.href}
+                  className="group flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-all hover:border-primary/50 hover:shadow-lg"
                 >
-                  <Icon className="w-7 h-7 text-primary group-hover:text-primary-foreground transition-colors" />
-                </motion.div>
-                <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
-                  {service.title}
-                </h3>
-                <p className="text-muted-foreground">{service.description}</p>
+                  <motion.div
+                    className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ repeat: Number.POSITIVE_INFINITY, duration: 2, delay: index * 0.2 }}
+                  >
+                    <Icon className="h-7 w-7 text-primary transition-colors group-hover:text-primary-foreground" />
+                  </motion.div>
+                  <h3 className="mb-2 text-xl font-bold text-foreground transition-colors group-hover:text-primary">
+                    {service.title}
+                  </h3>
+                  <p className="flex-1 text-muted-foreground">{service.description}</p>
+                  <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                    Learn more
+                    <ArrowRight className="h-4 w-4" />
+                  </span>
+                </Link>
               </motion.div>
             )
           })}

@@ -39,8 +39,7 @@ const PRESET_PROMPTS = [
   { icon: TrendingUp,    label: "Career prospects",      prompt: "What are career prospects after studying abroad?" },
 ]
 
-// const API_URL = "https://sap-backend-production-e729.up.railway.app"
-const API_URL = "http://127.0.0.1:8000"
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
 
 // ── Markdown renderer ─────────────────────────────────────────────────────
 
@@ -97,7 +96,14 @@ export default function Chatbot() {
   const [loading, setLoading]         = useState(false)
   const [conversationState, setConversationState] = useState<ConversationState>("greeting")
   const [userData, setUserData]       = useState({ name: "", email: "", phone: "" })
+  const [otpInfo, setOtpInfo]         = useState({ channel: "sms", destination: "" })
   const [showPresets, setShowPresets] = useState(true)
+
+  // Friendly phrasing for where the OTP was delivered, based on OTP_CHANNEL
+  const otpVia =
+    otpInfo.channel === "email" ? "to your email"
+    : otpInfo.channel === "whatsapp" ? "on WhatsApp to"
+    : "via SMS to"
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -137,7 +143,14 @@ export default function Chatbot() {
         setConversationState("collecting_phone")
         return false
       }
-      addMessage("assistant", `✅ OTP sent to ${phone}!\n\nPlease enter the 6-digit code:`)
+      const channel = data.channel || "sms"
+      const destination = data.destination || phone
+      setOtpInfo({ channel, destination })
+      const via =
+        channel === "email" ? "to your email"
+        : channel === "whatsapp" ? "on WhatsApp to"
+        : "via SMS to"
+      addMessage("assistant", `✅ OTP sent ${via} ${destination}!\n\nPlease enter the 6-digit code:`)
       setConversationState("verifying_otp")
       return true
     } catch {
@@ -423,7 +436,7 @@ export default function Chatbot() {
               </div>
               {conversationState === "verifying_otp" && (
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-2 text-center">
-                  Enter the 6-digit code sent to {userData.phone}
+                  Enter the 6-digit code sent {otpVia} {otpInfo.destination || userData.phone}
                 </p>
               )}
             </div>

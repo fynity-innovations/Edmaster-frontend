@@ -8,7 +8,7 @@ import { ArrowRight, CheckCircle, User, Mail, Phone, GraduationCap, Globe, Calen
 import { Button } from "@/components/ui/button"
 import { fadeInUp, staggerContainer } from "@/lib/motion"
 
-const API_URL = "http://127.0.0.1:8000"
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
 
 const steps = [
   { id: 1, title: "Personal Info" },

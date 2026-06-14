@@ -2,32 +2,45 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { ArrowRight, Search, Building2, FileEdit, Shield, Sparkles } from "lucide-react"
+import { ArrowRight, Search, ClipboardCheck, FileEdit, Shield, Sparkles } from "lucide-react"
 import { fadeInUp, staggerContainer } from "@/lib/motion"
 
-const tools = [
+type Tool = {
+  icon: typeof Search
+  name: string
+  description: string
+  gradient: string
+  href?: string
+  comingSoon?: boolean
+}
+
+const tools: Tool[] = [
   {
     icon: Search,
     name: "Course Finder AI",
     description: "Find your perfect course match using advanced AI algorithms",
+    href: "/courses",
     gradient: "from-primary/20 to-accent/10",
   },
   {
-    icon: Building2,
-    name: "University Recommender",
-    description: "Get personalized university suggestions based on your profile",
+    icon: ClipboardCheck,
+    name: "Profile Evaluation",
+    description: "Get a personalized assessment and smart course filters from your academic profile",
+    href: "/ai-tools/profile-evaluation",
     gradient: "from-accent/20 to-primary/10",
   },
   {
     icon: FileEdit,
     name: "SOP Generator",
     description: "Create compelling statements of purpose with AI assistance",
+    href: "/ai-tools/sop-generator",
     gradient: "from-primary/15 to-accent/15",
   },
   {
     icon: Shield,
     name: "Visa Advisor",
     description: "Navigate visa requirements with intelligent guidance",
+    comingSoon: true,
     gradient: "from-accent/15 to-primary/20",
   },
 ]
@@ -80,23 +93,48 @@ export function AIToolsHighlight() {
             viewport={{ once: true }}
             className="grid sm:grid-cols-2 gap-4"
           >
-            {tools.map((tool, index) => (
-              <motion.div
-                key={tool.name}
-                variants={fadeInUp}
-                whileHover={{ y: -5, scale: 1.02 }}
-                className={`p-6 rounded-2xl bg-gradient-to-br ${tool.gradient} border border-border hover:border-primary/50 transition-all group cursor-pointer`}
-              >
-                <motion.div
-                  className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                  whileHover={{ rotate: 5 }}
+            {tools.map((tool) => {
+              const Icon = tool.icon
+              const body = (
+                <div
+                  className={`relative h-full p-6 rounded-2xl bg-gradient-to-br ${tool.gradient} border transition-all group ${
+                    tool.comingSoon
+                      ? "border-border opacity-75"
+                      : "border-border hover:border-primary/50"
+                  }`}
                 >
-                  <tool.icon className="w-7 h-7 text-primary group-hover:text-primary-foreground transition-colors" />
+                  {tool.comingSoon && (
+                    <span className="absolute right-4 top-4 rounded-full bg-secondary px-2.5 py-1 text-[11px] font-medium text-secondary-foreground">
+                      Coming Soon
+                    </span>
+                  )}
+                  <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary">
+                    <Icon className="h-7 w-7 text-primary transition-colors group-hover:text-primary-foreground" />
+                  </div>
+                  <h3 className="mb-2 text-lg font-bold text-foreground transition-colors group-hover:text-primary">
+                    {tool.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">{tool.description}</p>
+                </div>
+              )
+
+              return (
+                <motion.div
+                  key={tool.name}
+                  variants={fadeInUp}
+                  whileHover={tool.comingSoon ? {} : { y: -5, scale: 1.02 }}
+                  className="h-full"
+                >
+                  {tool.comingSoon ? (
+                    <div className="h-full cursor-not-allowed">{body}</div>
+                  ) : (
+                    <Link href={tool.href!} className="block h-full">
+                      {body}
+                    </Link>
+                  )}
                 </motion.div>
-                <h3 className="text-lg font-bold text-foreground mb-2">{tool.name}</h3>
-                <p className="text-sm text-muted-foreground">{tool.description}</p>
-              </motion.div>
-            ))}
+              )
+            })}
           </motion.div>
         </div>
       </div>
