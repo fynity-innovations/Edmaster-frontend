@@ -666,15 +666,15 @@ export default function AIProfileEvaluator() {
                     <label className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
                       <Calendar className="w-4 h-4" /> Graduation Year
                     </label>
-                    <div className="flex gap-3">
-                      {["2024", "2025", "2026", "2027"].map(y => {
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-2.5">
+                      {Array.from({ length: 11 }, (_, i) => String(2020 + i)).map(y => {
                         const sel = formData.gradYear === y
                         return (
                           <button
                             key={y}
                             onClick={() => setFormData({ ...formData, gradYear: y })}
-                            className={`flex-1 py-4 rounded-xl border font-bold transition-all ${
-                              sel ? "border-primary bg-primary text-white shadow-lg shadow-primary/20" : "bg-white dark:bg-slate-900 shadow-sm"
+                            className={`py-3 rounded-xl border font-bold transition-all ${
+                              sel ? "border-primary bg-primary text-white shadow-lg shadow-primary/20" : "bg-white dark:bg-slate-900 shadow-sm hover:border-primary/40"
                             }`}
                           >
                             {y}

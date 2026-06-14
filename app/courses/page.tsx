@@ -601,34 +601,22 @@ export default function CoursesPage() {
         </AnimatePresence>
 
         {/* --- HEADER --- */}
-        <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="mb-12">
-          <div className="flex flex-col md:flex-row justify-between items-end gap-6">
-            <div>
-              <motion.span variants={fadeInUp} className="inline-block text-primary font-semibold mb-2">
-                Course Catalog
-              </motion.span>
-              <motion.h1 variants={fadeInUp} className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
-                Find Your Perfect Course
-              </motion.h1>
-              <motion.p variants={fadeInUp} className="text-muted-foreground mt-2 max-w-xl">
-                Explore over {courses.length} courses across various disciplines and top global universities.
-              </motion.p>
-            </div>
-            <motion.div variants={fadeInUp} className="w-full md:w-auto relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-              <input
-                type="text" placeholder="Search courses, universities..."
-                value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full md:w-80 pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-border focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all outline-none"
-              />
-            </motion.div>
-          </div>
+        <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="mb-8">
+          <motion.span variants={fadeInUp} className="inline-block text-primary font-semibold mb-2">
+            Course Catalog
+          </motion.span>
+          <motion.h1 variants={fadeInUp} className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
+            Find Your Perfect Course
+          </motion.h1>
+          <motion.p variants={fadeInUp} className="text-muted-foreground mt-2 max-w-xl">
+            Explore over {courses.length} courses across various disciplines and top global universities.
+          </motion.p>
         </motion.div>
 
         <div className="flex flex-col lg:flex-row gap-8 items-start">
 
-          {/* --- DESKTOP SIDEBAR FILTERS --- */}
-          <aside className="w-full lg:w-64 shrink-0 space-y-8 hidden lg:block">
+          {/* --- DESKTOP SIDEBAR FILTERS (sticky, scrolls internally) --- */}
+          <aside className="w-full lg:w-64 shrink-0 space-y-8 hidden lg:block lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto scrollbar-thin lg:pr-1">
             {hasActiveFilters && (
               <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-border">
                 <div className="flex justify-between items-center mb-3">
@@ -661,8 +649,21 @@ export default function CoursesPage() {
           {/* --- MAIN CONTENT --- */}
           <div className="flex-1 min-w-0">
 
-            {/* Toolbar */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-6 sticky top-20 z-30 bg-slate-50/80 dark:bg-black/80 backdrop-blur-md py-2 -mx-2 px-2 rounded-xl">
+            {/* Toolbar — sticky search + controls (stays while results scroll) */}
+            <div className="mb-6 sticky top-24 z-30 bg-slate-50/90 dark:bg-black/90 backdrop-blur-md py-3 -mx-2 px-2 rounded-xl space-y-3">
+
+              {/* Search bar */}
+              <div className="relative group">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <input
+                  type="text" placeholder="Search courses, universities..."
+                  value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-border focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all outline-none"
+                />
+              </div>
+
+              {/* Controls */}
+              <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <Sheet>
                   <SheetTrigger asChild>
@@ -706,6 +707,7 @@ export default function CoursesPage() {
                     <DropdownMenuItem onClick={() => setSortBy("tuition_high")}>Tuition (High-Low)</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+              </div>
               </div>
             </div>
 
