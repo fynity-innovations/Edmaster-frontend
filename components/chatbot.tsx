@@ -249,11 +249,27 @@ export default function Chatbot() {
     setShowPresets(false)
 
     switch (conversationState) {
-      case "collecting_name":
-        setUserData(prev => ({ ...prev, name: messageToSend }))
-        addMessage("assistant", `Nice to meet you, ${messageToSend}! 📧\n\nWhat's your email address?`)
+      case "collecting_name": {
+        const name = messageToSend.replace(/\s+/g, " ").trim()
+        // Strip to letters/spaces to compare against greetings/filler words
+        const normalized = name.toLowerCase().replace(/[^a-z\s]/g, "").trim()
+        const notNames = new Set([
+          "hi", "hii", "hiii", "hello", "helo", "hey", "heya", "hiya", "yo", "sup",
+          "hola", "namaste", "hi there", "hey there", "hello there",
+          "good morning", "good afternoon", "good evening", "greetings", "howdy",
+          "wassup", "whats up", "what's up", "ok", "okay", "yes", "no", "yeah",
+          "test", "none", "na",
+        ])
+        const looksLikeName = /^[A-Za-z][A-Za-z .'-]{1,39}$/.test(name)
+        if (!looksLikeName || notNames.has(normalized) || normalized.replace(/\s/g, "").length < 2) {
+          addMessage("assistant", "😊 I'd love to know your name so I can help you better. What should I call you?")
+          return
+        }
+        setUserData(prev => ({ ...prev, name }))
+        addMessage("assistant", `Nice to meet you, ${name}! 📧\n\nWhat's your email address?`)
         setConversationState("collecting_email")
         break
+      }
 
       case "collecting_email":
         if (!messageToSend.includes("@")) {
