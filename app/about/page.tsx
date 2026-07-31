@@ -11,13 +11,17 @@ import {
   Target,
   Globe,
   GraduationCap,
+  Users,
+  Clock,
+  Award,
+  Route,
 } from "lucide-react"
 
 const stats = [
-  { value: "20+", label: "Study destinations" },
-  { value: "5,000+", label: "Courses to explore" },
-  { value: "300+", label: "Partner universities" },
-  { value: "AI-first", label: "Profile matching" },
+  { value: "35+", label: "Countries served" },
+  { value: "10,000+", label: "Students enrolled" },
+  { value: "350+", label: "Partner universities" },
+  { value: "13,000+", label: "Immigration cases" },
 ]
 
 const values = [
@@ -40,6 +44,29 @@ const values = [
     icon: Target,
     title: "Outcomes that matter",
     text: "We measure success by admits, visas approved, and students who thrive abroad — not clicks.",
+  },
+]
+
+const differentiators = [
+  {
+    icon: Users,
+    title: "Expert consultants",
+    text: "Experienced advisors who simplify the entire process — from course and country selection to visa filing.",
+  },
+  {
+    icon: Clock,
+    title: "24/7 support",
+    text: "Round-the-clock help for the challenges that come with planning a move abroad, wherever you are in the world.",
+  },
+  {
+    icon: Award,
+    title: "A proven track record",
+    text: "13,000+ immigration cases handled by UConnect International, with a strong record of visas approved.",
+  },
+  {
+    icon: Route,
+    title: "Support at every stage",
+    text: "Career counselling, university and course selection, application help, pre-departure briefings, and continued support once you've landed.",
   },
 ]
 
@@ -82,9 +109,18 @@ export default function AboutPage() {
             </motion.h1>
 
             <motion.p variants={item} className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              EdMaster is a study-abroad platform that helps students discover, compare, and apply to
-              university programs around the world. We pair smart technology with human expertise so the
-              path from ambition to admission feels clear, fair, and achievable.
+              EdMaster is the study-abroad platform of{" "}
+              <a
+                href="https://www.uconnectinternational.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-primary underline-offset-4 hover:underline"
+              >
+                UConnect International
+              </a>
+              , helping students discover, compare, and apply to university programs around the world. We
+              pair smart technology with human expertise so the path from ambition to admission feels
+              clear, fair, and achievable.
             </motion.p>
           </motion.div>
 
@@ -123,13 +159,15 @@ export default function AboutPage() {
               <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Our mission</h2>
               <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
                 Studying abroad changes lives, but the process is often confusing, expensive, and full of
-                conflicting advice. We started EdMaster to fix that — to give students a single, trustworthy
-                place to understand their options and act on them.
+                conflicting advice. EdMaster was built by UConnect International — an education and
+                immigration consultancy helping students study abroad since 1999 — to give students a
+                single, trustworthy place to understand their options and act on them.
               </p>
               <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
                 Our AI assistant turns your academic background and preferences into a focused shortlist of
-                courses and universities. Our counsellors then help you refine it, prepare strong
-                applications, and handle everything from scholarships and loans to visas and accommodation.
+                courses and universities. From there, UConnect International&apos;s counsellors help you
+                refine it, prepare strong applications, and handle everything from scholarships and loans to
+                visas and accommodation.
               </p>
             </motion.div>
 
@@ -182,6 +220,45 @@ export default function AboutPage() {
                   </div>
                   <h3 className="text-xl font-bold tracking-tight">{v.title}</h3>
                   <p className="mt-2 leading-7 text-muted-foreground">{v.text}</p>
+                </motion.div>
+              )
+            })}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ===================== WHY CHOOSE US ===================== */}
+      <section className="py-12 lg:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10 max-w-2xl">
+            <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Why students choose us</h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              EdMaster runs on the same expertise that has guided students through UConnect
+              International since 1999 — 10,000+ students placed and 13,000+ immigration cases handled
+              across 35+ countries.
+            </p>
+          </div>
+
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={container}
+            className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
+          >
+            {differentiators.map((d) => {
+              const Icon = d.icon
+              return (
+                <motion.div
+                  key={d.title}
+                  variants={item}
+                  className="group rounded-[28px] border border-border/70 bg-card/80 p-7 shadow-sm backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_24px_60px_-20px_rgba(88,28,135,0.35)]"
+                >
+                  <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                    <Icon className="h-7 w-7" />
+                  </div>
+                  <h3 className="text-lg font-bold tracking-tight">{d.title}</h3>
+                  <p className="mt-2 leading-7 text-muted-foreground">{d.text}</p>
                 </motion.div>
               )
             })}

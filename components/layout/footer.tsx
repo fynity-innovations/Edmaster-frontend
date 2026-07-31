@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { fadeInUp, staggerContainer } from "@/lib/motion"
-import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, Youtube } from "lucide-react"
+import { Mail, Phone, MapPin, Linkedin, Instagram } from "lucide-react"
 
 const footerLinks = {
   destinations: [
@@ -32,11 +32,8 @@ const footerLinks = {
 }
 
 const socialLinks = [
-  { icon: Facebook, href: "#", label: "Facebook" },
-  { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Linkedin, href: "#", label: "LinkedIn" },
-  { icon: Instagram, href: "#", label: "Instagram" },
-  { icon: Youtube, href: "#", label: "YouTube" },
+  { icon: Instagram, href: "https://www.instagram.com/uconnectinternational?igsh=MWhrbW0yeTJneHg3dA==", label: "Instagram" },
+  { icon: Linkedin, href: "https://www.linkedin.com/company/uconnect-international-education-hub/", label: "LinkedIn" },
 ]
 
 export function Footer() {
@@ -54,25 +51,25 @@ export function Footer() {
           <motion.div variants={fadeInUp} className="lg:col-span-1 md:col-span-2">
             <Link href="/" className="inline-block mb-4">
               <span className="font-bold text-2xl">
-                <span className="text-primary">Study</span>Global
+                <span className="text-primary">Ed</span>Master
               </span>
             </Link>
             <p className="text-muted-foreground text-sm mb-6">
-              Your trusted partner for international education. Empowering students to achieve their dreams of studying
-              abroad.
+              EdMaster is the study-abroad platform of UConnect International, helping students discover,
+              compare, and apply to university programs around the world.
             </p>
             <div className="space-y-3 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-primary" />
-                <span>hello@studyglobal.com</span>
+                <span>hello@edmaster.ai</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-primary" />
-                <span>+1 (800) 123-4567</span>
+                <span>+91 93464 21126</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-primary" />
-                <span>New York, NY 10001</span>
+                <span>Vadodara, Gujarat, India</span>
               </div>
             </div>
           </motion.div>
@@ -159,6 +156,8 @@ export function Footer() {
                 <motion.a
                   key={social.label}
                   href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   whileHover={{ scale: 1.1, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                   className="p-2 rounded-full bg-secondary hover:bg-primary hover:text-primary-foreground transition-colors"

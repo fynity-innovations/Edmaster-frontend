@@ -284,7 +284,7 @@ export function Header() {
           {/* CTA Buttons */}
           <div className="hidden lg:flex items-center gap-3">
              <a
-              href="https://wa.me/9346421126"
+              href="https://wa.me/919346421126"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center w-10 h-10 rounded-full bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all duration-300 hover:scale-110"
@@ -428,7 +428,7 @@ export function Header() {
                 Get Started
               </a>
                <a
-                href="https://wa.me/9346421126"
+                href="https://wa.me/919346421126"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full px-4 py-3.5 font-medium bg-[#25D366] text-white rounded-xl shadow-sm"
