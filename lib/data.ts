@@ -10,14 +10,12 @@ export function getUniversitiesByCountry(
   countryName: string,
   limit = 6
 ): University[] {
-    console.log("Country from page:", countryName)
-    const matched = universities.filter((u: any) => {
-    console.log("University country:", u.country_name)
-    return u.country_name === countryName
-  })
   return (universities as UniversityJSON[])
     .filter(u => u.country_name === countryName)
-    .sort((a, b) => a.rankings.world - b.rankings.world)
+    // Unranked universities sort last. Subtracting the raw values would
+    // coerce null to 0 and float every unranked university to the top, which
+    // now means most of them.
+    .sort((a, b) => (a.rankings.world ?? Infinity) - (b.rankings.world ?? Infinity))
     .slice(0, limit)
     .map((u) => ({
         

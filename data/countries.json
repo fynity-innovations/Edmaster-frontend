@@ -93,7 +93,7 @@
     "country_id": 40,
     "country_name": "Ireland",
     "country_slug": "ireland",
-    "universities_count": 20,
+    "universities_count": 42,
     "average_tuition_fees": "€ 31,350",
     "annual_cost_of_living": "€ 22,500",
     "employability": "93%",
@@ -193,10 +193,30 @@
     "country_id": 51,
     "country_name": "UK",
     "country_slug": "uk",
-    "universities_count": 26,
+    "universities_count": 211,
     "average_tuition_fees": "£ 30,000",
     "annual_cost_of_living": "£33,500",
     "employability": "90%",
     "country_code": "gb"
+  },
+  {
+    "country_id": 52,
+    "country_name": "Australia",
+    "country_slug": "australia",
+    "universities_count": 42,
+    "average_tuition_fees": "AUD 25000",
+    "annual_cost_of_living": "AUD 29,710",
+    "employability": null,
+    "country_code": "au"
+  },
+  {
+    "country_id": 53,
+    "country_name": "USA",
+    "country_slug": "usa",
+    "universities_count": 191,
+    "average_tuition_fees": "USD 20,000",
+    "annual_cost_of_living": "USD 12,000",
+    "employability": null,
+    "country_code": "us"
   }
 ]

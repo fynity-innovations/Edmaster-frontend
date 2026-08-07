@@ -5,7 +5,8 @@ export interface Country {
   universities_count: number
   average_tuition_fees: string
   annual_cost_of_living: string
-  employability: string
+  // Not supplied for Australia and USA; render sites must provide a fallback.
+  employability: string | null
   country_code: string
 }
 
@@ -18,7 +19,7 @@ export interface University {
   city: string
   logo: string
   image: string
-  ranking: number
+  ranking: number | null
   description: string
   shortDescription: string
   establishedYear: number
@@ -38,7 +39,8 @@ export interface UniversityJSON {
   country_name: string
   location: string
   rankings: {
-    world: number
+    // Unranked for the universities added from the country feeds.
+    world: number | null
   }
   description: string
 }
@@ -66,6 +68,10 @@ export interface Course {
   logo: string | null
   category?: string
   university_id: string
+  // Supplied by the per-country course feeds; null on older records.
+  duolingo_score: string | null
+  pte_score: string | null
+  entry_requirement: string | null
 }
 
 export interface Service {
