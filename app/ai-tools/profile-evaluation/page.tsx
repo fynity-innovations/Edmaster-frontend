@@ -601,7 +601,7 @@ export default function AIProfileEvaluator() {
               {/* ════ STEP 4: INTAKES ════ */}
               {step === 4 && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {["Spring 2026", "Fall 2026", "Winter 2026", "Summer 2026", "Any Intake"].map(intake => {
+                  {["Spring", "Summer", "Fall", "Winter", "Any Intake"].map(intake => {
                     const sel = formData.intakes.includes(intake)
                     return (
                       <button

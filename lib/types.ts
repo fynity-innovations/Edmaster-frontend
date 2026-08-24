@@ -55,7 +55,7 @@ export interface Course {
   currency: string // e.g., "Euros"
   tuition_fees: number
   application_fees: number
-  intake: string // e.g., "Fall 2026"
+  intake: string // season(s) only, e.g. "Fall" or "Spring, Fall"
   percentage: number
   university_website: string
   level: string // e.g., "Master", "Bachelor"
