@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Course, UniversityJSON } from "@/lib/types"
+import { formatTuition, hasTuition, TUITION_UNAVAILABLE } from "@/lib/tuition"
 
 interface CourseContentProps {
   course: Course
@@ -20,9 +21,15 @@ interface CourseContentProps {
 
 export function CourseContent({ course, university }: CourseContentProps) {
   
-  const formatMoney = (amount: number) => {
-    const symbol = course.currency === "Euros" ? "€" : course.currency === "USD" ? "$" : course.currency || "$"
-    return `${symbol}${amount?.toLocaleString() ?? "N/A"}`
+  const formatMoney = (amount: number) =>
+    formatTuition(amount, course.currency) ?? TUITION_UNAVAILABLE
+
+  // An application fee of 0 is a real value (no fee charged); only a missing
+  // one is unknown. Tuition is the opposite — see lib/tuition.ts.
+  const formatApplicationFee = (amount?: number | null) => {
+    if (amount === null || amount === undefined) return "Not specified"
+    if (amount === 0) return "No application fee"
+    return formatTuition(amount, course.currency) ?? "Not specified"
   }
 
   return (
@@ -104,7 +111,11 @@ export function CourseContent({ course, university }: CourseContentProps) {
                                 {/* <Wallet className="w-4 h-4 text-green-500" /> Tuition */}Tuition
                              </div>
                              <p className="text-xl font-bold">{formatMoney(course.tuition_fees)}</p>
-                             <p className="text-xs text-muted-foreground">Per Academic Year</p>
+                             <p className="text-xs text-muted-foreground">
+                               {hasTuition(course.tuition_fees)
+                                 ? "Per Academic Year"
+                                 : "Not published — ask a counsellor"}
+                             </p>
                         </CardContent>
                     </Card>
                     <Card className="bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-shadow">
@@ -268,7 +279,7 @@ export function CourseContent({ course, university }: CourseContentProps) {
                         <div className="space-y-4 mb-6 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl">
                             <div className="flex justify-between items-center text-sm">
                                 <span className="text-muted-foreground">Application Fee</span>
-                                <span className="font-bold text-foreground">{formatMoney(course.application_fees)}</span>
+                                <span className="font-bold text-foreground">{formatApplicationFee(course.application_fees)}</span>
                             </div>
                             <Separator />
                             <div className="flex justify-between items-center text-sm">

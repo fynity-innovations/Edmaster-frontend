@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/sheet"
 import { fadeInUp, staggerContainer } from "@/lib/motion"
 import coursesData from "@/data/courses_final.json" 
+import { formatTuition, hasTuition, TUITION_UNAVAILABLE } from "@/lib/tuition"
 
 // --- Types ---
 interface Course {
@@ -317,7 +318,9 @@ export default function CoursesPage() {
     if (maxBudgetParam) {
       const maxBudget = parseFloat(maxBudgetParam)
       const beforeBudget = result.length
-      const budgetFiltered = result.filter((c) => (c.tuition_fees || 0) <= maxBudget)
+      // Courses with no published fee can't be checked against a budget, so they
+      // are excluded rather than counted as free.
+      const budgetFiltered = result.filter((c) => hasTuition(c.tuition_fees) && c.tuition_fees <= maxBudget)
       console.log(`After AI budget filter (max $${maxBudget}): ${budgetFiltered.length} courses (was ${beforeBudget})`)
 
       // If budget filter wipes everything, ignore it and keep results
@@ -328,17 +331,27 @@ export default function CoursesPage() {
         result = budgetFiltered
       }
     } else {
+      // An untouched slider means "no budget preference" — keep the unpriced
+      // courses visible. Once it is narrowed they drop out, since we can't tell
+      // whether they fit.
+      const rangeUntouched = priceRange[0] <= 0 && priceRange[1] >= maxTuition
       result = result.filter((c) => {
-        const fee = c.tuition_fees || 0
-        return fee >= priceRange[0] && fee <= priceRange[1]
+        if (!hasTuition(c.tuition_fees)) return rangeUntouched
+        return c.tuition_fees >= priceRange[0] && c.tuition_fees <= priceRange[1]
       })
     }
 
     // Sorting
     result = [...result].sort((a, b) => {
       if (sortBy === "name")         return (a.course_title || "").localeCompare(b.course_title || "")
-      if (sortBy === "tuition_low")  return (a.tuition_fees || 0) - (b.tuition_fees || 0)
-      if (sortBy === "tuition_high") return (b.tuition_fees || 0) - (a.tuition_fees || 0)
+      // Unpriced courses sort to the bottom of both tuition orders.
+      if (sortBy === "tuition_low" || sortBy === "tuition_high") {
+        const aHas = hasTuition(a.tuition_fees), bHas = hasTuition(b.tuition_fees)
+        if (!aHas || !bHas) return aHas === bHas ? 0 : aHas ? -1 : 1
+        return sortBy === "tuition_low"
+          ? a.tuition_fees - b.tuition_fees
+          : b.tuition_fees - a.tuition_fees
+      }
       return 0
     })
 
@@ -347,7 +360,7 @@ export default function CoursesPage() {
   }, [
     searchQuery, selectedCountries, selectedLevels,
     selectedIntakes, selectedDurations,
-    priceRange, sortBy, courses,
+    priceRange, sortBy, courses, maxTuition,
     maxBudgetParam, durationMinParam, durationMaxParam
   ])
 
@@ -376,11 +389,10 @@ export default function CoursesPage() {
   }, [visibleCount, filteredCourses.length, mounted])
 
   // --- HELPERS ---
-  const formatCurrency = (amount: number, currency: string) => {
-    const val    = amount || 0
-    const symbol = currency === "Euros" ? "€" : currency === "USD" ? "$" : currency || "$"
-    return `${symbol}${val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`
-  }
+  // Slider labels always show a number; course fees go through formatTuition so
+  // that a missing/zero fee renders as "Fees on request" rather than "$0".
+  const formatCurrency = (amount: number, currency: string) =>
+    formatTuition(amount, currency) ?? `${currency === "Euros" ? "€" : currency === "USD" ? "$" : currency || "$"}0`
 
   const toggleFilter = (item: string, list: string[], setter: (v: string[]) => void) =>
     setter(list.includes(item) ? list.filter(i => i !== item) : [...list, item])
@@ -726,10 +738,16 @@ export default function CoursesPage() {
                             className="uppercase text-[10px] tracking-wider px-2.5">
                             {course.level || "Course"}
                           </Badge>
-                          <span className="text-sm font-bold text-primary">
-                            {formatCurrency(course.tuition_fees, course.currency)}{" "}
-                            <span className="text-[10px] text-muted-foreground font-normal">/year</span>
-                          </span>
+                          {hasTuition(course.tuition_fees) ? (
+                            <span className="text-sm font-bold text-primary">
+                              {formatTuition(course.tuition_fees, course.currency)}{" "}
+                              <span className="text-[10px] text-muted-foreground font-normal">/year</span>
+                            </span>
+                          ) : (
+                            <span className="text-xs font-medium text-muted-foreground">
+                              {TUITION_UNAVAILABLE}
+                            </span>
+                          )}
                         </div>
                         <div className="mb-6 flex-grow">
                           <h3 className="font-bold text-lg text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">

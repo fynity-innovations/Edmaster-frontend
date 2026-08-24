@@ -20,6 +20,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 import countriesData from "@/data/countries.json"
 import coursesData from "@/data/courses_final.json"
+import { formatTuition, TUITION_UNAVAILABLE } from "@/lib/tuition"
 
 const STEP_META = [
   { label: "Destination", icon: MapPin },
@@ -206,7 +207,7 @@ export default function AIProfileEvaluator() {
         setChatMessages(prev => [...prev, {
           role: "assistant",
           content: `Based on your filtered courses:\n\n${data.suggestions.map((s: any) =>
-            `• ${s.course_title} at ${s.university_name}\n  Duration: ${s.duration} | ${s.country_name}\n  Fee: ${s.currency} ${s.tuition_fees}/year`
+            `• ${s.course_title} at ${s.university_name}\n  Duration: ${s.duration} | ${s.country_name}\n  Fee: ${formatTuition(s.tuition_fees, s.currency) ? `${formatTuition(s.tuition_fees, s.currency)}/year` : TUITION_UNAVAILABLE}`
           ).join("\n\n")}`,
         }])
       } else {
@@ -792,7 +793,7 @@ export default function AIProfileEvaluator() {
                             </div>
                             <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
                               <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" />{course.duration}</span>
-                              <span className="flex items-center gap-1.5"><Wallet className="w-3.5 h-3.5" />{course.currency} {course.tuition_fees}/yr</span>
+                              <span className="flex items-center gap-1.5"><Wallet className="w-3.5 h-3.5" />{formatTuition(course.tuition_fees, course.currency) ? `${formatTuition(course.tuition_fees, course.currency)}/yr` : TUITION_UNAVAILABLE}</span>
                               <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" />{course.intake}</span>
                             </div>
                           </motion.div>
