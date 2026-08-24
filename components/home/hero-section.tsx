@@ -6,9 +6,15 @@ import { Sparkles, GraduationCap, Globe, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { fadeInUp, staggerContainer } from "@/lib/motion";
 import Link from "next/link";
-import { GlobeVisualization } from "@/components/home/globe-visualization";
+import countries from "@/data/countries.json";
+// import { GlobeVisualization } from "@/components/home/globe-visualization";
 
 const words = ["Future", "Dreams", "Career", "Journey"];
+
+const heroDestinationSlugs = ["uk", "germany", "ireland", "france", "italy", "spain"];
+const heroDestinations = heroDestinationSlugs
+  .map((slug) => countries.find((c) => c.country_slug === slug))
+  .filter((c): c is (typeof countries)[number] => Boolean(c));
 
 export function HeroSection() {
   const [activeWord, setActiveWord] = useState(0);
@@ -46,7 +52,7 @@ export function HeroSection() {
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
-            className="flex-1 text-center lg:text-left max-w-2xl mx-auto lg:mx-0"
+            className="w-full text-center"
           >
             {/* Badge */}
             <motion.div
@@ -82,7 +88,7 @@ export function HeroSection() {
             {/* Subheading */}
             <motion.p
               variants={fadeInUp}
-              className="text-lg md:text-xl text-muted-foreground max-w-xl mb-10 mx-auto lg:mx-0"
+              className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10 mx-auto"
             >
               Discover world-class universities, find perfect courses, and navigate your study abroad journey with our
               AI-powered guidance system.
@@ -91,7 +97,7 @@ export function HeroSection() {
             {/* CTA */}
             <motion.div
               variants={fadeInUp}
-              className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-14"
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
             >
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
                 <Button
@@ -111,30 +117,73 @@ export function HeroSection() {
                   </Link>
                 </Button>
               </motion.div>
+
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="text-lg px-8 py-6 rounded-xl border-primary/30 text-primary hover:bg-primary/10"
+                  asChild
+                >
+                  <Link href="/get-started">Talk to a Counsellor</Link>
+                </Button>
+              </motion.div>
             </motion.div>
 
             {/* Quick Stats */}
             <motion.div
               variants={staggerContainer}
-              className="grid grid-cols-3 gap-6 max-w-sm mx-auto lg:mx-0"
+              className="grid grid-cols-3 gap-4 sm:gap-8 max-w-3xl mx-auto mb-12 rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm px-4 sm:px-8 py-6 divide-x divide-border/60"
             >
               {[
                 { icon: GraduationCap, label: "Universities", value: "500+" },
                 { icon: Globe,         label: "Countries",    value: "50+"  },
                 { icon: Users,         label: "Students",     value: "100K+" },
               ].map((stat) => (
-                <motion.div key={stat.label} variants={fadeInUp} className="text-center lg:text-left">
-                  <div className="w-12 h-12 mx-auto lg:mx-0 mb-3 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <stat.icon className="w-6 h-6 text-primary" />
+                <motion.div key={stat.label} variants={fadeInUp} className="text-center">
+                  <div className="w-11 h-11 mx-auto mb-3 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <stat.icon className="w-5 h-5 text-primary" />
                   </div>
-                  <div className="text-2xl font-bold text-foreground">{stat.value}</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-foreground">{stat.value}</div>
                   <div className="text-sm text-muted-foreground">{stat.label}</div>
                 </motion.div>
               ))}
             </motion.div>
+
+            {/* Destination strip */}
+            <motion.div variants={fadeInUp} className="max-w-3xl mx-auto">
+              <p className="text-sm text-muted-foreground mb-4">
+                Popular destinations our students are heading to
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-2.5">
+                {heroDestinations.map((country) => (
+                  <motion.div key={country.country_id} whileHover={{ y: -3 }}>
+                    <Link
+                      href={`/study-in/${country.country_slug}`}
+                      className="group flex items-center gap-2 rounded-full border border-border/60 bg-card/60 backdrop-blur-sm pl-2 pr-4 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"
+                    >
+                      <img
+                        src={`https://flagcdn.com/w40/${country.country_code.toLowerCase()}.png`}
+                        alt=""
+                        aria-hidden="true"
+                        className="w-6 h-4 rounded-sm object-cover"
+                      />
+                      {country.country_name}
+                    </Link>
+                  </motion.div>
+                ))}
+                <Link
+                  href="/countries"
+                  className="flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
+                >
+                  View all
+                  <span aria-hidden="true">→</span>
+                </Link>
+              </div>
+            </motion.div>
           </motion.div>
 
-          {/* ── Right: interactive globe ──────────────────────────────── */}
+          {/* ── Right: interactive globe (temporarily disabled) ─────────
           <motion.div
             initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -143,6 +192,7 @@ export function HeroSection() {
           >
             <GlobeVisualization />
           </motion.div>
+          ──────────────────────────────────────────────────────────── */}
 
         </div>
       </div>

@@ -235,7 +235,7 @@ export default function AIToolsPage() {
                   className="border-primary-foreground text-primary-foreground bg-transparent hover:bg-primary-foreground/10 px-8"
                   asChild
                 >
-                  <Link href="/contact">Contact Us</Link>
+                  <Link href="/get-started">Contact Us</Link>
                 </Button>
               </motion.div>
             </motion.div>
