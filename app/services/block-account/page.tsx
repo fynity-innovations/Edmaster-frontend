@@ -59,7 +59,7 @@ export default function BlockedAccountPage() {
               </motion.h1>
               
               <motion.p variants={fadeInUp} className="text-lg md:text-xl text-muted-foreground mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                Open your **Sperrkonto** instantly from India. 100% digital process, government-approved providers, and immediate confirmation for your visa appointment.
+                Open your <strong className="font-semibold text-foreground">Sperrkonto</strong> instantly from India. 100% digital process, government-approved providers, and immediate confirmation for your visa appointment.
               </motion.p>
               
               <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -93,12 +93,61 @@ export default function BlockedAccountPage() {
               className="flex-1 w-full relative"
             >
               <div className="relative z-10 rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-background aspect-square bg-slate-50 dark:bg-slate-900">
-                 {/* Use a relevant image */}
-                 <img 
-                   src="https://images.unsplash.com/photo-1565514020176-db792f4b6d9d?q=80&w=2070&auto=format&fit=crop" 
-                   alt="Secure Banking Germany" 
-                   className="object-cover w-full h-full"
-                 />
+                 {/* Self-contained vault graphic — no external image host to 404 on us.
+                     To use a photo instead, drop it in /public and swap this block for an <img>. */}
+                 <div
+                   role="img"
+                   aria-label="Secure blocked account for Germany"
+                   className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-primary/40"
+                 >
+                    {/* Grid texture */}
+                    <div
+                      className="absolute inset-0 opacity-[0.12]"
+                      style={{
+                        backgroundImage:
+                          "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)",
+                        backgroundSize: "40px 40px",
+                      }}
+                    />
+                    {/* Glow */}
+                    <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full bg-primary/30 blur-[90px]" />
+
+                    {/* Vault dial */}
+                    <div className="absolute inset-0 flex items-start justify-center pt-16 sm:pt-20">
+                       <div className="relative flex items-center justify-center">
+                          <motion.div
+                            className="w-56 h-56 rounded-full border border-white/15"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+                          >
+                             {[0, 90, 180, 270].map((deg) => (
+                               <span
+                                 key={deg}
+                                 className="absolute left-1/2 top-0 w-px h-5 bg-white/40 origin-[50%_112px]"
+                                 style={{ transform: `rotate(${deg}deg)` }}
+                               />
+                             ))}
+                          </motion.div>
+                          <div className="absolute w-40 h-40 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm" />
+                          <div className="absolute w-24 h-24 rounded-full bg-background/95 shadow-2xl flex items-center justify-center">
+                             <Euro className="w-11 h-11 text-primary" />
+                          </div>
+                          <div className="absolute -bottom-3 -right-3 w-11 h-11 rounded-full bg-green-500 text-white flex items-center justify-center shadow-lg">
+                             <Lock className="w-5 h-5" />
+                          </div>
+                       </div>
+                    </div>
+
+                    {/* German flag accent */}
+                    <div className="absolute top-6 left-6 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/15">
+                       <span className="flex h-3 w-5 overflow-hidden rounded-[2px]">
+                          <span className="flex-1 bg-black" />
+                          <span className="flex-1 bg-[#DD0000]" />
+                          <span className="flex-1 bg-[#FFCE00]" />
+                       </span>
+                       <span className="text-[11px] font-semibold text-white/90 tracking-wide">Sperrkonto</span>
+                    </div>
+                 </div>
                  
                  {/* Floating Overlay */}
                  <div className="absolute bottom-8 left-8 right-8 bg-background/90 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-border/50">
