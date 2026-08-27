@@ -293,7 +293,7 @@ export function CourseContent({ course, university }: CourseContentProps) {
                                 <Link href="/get-started">Start Application</Link>
                             </Button>
                             <Button variant="outline" className="w-full" asChild>
-                                <Link href="/contact">Talk to a Counselor</Link>
+                                <Link href="/get-started">Talk to a Counselor</Link>
                             </Button>
                         </div>
 

@@ -161,7 +161,7 @@ export default function PteCoachingPage() {
       <section className="py-24 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why UConnect for PTE?</h2>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why EdMaster for PTE?</h2>
             <p className="text-lg text-slate-600">A curriculum designed specifically to hack the computer-based scoring system.</p>
           </div>
 
@@ -303,7 +303,11 @@ export default function PteCoachingPage() {
                 <div className="flex items-center gap-3 text-sm text-slate-700"><Check className="w-4 h-4 text-green-500" /> 300+ Concept Videos</div>
                 <div className="flex items-center gap-3 text-sm text-slate-700"><Check className="w-4 h-4 text-green-500" /> AI Score Report</div>
               </div>
-              <Button variant="outline" className="w-full border-slate-200 text-slate-700 hover:text-primary hover:border-primary">Select Plan</Button>
+              <Button variant="outline" className="w-full border-slate-200 text-slate-700 hover:text-primary hover:border-primary" asChild>
+                <Link href="/get-started">
+                  Select Plan
+                </Link>
+              </Button>
             </div>
 
             {/* Package 2 (Highlighted) */}
@@ -319,7 +323,11 @@ export default function PteCoachingPage() {
                 <div className="flex items-center gap-3 text-sm text-slate-900 font-medium"><Check className="w-4 h-4 text-primary" /> Personal Feedback</div>
                 <div className="flex items-center gap-3 text-sm text-slate-900 font-medium"><Check className="w-4 h-4 text-primary" /> 6 Months Validity</div>
               </div>
-              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">Enroll Now</Button>
+              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" asChild>
+                <Link href="/get-started">
+                  Enroll Now
+                </Link>
+              </Button>
             </div>
 
             {/* Package 3 */}
@@ -333,7 +341,11 @@ export default function PteCoachingPage() {
                 <div className="flex items-center gap-3 text-sm text-slate-700"><Check className="w-4 h-4 text-green-500" /> 180+ Practice Questions</div>
                 <div className="flex items-center gap-3 text-sm text-slate-700"><Check className="w-4 h-4 text-green-500" /> 300+ Tip Videos</div>
               </div>
-              <Button variant="outline" className="w-full border-slate-200 text-slate-700 hover:text-primary hover:border-primary">Select Plan</Button>
+              <Button variant="outline" className="w-full border-slate-200 text-slate-700 hover:text-primary hover:border-primary" asChild>
+                <Link href="/get-started">
+                  Select Plan
+                </Link>
+              </Button>
             </div>
 
           </div>
@@ -363,7 +375,11 @@ export default function PteCoachingPage() {
                   <div className="text-sm text-slate-500">10:00 AM - 11:15 AM</div>
                 </div>
               </div>
-              <Button variant="ghost" size="sm" className="text-primary">Join</Button>
+              <Button variant="ghost" size="sm" className="text-primary" asChild>
+                <Link href="/get-started">
+                  Join
+                </Link>
+              </Button>
             </div>
 
             <div className="p-6 border border-slate-200 rounded-lg flex items-center justify-between">
@@ -374,7 +390,11 @@ export default function PteCoachingPage() {
                   <div className="text-sm text-slate-500">08:00 PM - 09:30 PM</div>
                 </div>
               </div>
-              <Button variant="ghost" size="sm" className="text-primary">Join</Button>
+              <Button variant="ghost" size="sm" className="text-primary" asChild>
+                <Link href="/get-started">
+                  Join
+                </Link>
+              </Button>
             </div>
           </div>
           
@@ -417,8 +437,10 @@ export default function PteCoachingPage() {
           <p className="text-slate-600 text-lg mb-8 max-w-xl mx-auto">
             Join the most tech-forward PTE coaching program today.
           </p>
-          <Button size="lg" className="h-16 px-12 rounded-lg text-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl">
-            Get Started Now
+          <Button size="lg" className="h-16 px-12 rounded-lg text-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl" asChild>
+            <Link href="/get-started">
+              Get Started Now
+            </Link>
           </Button>
         </div>
       </section>

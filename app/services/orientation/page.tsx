@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { motion } from "framer-motion"
 import { 
   Plane, 
@@ -62,11 +63,15 @@ export default function PreDeparturePage() {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center w-full sm:w-auto">
-                <Button size="lg" className="h-14 px-8 rounded-full text-lg shadow-lg hover:shadow-primary/20 bg-primary text-primary-foreground">
-                  Get Your Checklist
+                <Button size="lg" className="h-14 px-8 rounded-full text-lg shadow-lg hover:shadow-primary/20 bg-primary text-primary-foreground" asChild>
+                  <Link href="/get-started">
+                    Get Your Checklist
+                  </Link>
                 </Button>
-                <Button variant="outline" size="lg" className="h-14 px-8 rounded-full text-lg gap-2">
-                   Join Next Session <ArrowRight className="w-4 h-4" />
+                <Button variant="outline" size="lg" className="h-14 px-8 rounded-full text-lg gap-2" asChild>
+                  <Link href="/get-started">
+                    Join Next Session <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </Button>
               </div>
             </motion.div>
@@ -119,8 +124,10 @@ export default function PreDeparturePage() {
               <p className="text-muted-foreground mb-8 text-lg">
                 We don't just hand you a ticket. We prepare you for the cultural, academic, and logistical shift of moving abroad.
               </p>
-              <Button variant="ghost" className="text-primary hover:text-primary hover:bg-primary/10 pl-0 text-lg">
-                Download Full PDF Guide <ArrowRight className="ml-2 w-5 h-5" />
+              <Button variant="ghost" className="text-primary hover:text-primary hover:bg-primary/10 pl-0 text-lg" asChild>
+                <Link href="/get-started">
+                  Download Full PDF Guide <ArrowRight className="ml-2 w-5 h-5" />
+                </Link>
               </Button>
             </div>
 
@@ -251,12 +258,14 @@ export default function PreDeparturePage() {
              whileInView={{ opacity: 1, scale: 1 }}
              viewport={{ once: true }}
            >
-             <h2 className="text-3xl md:text-5xl font-bold mb-6">Join the UConnect Network</h2>
+             <h2 className="text-3xl md:text-5xl font-bold mb-6">Join the EdMaster Network</h2>
              <p className="text-xl text-primary-foreground/90 max-w-2xl mx-auto mb-10">
                Connect with 5,000+ alumni already studying in the UK, USA, Canada, Australia, and Europe.
              </p>
-             <Button size="lg" variant="secondary" className="h-14 px-10 rounded-full text-lg font-bold">
-                Join Alumni Group
+             <Button size="lg" variant="secondary" className="h-14 px-10 rounded-full text-lg font-bold" asChild>
+               <a href="https://wa.me/447424152950" target="_blank" rel="noopener noreferrer">
+                 Join Alumni Group
+               </a>
              </Button>
            </motion.div>
         </div>
@@ -271,11 +280,19 @@ export default function PreDeparturePage() {
                      <div className="flex-1 p-10 md:p-16 flex flex-col justify-center">
                         <h2 className="text-3xl md:text-4xl font-bold mb-6">Don't leave anything to chance.</h2>
                         <p className="text-lg text-muted-foreground mb-8">
-                           Our sessions are free for UConnect students. Book your slot for the upcoming pre-departure briefing.
+                           Our sessions are free for EdMaster students. Book your slot for the upcoming pre-departure briefing.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4">
-                           <Button size="lg" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90">Register Now</Button>
-                           <Button size="lg" variant="outline" className="rounded-full bg-background hover:bg-secondary">View Schedule</Button>
+                           <Button size="lg" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90" asChild>
+                             <Link href="/get-started">
+                               Register Now
+                             </Link>
+                           </Button>
+                           <Button size="lg" variant="outline" className="rounded-full bg-background hover:bg-secondary" asChild>
+                             <Link href="/get-started">
+                               View Schedule
+                             </Link>
+                           </Button>
                         </div>
                      </div>
                      <div className="flex-1 bg-slate-200 dark:bg-slate-800 relative min-h-[300px]">

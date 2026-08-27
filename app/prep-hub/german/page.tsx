@@ -324,7 +324,7 @@ export default function GermanCoachingPage() {
               <Link href="/get-started">Enroll Now</Link>
             </Button>
             <Button size="lg" variant="outline" className="h-16 px-10 rounded-xl text-lg border-slate-300 text-slate-700 hover:bg-white hover:text-primary shadow-sm" asChild>
-              <Link href="/contact">
+              <Link href="/get-started">
                 Talk to Counselor
               </Link>
             </Button>

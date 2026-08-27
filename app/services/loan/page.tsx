@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { 
@@ -64,11 +65,15 @@ export default function EducationLoanPage() {
               </motion.p>
               
               <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="h-14 px-8 rounded-xl text-lg shadow-xl shadow-primary/20 bg-primary text-primary-foreground hover:bg-primary/90">
-                  Check Eligibility
+                <Button size="lg" className="h-14 px-8 rounded-xl text-lg shadow-xl shadow-primary/20 bg-primary text-primary-foreground hover:bg-primary/90" asChild>
+                  <Link href="/get-started">
+                    Check Eligibility
+                  </Link>
                 </Button>
-                <Button variant="outline" size="lg" className="h-14 px-8 rounded-xl text-lg gap-2 bg-background hover:bg-secondary">
-                   Talk to Loan Expert
+                <Button variant="outline" size="lg" className="h-14 px-8 rounded-xl text-lg gap-2 bg-background hover:bg-secondary" asChild>
+                  <Link href="/get-started">
+                    Talk to Loan Expert
+                  </Link>
                 </Button>
               </motion.div>
 
@@ -143,8 +148,10 @@ export default function EducationLoanPage() {
                    </div>
                 </div>
 
-                <Button className="w-full h-12 text-lg rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
-                   Apply for this Loan
+                <Button className="w-full h-12 text-lg rounded-xl bg-primary text-primary-foreground hover:bg-primary/90" asChild>
+                  <Link href="/get-started">
+                    Apply for this Loan
+                  </Link>
                 </Button>
                 
                 <p className="text-center text-[10px] text-muted-foreground mt-4">
@@ -195,7 +202,11 @@ export default function EducationLoanPage() {
                      <li className="flex items-center gap-3 text-sm"><CheckCircle2 className="w-4 h-4 text-green-500" /> Longer Repayment Tenure</li>
                   </ul>
 
-                  <Button variant="outline" className="w-full rounded-xl hover:bg-secondary">Learn More</Button>
+                  <Button variant="outline" className="w-full rounded-xl hover:bg-secondary" asChild>
+                    <Link href="/get-started">
+                      Learn More
+                    </Link>
+                  </Button>
                </div>
             </motion.div>
 
@@ -225,7 +236,11 @@ export default function EducationLoanPage() {
                      <li className="flex items-center gap-3 text-sm"><CheckCircle2 className="w-4 h-4 text-green-500" /> Minimal Documentation</li>
                   </ul>
 
-                  <Button variant="outline" className="w-full rounded-xl hover:bg-secondary">Learn More</Button>
+                  <Button variant="outline" className="w-full rounded-xl hover:bg-secondary" asChild>
+                    <Link href="/get-started">
+                      Learn More
+                    </Link>
+                  </Button>
                </div>
             </motion.div>
 
@@ -329,11 +344,15 @@ export default function EducationLoanPage() {
                <p className="text-slate-400">No impact on your credit score. Free assessment by our financial experts.</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-               <Button size="lg" className="h-14 px-10 rounded-xl text-lg font-bold bg-primary text-primary-foreground hover:bg-primary/90">
-                  Calculate Eligibility
+               <Button size="lg" className="h-14 px-10 rounded-xl text-lg font-bold bg-primary text-primary-foreground hover:bg-primary/90" asChild>
+                 <Link href="/get-started">
+                   Calculate Eligibility
+                 </Link>
                </Button>
-               <Button size="lg" variant="outline" className="h-14 px-10 rounded-xl text-lg border-slate-700 text-white hover:bg-slate-800 hover:text-white bg-transparent">
-                  Request Call Back
+               <Button size="lg" variant="outline" className="h-14 px-10 rounded-xl text-lg border-slate-700 text-white hover:bg-slate-800 hover:text-white bg-transparent" asChild>
+                 <Link href="/get-started">
+                   Request Call Back
+                 </Link>
                </Button>
             </div>
          </div>

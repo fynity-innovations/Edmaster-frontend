@@ -217,9 +217,21 @@ export default function FrenchCoachingPage() {
               
               <div className="grid grid-cols-4 p-6 bg-slate-50 gap-4">
                 <div></div>
-                <div className="text-center"><Button variant="outline" className="w-full border-blue-200 text-blue-700 hover:bg-blue-50">Select</Button></div>
-                <div className="text-center"><Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md">Select</Button></div>
-                <div className="text-center"><Button variant="outline" className="w-full border-purple-200 text-purple-700 hover:bg-purple-50">Select</Button></div>
+                <div className="text-center"><Button variant="outline" className="w-full border-blue-200 text-blue-700 hover:bg-blue-50" asChild>
+                  <Link href="/get-started">
+                    Select
+                  </Link>
+                </Button></div>
+                <div className="text-center"><Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md" asChild>
+                  <Link href="/get-started">
+                    Select
+                  </Link>
+                </Button></div>
+                <div className="text-center"><Button variant="outline" className="w-full border-purple-200 text-purple-700 hover:bg-purple-50" asChild>
+                  <Link href="/get-started">
+                    Select
+                  </Link>
+                </Button></div>
               </div>
             </div>
           </div>
@@ -261,7 +273,7 @@ export default function FrenchCoachingPage() {
       <section className="py-24 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Learners Love UConnect</h2>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Learners Love EdMaster</h2>
             <p className="text-lg text-slate-600">More than just a language class. A complete cultural immersion.</p>
           </div>
 
@@ -358,7 +370,7 @@ export default function FrenchCoachingPage() {
               <Link href="/get-started">Join Free Demo</Link>
             </Button>
             <Button size="lg" variant="outline" className="h-16 px-10 rounded-xl text-lg border-slate-300 text-slate-700 hover:bg-white hover:text-primary shadow-sm" asChild>
-              <Link href="/contact">
+              <Link href="/get-started">
                 Talk to Counselor
               </Link>
             </Button>

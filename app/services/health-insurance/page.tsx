@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { motion } from "framer-motion"
 import { 
   Shield, 
@@ -59,8 +60,10 @@ export default function HealthInsurancePage() {
               </motion.p>
               
               <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button size="lg" className="h-14 px-8 rounded-full text-lg shadow-lg shadow-primary/20 bg-primary text-primary-foreground hover:bg-primary/90">
-                  Calculate Premium
+                <Button size="lg" className="h-14 px-8 rounded-full text-lg shadow-lg shadow-primary/20 bg-primary text-primary-foreground hover:bg-primary/90" asChild>
+                  <Link href="/get-started">
+                    Calculate Premium
+                  </Link>
                 </Button>
                 <div className="flex items-center gap-4 px-4">
                    <div className="flex -space-x-3">
@@ -134,7 +137,7 @@ export default function HealthInsurancePage() {
           <div className="max-w-4xl mx-auto bg-background rounded-3xl shadow-sm border border-border overflow-hidden">
              <div className="grid grid-cols-3 bg-secondary/50 p-6 text-sm font-bold uppercase tracking-wider text-muted-foreground">
                 <div className="text-left">Feature</div>
-                <div className="text-center text-primary">UConnect Plans</div>
+                <div className="text-center text-primary">EdMaster Plans</div>
                 <div className="text-center">University Plans</div>
              </div>
              
@@ -169,7 +172,11 @@ export default function HealthInsurancePage() {
                   Healthcare costs abroad can bankrupt you without insurance. We ensure you are covered for everything from the flu to surgery.
                 </p>
              </div>
-             <Button variant="outline" className="rounded-full">Download Policy Wording</Button>
+             <Button variant="outline" className="rounded-full" asChild>
+               <Link href="/get-started">
+                 Download Policy Wording
+               </Link>
+             </Button>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -234,11 +241,15 @@ export default function HealthInsurancePage() {
                Get your policy document instantly via email. No medical checkups required.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-               <Button size="lg" variant="secondary" className="h-14 px-10 rounded-full text-lg font-bold">
-                  Buy Now
+               <Button size="lg" variant="secondary" className="h-14 px-10 rounded-full text-lg font-bold" asChild>
+                 <Link href="/get-started">
+                   Buy Now
+                 </Link>
                </Button>
-               <Button size="lg" className="h-14 px-10 rounded-full text-lg border-2 border-primary-foreground bg-transparent hover:bg-primary-foreground/10 text-primary-foreground">
-                  Talk to Expert
+               <Button size="lg" className="h-14 px-10 rounded-full text-lg border-2 border-primary-foreground bg-transparent hover:bg-primary-foreground/10 text-primary-foreground" asChild>
+                 <Link href="/get-started">
+                   Talk to Expert
+                 </Link>
                </Button>
             </div>
          </div>

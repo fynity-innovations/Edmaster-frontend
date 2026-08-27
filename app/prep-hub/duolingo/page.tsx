@@ -283,7 +283,11 @@ export default function DuolingoCoachingPage() {
                 <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-primary" /> 1-on-1 Speaking Review</li>
                 <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-primary" /> 5 Full Mock Tests</li>
               </ul>
-              <Button className="w-full bg-primary hover:bg-primary/90 h-12 rounded-xl text-lg">Enroll Now</Button>
+              <Button className="w-full bg-primary hover:bg-primary/90 h-12 rounded-xl text-lg" asChild>
+                <Link href="/get-started">
+                  Enroll Now
+                </Link>
+              </Button>
             </div>
 
             <div className="p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
@@ -299,7 +303,11 @@ export default function DuolingoCoachingPage() {
                 <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-slate-400" /> 10 Full Mock Tests</li>
                 <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-slate-400" /> Grammar E-Book</li>
               </ul>
-              <Button variant="outline" className="w-full border-white/20 text-white bg-white/10 hover:bg-white/20 h-12 rounded-xl text-lg">View Details</Button>
+              <Button variant="outline" className="w-full border-white/20 text-white bg-white/10 hover:bg-white/20 h-12 rounded-xl text-lg" asChild>
+                <Link href="/get-started">
+                  View Details
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
@@ -341,7 +349,7 @@ export default function DuolingoCoachingPage() {
               <Link href="/get-started">Start Now</Link>
             </Button>
             <Button size="lg" variant="outline" className="h-16 px-12 rounded-2xl text-lg border-slate-300 text-slate-700 hover:bg-white hover:text-primary shadow-sm" asChild>
-              <Link href="/contact">
+              <Link href="/get-started">
                 Talk to Counselor
               </Link>
             </Button>

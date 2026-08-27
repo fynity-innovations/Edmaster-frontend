@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { motion } from "framer-motion"
 import { 
   Lock, 
@@ -62,11 +63,15 @@ export default function BlockedAccountPage() {
               </motion.p>
               
               <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button size="lg" className="h-14 px-8 rounded-full text-lg shadow-lg hover:shadow-primary/25 bg-primary text-primary-foreground transition-all">
-                  Open Account Now <ArrowRight className="ml-2 w-5 h-5" />
+                <Button size="lg" className="h-14 px-8 rounded-full text-lg shadow-lg hover:shadow-primary/25 bg-primary text-primary-foreground transition-all" asChild>
+                  <Link href="/get-started">
+                    Open Account Now <ArrowRight className="ml-2 w-5 h-5" />
+                  </Link>
                 </Button>
-                <Button variant="outline" size="lg" className="h-14 px-8 rounded-full text-lg border-2 hover:bg-secondary/50">
-                  Compare Providers
+                <Button variant="outline" size="lg" className="h-14 px-8 rounded-full text-lg border-2 hover:bg-secondary/50" asChild>
+                  <Link href="#providers">
+                    Compare Providers
+                  </Link>
                 </Button>
               </motion.div>
 
@@ -171,7 +176,7 @@ export default function BlockedAccountPage() {
       </section>
 
       {/* ================= WHY US (Bento Grid) ================= */}
-      <section className="py-24 bg-primary/5">
+      <section id="providers" className="py-24 bg-primary/5">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
              
@@ -241,11 +246,15 @@ export default function BlockedAccountPage() {
                Open your blocked account, secure your health insurance, and get ready for your visa interview.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-               <Button size="lg" className="h-14 px-10 rounded-full text-lg font-bold bg-primary text-primary-foreground hover:bg-primary/90">
-                  Open Account
+               <Button size="lg" className="h-14 px-10 rounded-full text-lg font-bold bg-primary text-primary-foreground hover:bg-primary/90" asChild>
+                 <Link href="/get-started">
+                   Open Account
+                 </Link>
                </Button>
-               <Button size="lg" variant="outline" className="h-14 px-10 rounded-full text-lg border-slate-700 text-white hover:bg-slate-800 hover:text-white bg-transparent">
-                  Talk to Expert
+               <Button size="lg" variant="outline" className="h-14 px-10 rounded-full text-lg border-slate-700 text-white hover:bg-slate-800 hover:text-white bg-transparent" asChild>
+                 <Link href="/get-started">
+                   Talk to Expert
+                 </Link>
                </Button>
             </div>
          </div>

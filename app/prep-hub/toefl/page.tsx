@@ -171,7 +171,7 @@ export default function ToeflCoachingPage() {
       <section className="py-24 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Choose UConnect for TOEFL?</h2>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Choose EdMaster for TOEFL?</h2>
             <p className="text-lg text-slate-600">A structured, expert-led approach to mastering the TOEFL iBT.</p>
           </div>
 
@@ -397,8 +397,10 @@ export default function ToeflCoachingPage() {
                 <p className="text-slate-500 text-sm">Course Fee</p>
                 <div className="text-3xl font-bold text-slate-900">Affordable & Value-Packed</div>
               </div>
-              <Button size="lg" className="h-14 px-10 rounded-xl text-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
-                Enroll Now
+              <Button size="lg" className="h-14 px-10 rounded-xl text-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg" asChild>
+                <Link href="/get-started">
+                  Enroll Now
+                </Link>
               </Button>
             </div>
           </div>
@@ -442,7 +444,7 @@ export default function ToeflCoachingPage() {
               <Link href="/get-started">Start Preparation</Link>
             </Button>
             <Button size="lg" variant="outline" className="h-16 px-10 rounded-xl text-lg border-white/20 text-white bg-white/10 hover:bg-white/10 hover:text-white" asChild>
-              <Link href="/contact">
+              <Link href="/get-started">
                 <Phone className="w-5 h-5 mr-2" />
                 Talk to Counselor
               </Link>

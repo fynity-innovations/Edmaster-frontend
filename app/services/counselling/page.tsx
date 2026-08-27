@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { motion } from "framer-motion"
 import { 
   ArrowRight, 
@@ -70,11 +71,15 @@ export default function CounsellingPage() {
               </motion.p>
               
               <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button size="lg" className="h-14 px-8 rounded-full text-lg shadow-lg hover:shadow-primary/25 bg-primary text-primary-foreground transition-all">
-                  Book Free Session <ArrowRight className="ml-2 w-5 h-5" />
+                <Button size="lg" className="h-14 px-8 rounded-full text-lg shadow-lg hover:shadow-primary/25 bg-primary text-primary-foreground transition-all" asChild>
+                  <Link href="/get-started">
+                    Book Free Session <ArrowRight className="ml-2 w-5 h-5" />
+                  </Link>
                 </Button>
-                <Button variant="outline" size="lg" className="h-14 px-8 rounded-full text-lg border-2 hover:bg-secondary/50">
-                  View Success Stories
+                <Button variant="outline" size="lg" className="h-14 px-8 rounded-full text-lg border-2 hover:bg-secondary/50" asChild>
+                  <Link href="#success-stories">
+                    View Success Stories
+                  </Link>
                 </Button>
               </motion.div>
 
@@ -247,7 +252,11 @@ export default function CounsellingPage() {
                   <p className="text-lg text-muted-foreground mb-8">
                     Our proven 4-step process ensures nothing falls through the cracks.
                   </p>
-                  <Button size="lg" className="rounded-full">Start Now <ArrowRight className="ml-2 w-4 h-4" /></Button>
+                  <Button size="lg" className="rounded-full" asChild>
+                    <Link href="/get-started">
+                      Start Now <ArrowRight className="ml-2 w-4 h-4" />
+                    </Link>
+                  </Button>
                </div>
             </div>
 
@@ -323,11 +332,15 @@ export default function CounsellingPage() {
                    A single error in your application or visa documents can lead to rejection. Let our experts handle the details while you focus on your future.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                   <Button size="lg" variant="secondary" className="h-14 px-10 rounded-full text-lg font-bold">
-                      Book Free Consultation
+                   <Button size="lg" variant="secondary" className="h-14 px-10 rounded-full text-lg font-bold" asChild>
+                     <Link href="/get-started">
+                       Book Free Consultation
+                     </Link>
                    </Button>
-                   <Button size="lg" className="h-14 px-10 rounded-full text-lg border-2 border-primary-foreground bg-transparent hover:bg-primary-foreground/10 text-primary-foreground">
-                      Call Us Now
+                   <Button size="lg" className="h-14 px-10 rounded-full text-lg border-2 border-primary-foreground bg-transparent hover:bg-primary-foreground/10 text-primary-foreground" asChild>
+                     <a href="tel:+919346421126">
+                       Call Us Now
+                     </a>
                    </Button>
                 </div>
              </div>
@@ -336,7 +349,7 @@ export default function CounsellingPage() {
       </section>
 
       {/* ================= TESTIMONIALS (Minimal) ================= */}
-      <section className="py-24 bg-secondary/10">
+      <section id="success-stories" className="py-24 bg-secondary/10">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Trusted by students like you</h2>

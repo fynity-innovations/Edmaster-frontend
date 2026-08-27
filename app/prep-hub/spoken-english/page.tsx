@@ -364,7 +364,7 @@ export default function SpokenEnglishPage() {
               <Link href="/get-started">Get Started for Free</Link>
             </Button>
             <Button size="lg" variant="outline" className="h-16 px-10 rounded-xl text-lg border-white/20 text-white bg-white/10 hover:text-white" asChild>
-              <Link href="/contact">
+              <Link href="/get-started">
                 <Phone className="w-5 h-5 mr-2" />
                 Talk to Counselor
               </Link>

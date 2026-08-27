@@ -173,7 +173,7 @@ export default function IeltsCoachingPage() {
       <section className="py-24 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Learners Choose UConnect?</h2>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Learners Choose EdMaster?</h2>
             <p className="text-lg text-slate-600">A structured approach to help you master every module of IELTS.</p>
           </div>
 
@@ -333,8 +333,10 @@ export default function IeltsCoachingPage() {
                   </li>
                 ))}
               </ul>
-              <Button size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl h-12">
-                Enroll Now
+              <Button size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl h-12" asChild>
+                <Link href="/get-started">
+                  Enroll Now
+                </Link>
               </Button>
             </div>
 
@@ -365,8 +367,10 @@ export default function IeltsCoachingPage() {
                   </li>
                 ))}
               </ul>
-              <Button size="lg" variant="outline" className="w-full border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl h-12">
-                View Details
+              <Button size="lg" variant="outline" className="w-full border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl h-12" asChild>
+                <Link href="/get-started">
+                  View Details
+                </Link>
               </Button>
             </div>
 
@@ -408,7 +412,11 @@ export default function IeltsCoachingPage() {
                 <BookOpen className="w-16 h-16 text-sky-400 mx-auto mb-4" />
                 <h3 className="text-xl font-bold mb-2">Weekend Special</h3>
                 <p className="text-sm text-indigo-200 mb-6">Live Grammar & Vocab Lecture every Saturday Morning (10:00 AM)</p>
-                <Button className="w-full bg-white text-indigo-900 hover:bg-indigo-50 font-bold">Claim Free Access</Button>
+                <Button className="w-full bg-white text-indigo-900 hover:bg-indigo-50 font-bold" asChild>
+                  <Link href="/get-started">
+                    Claim Free Access
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>
@@ -453,7 +461,7 @@ export default function IeltsCoachingPage() {
               <Link href="/get-started">Enroll Now</Link>
             </Button>
             <Button size="lg" variant="outline" className="h-16 px-10 rounded-xl text-lg border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-primary" asChild>
-              <Link href="/contact">
+              <Link href="/get-started">
                 <Phone className="w-5 h-5 mr-2" />
                 Talk to Counselor
               </Link>
