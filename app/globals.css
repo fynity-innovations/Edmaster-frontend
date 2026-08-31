@@ -207,19 +207,3 @@
     animation: none;
   }
 }
-
-/* TEMPORARY — confetti for the soft-launch birthday popup (components/birthday-popup.tsx).
-   Safe to delete together with that component. */
-@keyframes cnp-fall {
-  0% {
-    transform: translateY(-10vh) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.9;
-  }
-  100% {
-    transform: translateY(105vh) rotate(720deg);
-    opacity: 0.9;
-  }
-}
